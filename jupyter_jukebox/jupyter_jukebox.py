@@ -68,3 +68,4 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     control = widgets.HBox([slider,label])
     
     display(widgets.VBox([control,fig.canvas]))
+    return fig,ax
