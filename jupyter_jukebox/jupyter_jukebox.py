@@ -63,8 +63,6 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
             ax.relim()
             new_lims = [ax.dataLim.y0, ax.dataLim.y0+ax.dataLim.height]
             ax.set_ylim([new if abs(new)>abs(cur) else cur for new,cur in zip(cur_lims,new_lims)])
-#         ax.relim()
-#         ax.autoscale_view()
         fig.canvas.draw_idle()
     slider.observe(update,names='value')
     control = widgets.HBox([slider,label])
