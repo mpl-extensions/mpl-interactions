@@ -2,6 +2,12 @@ import ipywidgets as widgets
 from IPython.display import display
 from numpy import asarray
 import matplotlib.pyplot as plt
+
+# functions that are methods
+__all__ = [
+    'single_param_interact',
+]
+
 def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_string='{:.1f}',plot_kwargs=None):
     """
     A function to easily create an interactive plot 1D with a slider for a parameter.
