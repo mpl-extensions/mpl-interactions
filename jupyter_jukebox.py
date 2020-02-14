@@ -65,7 +65,6 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
         if y_scale=='auto':
             ax.relim()
             ax.autoscale_view()
-            ax.set_
         elif y_scale=='stretch':
             ax.relim()
             new_lims = [ax.dataLim.y0, ax.dataLim.y0+ax.dataLim.height]
