@@ -1,11 +1,14 @@
 import ipywidgets as widgets
 from IPython.display import display
-from numpy import asarray
+from numpy import asarray, abs, argmin
 import matplotlib.pyplot as plt
+from collections.abc import Iterable
 
 # functions that are methods
 __all__ = [
     'single_param_interact',
+    'figure',
+    'nearest_idx',
 ]
 
 def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_string='{:.1f}',plot_kwargs=None):
@@ -79,3 +82,29 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     
     display(widgets.VBox([control,fig.canvas]))
     return fig,ax
+
+
+def figure(figsize=1,*args,**kwargs):
+    if not isinstance(figsize,Iterable):
+        figsize = [figsize*x for x in plt.rcParams['figure.figsize']]
+    return plt.figure(figsize=figsize,*args,**kwargs)
+
+def nearest_idx(array,value,axis=None):
+    """
+    Return the index of the array that is closest to value. Equivalent to
+    `np.argmin(np.abs(array-value))`
+    
+    Parameters
+    ----------
+    array : arraylike
+    value : Scalar
+    axis  : int, optional
+        From np.argmin: "By default, the index is into the flattened array, otherwise
+        along the specified axis."
+    Returns
+    -------
+    idx : IndexArray
+        index of array that most closely matches value. If axis=None this will be an integer
+    """
+    array = asarray(array)
+    return argmin(abs(array-value),axis=axis)
