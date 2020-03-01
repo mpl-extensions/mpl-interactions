@@ -17,7 +17,7 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     """
     A function to easily create an interactive plot 1D with a slider for a parameter.
     
-    parameters
+    Parameters
     ----------
     x : arraylike
         x values a which to evaluate the function
@@ -103,6 +103,7 @@ def nearest_idx(array,value,axis=None):
     axis  : int, optional
         From np.argmin: "By default, the index is into the flattened array, otherwise
         along the specified axis."
+
     Returns
     -------
     idx : IndexArray
@@ -115,9 +116,9 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     
     """
     Parameters
-    ---------
+    ----------
     X,Y : 1D array
-    heatmaps : arraylike
+    heatmaps : array_like
        must be 2-D or 3-D. If 3-D the last two axes should be (X,Y) 
     heatmap_names : (String, String, ...)
         An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
@@ -129,7 +130,8 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     figsize : (float, float) optional
         figure size to pass to `plt.subplots`
     labels : (string, string), optional
-    returns
+
+    Returns
     -------
     fig : matplotlib figure
     ax  : tuple of axes
