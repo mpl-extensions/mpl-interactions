@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Functions &mdash; Jupyter-jukebox 0.12 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script type="text/javascript" src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="Examples.html" />
+    <link rel="prev" title="Installation" href="Installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Jupyter-jukebox
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/single_param_interact.html">Interactive line plots</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jupyter-jukebox</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/functions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-jupyter_jukebox">
+<span id="functions"></span><h1>Functions<a class="headerlink" href="#module-jupyter_jukebox" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="jupyter_jukebox.single_param_interact">
+<code class="sig-prename descclassname">jupyter_jukebox.</code><code class="sig-name descname">single_param_interact</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">param_values</em>, <em class="sig-param">f</em>, <em class="sig-param">y_scale='stretch'</em>, <em class="sig-param">slider_format_string='{:.1f}'</em>, <em class="sig-param">plot_kwargs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#jupyter_jukebox.single_param_interact" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to easily create an interactive plot 1D with a slider for a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>x</strong><span class="classifier">arraylike</span></dt><dd><p>x values a which to evaluate the function</p>
+</dd>
+<dt><strong>f</strong><span class="classifier">function</span></dt><dd><p>Function with siganture f(x, param) where param is what you
+would like vary. Doesn’t need to be named param</p>
+</dd>
+<dt><strong>param_values</strong><span class="classifier">arraylike</span></dt><dd><p>The values of the parameter to be availiable in the slider</p>
+</dd>
+<dt><strong>y_scale</strong><span class="classifier">string or tuple of floats, optional</span></dt><dd><p>If a tuple it will be passed to ax.set_ylim. Other options are:
+‘auto’: rescale the y axis for every redraw
+‘stretch’: only ever expand the ylims.</p>
+</dd>
+<dt><strong>slider_format_string</strong><span class="classifier">string</span></dt><dd><p>A valid format string, this will be used to render
+the current value of the parameter</p>
+</dd>
+<dt><strong>plot_kwargs</strong><span class="classifier">None or dict</span></dt><dd><p>Keyword arguments to pass to plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="jupyter_jukebox.nearest_idx">
+<code class="sig-prename descclassname">jupyter_jukebox.</code><code class="sig-name descname">nearest_idx</code><span class="sig-paren">(</span><em class="sig-param">array</em>, <em class="sig-param">value</em>, <em class="sig-param">axis=None</em><span class="sig-paren">)</span><a class="headerlink" href="#jupyter_jukebox.nearest_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the index of the array that is closest to value. Equivalent to
+<cite>np.argmin(np.abs(array-value))</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>array</strong><span class="classifier">arraylike</span></dt><dd></dd>
+<dt><strong>value</strong><span class="classifier">Scalar</span></dt><dd></dd>
+<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>From np.argmin: “By default, the index is into the flattened array, otherwise
+along the specified axis.”</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>idx</strong><span class="classifier">IndexArray</span></dt><dd><p>index of array that most closely matches value. If axis=None this will be an integer</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="jupyter_jukebox.heatmap_slicer">
+<code class="sig-prename descclassname">jupyter_jukebox.</code><code class="sig-name descname">heatmap_slicer</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em>, <em class="sig-param">heatmaps</em>, <em class="sig-param">slices='horizontal'</em>, <em class="sig-param">heatmap_names=None</em>, <em class="sig-param">max_cols=None</em>, <em class="sig-param">figsize=(18</em>, <em class="sig-param">9)</em>, <em class="sig-param">linecolor='k'</em>, <em class="sig-param">labels=('X'</em>, <em class="sig-param">'Y')</em>, <em class="sig-param">interaction_type='move'</em><span class="sig-paren">)</span><a class="headerlink" href="#jupyter_jukebox.heatmap_slicer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X,Y</strong><span class="classifier">1D array</span></dt><dd></dd>
+<dt><strong>heatmaps</strong><span class="classifier">array_like</span></dt><dd><p>must be 2-D or 3-D. If 3-D the last two axes should be (X,Y)</p>
+</dd>
+<dt><strong>heatmap_names</strong><span class="classifier">(String, String, …)</span></dt><dd><p>An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps</p>
+</dd>
+<dt><strong>slice</strong><span class="classifier">{‘horizontal’, ‘vertical’, ‘both’}</span></dt><dd><p>Direction to draw slice on heatmap. both will draw horizontal and vertical traces on the same
+plot, while both_separate will make a line plot for each.</p>
+</dd>
+<dt><strong>max_cols</strong><span class="classifier">int, optional - not working yet :(</span></dt><dd><p>Maximum number of columns to allow in the subplot</p>
+</dd>
+<dt><strong>figsize</strong><span class="classifier">(float, float) optional</span></dt><dd><p>figure size to pass to <cite>plt.subplots</cite></p>
+</dd>
+<dt><strong>labels</strong><span class="classifier">(string, string), optional</span></dt><dd></dd>
+<dt><strong>interaction_type</strong><span class="classifier">str</span></dt><dd><p>Update on mouse movement or mouse click. Options are {‘move’,’click’}</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig</strong><span class="classifier">matplotlib figure</span></dt><dd></dd>
+<dt><strong>ax</strong><span class="classifier">tuple of axes</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ian Hunt-Isaak
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
