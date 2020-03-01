@@ -112,7 +112,7 @@ def nearest_idx(array,value,axis=None):
     array = asarray(array)
     return argmin(abs(array-value),axis=axis)
 
-def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_cols=None,figsize=(18,9),linecolor='k',labels=('X','Y')):
+def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_cols=None,figsize=(18,9),linecolor='k',labels=('X','Y'),interaction_type='move'):
     
     """
     Parameters
@@ -130,6 +130,8 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     figsize : (float, float) optional
         figure size to pass to `plt.subplots`
     labels : (string, string), optional
+    interaction_type : str
+        Update on mouse movement or mouse click. Options are {'move','click'}
 
     Returns
     -------
@@ -153,11 +155,11 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         else:
             raise ValueError('Valid options for slices are {horizontal, vertical, both}')
 
-    
+
     heatmaps = asarray(heatmaps)
     if heatmap_names is None:
         heatmap_names = [f'heatmap_{i}' for i in range(heatmaps.shape[0])]
-        
+
     if heatmaps.ndim == 3:
         num_axes = num_line_axes + heatmaps.shape[0]
         if type(heatmap_names) is str or (len(heatmap_names) != heatmaps.shape[0]):
@@ -169,15 +171,12 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         num_axes = num_line_axes + 1
     else:
         raise ValueError(f"heatmaps must be 2D or 3D but is {heatmaps.ndim}D")
-    heatmaps = swapaxes(heatmaps,1,2)
-        
-    
-    
+
+
     fig, axes = plt.subplots(1,num_axes,figsize=figsize)
     hlines = []
     vlines = []
-    idx = 50
-    
+    init_idx = 0
     axes[0].set_ylabel(labels[1])
     for i,ax in enumerate(axes[:-num_line_axes]):
         ax.pcolormesh(X,Y,heatmaps[i])
@@ -185,14 +184,14 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         ax.set_title(heatmap_names[i])
         if i>0:
             ax.set_yticklabels([])
-        
+
         if horiz:
-            data_line = axes[horiz_axis].plot(X,heatmaps[i,idx,:],label=f"{heatmap_names[i]}")[0]
-            hlines.append((ax.axhline(Y[idx],color=linecolor),data_line))
+            data_line = axes[horiz_axis].plot(X,heatmaps[i,init_idx,:],label=f"{heatmap_names[i]}")[0]
+            hlines.append((ax.axhline(Y[init_idx],color=linecolor),data_line))
         if vert:
-            data_line = axes[vert_axis].plot(Y,heatmaps[i,:,idx],label=f"{heatmap_names[i]}")[0]
-            vlines.append((ax.axvline(X[idx],color=linecolor),data_line))
-    
+            data_line = axes[vert_axis].plot(Y,heatmaps[i,:,init_idx],label=f"{heatmap_names[i]}")[0]
+            vlines.append((ax.axvline(X[init_idx],color=linecolor),data_line))
+
     minimum = min(heatmaps)
     maximum = max(heatmaps)
     if vert:
@@ -203,15 +202,22 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         axes[horiz_axis].set_title('Horizontal')
         axes[horiz_axis].set_ylim([minimum,maximum])
         axes[horiz_axis].legend()
-        
+
     def update_lines(event):
-        for i,lines in enumerate(hlines):
-            y_idx = nearest_idx(Y,event.ydata)
-            lines[0].set_ydata(Y[y_idx])
-            lines[1].set_ydata(heatmaps[i,y_idx,:])
-        for i,lines in enumerate(vlines):
-            x_idx = nearest_idx(X,event.xdata)
-            lines[0].set_xdata(X[x_idx])
-            lines[1].set_ydata(heatmaps[i,:,x_idx])
-    fig.canvas.mpl_connect('button_press_event',update_lines) 
+        if event.inaxes is not None:
+            for i,lines in enumerate(hlines):
+                y_idx = nearest_idx(Y,event.ydata)
+                lines[0].set_ydata(Y[y_idx])
+                lines[1].set_ydata(heatmaps[i,y_idx,:])
+            for i,lines in enumerate(vlines):
+                x_idx = nearest_idx(X,event.xdata)
+                lines[0].set_xdata(X[x_idx])
+                lines[1].set_ydata(heatmaps[i,:,x_idx])
+    if interaction_type == 'move':
+        fig.canvas.mpl_connect('motion_notify_event',update_lines) 
+    elif interaction_type == 'click':
+        fig.canvas.mpl_connect('button_press_event',update_lines) 
+    else:
+        plt.close(fig)
+        raise ValueError(f'{interaction_type} is not a valid option for interaction_type, valid options are \'click\' or \'move\'')
     return fig,axes
