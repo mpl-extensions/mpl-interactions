@@ -55,6 +55,9 @@ coverage.xml
 *.mo
 *.pot
 
+#sphinx
+docs/_build/doctrees
+
 # Django stuff:
 *.log
 local_settings.py
