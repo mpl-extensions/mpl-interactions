@@ -40,7 +40,6 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     """
     x = asarray(x)
     funcs = atleast_1d(f)
-    plot_kwargs = atleast_1d(plot_kwargs)
     param_values = asarray(param_values)
     
     if x.ndim != 1:
@@ -51,7 +50,7 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
         plot_kwargs = [{}]*len(funcs)
     else:
         plot_kwargs = atleast_1d(plot_kwargs)
-    
+        
     #create initial plot
     plt.ioff() # turn off interactive mode briefly to prevent extra figure appearing
     fig = plt.figure()
