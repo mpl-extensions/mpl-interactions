@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 from IPython.display import display
-from numpy import asarray, abs, argmin, min, max, swapaxes
+from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d
 import matplotlib.pyplot as plt
 from collections.abc import Iterable
 
@@ -21,9 +21,10 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     ----------
     x : arraylike
         x values a which to evaluate the function
-    f : function
-        Function with siganture f(x, param) where param is what you
-        would like vary. Doesn't need to be named param
+    f : function or iterable of functions
+        Each function should have signature siganture f(x, param) where param is what you
+        would like vary. Doesn't need to be named param. If f is iterable then plot_kwargs
+        must be the same 
     param_values : arraylike
         The values of the parameter to be availiable in the slider
     y_scale : string or tuple of floats, optional
@@ -33,10 +34,13 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     slider_format_string : string
         A valid format string, this will be used to render
         the current value of the parameter
-    plot_kwargs : None or dict
-        Keyword arguments to pass to plot
+    plot_kwargs : None, dict, or iterable of dicts
+        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
+        None or be iterable.
     """
     x = asarray(x)
+    funcs = atleast_1d(f)
+    plot_kwargs = atleast_1d(plot_kwargs)
     param_values = asarray(param_values)
     
     if x.ndim != 1:
@@ -44,14 +48,18 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     if param_values.ndim != 1:
         raise ValueError(f'param_values must be 1D but is {param_values.ndim}')
     if plot_kwargs is None:
-        plot_kwargs = {}
+        plot_kwargs = [{}]*len(funcs)
+    else:
+        plot_kwargs = atleast_1d(plot_kwargs)
     
     #create initial plot
     plt.ioff() # turn off interactive mode briefly to prevent extra figure appearing
     fig = plt.figure()
     ax = fig.gca()
     plt.ion()
-    line = ax.plot(x,f(x,param_values[0]),**plot_kwargs)[0]
+    lines = []
+    for i,f in enumerate(funcs):
+        lines.append(ax.plot(x,f(x,param_values[0]),**plot_kwargs[i])[0])
     if not isinstance(y_scale,str):
         ax.set_ylim(y_scale)
     
@@ -65,7 +73,8 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
         label.value = slider_format_string.format(param_values[slider.value])
         
         # update plot
-        line.set_data(x,f(x,param_values[slider.value]))
+        for i,f in enumerate(funcs):
+            lines[i].set_data(x,f(x,param_values[slider.value]))
         cur_lims = ax.get_ylim()
         if y_scale=='auto':
             ax.relim()
