@@ -12,6 +12,9 @@ conda install -c conda-forge ipympl
 conda install nodejs
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install jupyter-matplotlib
+git clone https://github.com/ianhi/jupyter-jukebox.git .
+cd jupyter-jukebox
+python setup.py install
 ```
 ## Documentation
 https://ianhi.github.io/jupyter-jukebox/_build/html/Installation.html
