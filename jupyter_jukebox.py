@@ -64,7 +64,7 @@ def single_param_interact(x,param_values,f,y_scale='stretch',slider_format_strin
     
     # make widgets
     label = widgets.Label(value=f'{param_values[0]}')
-    slider = widgets.IntSlider(min=0,max=param_values.size,readout=False)
+    slider = widgets.IntSlider(min=0, max=param_values.size-1, readout=False)
     
     #update function
     def update(change):
