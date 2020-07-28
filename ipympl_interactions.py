@@ -31,7 +31,6 @@ def interactive_plot_factory(ax, f, x=None,
     """
     params = {}
     funcs = atleast_1d(f)
-    print(plot_kwargs)
 
     def update(change, key, label):
         params[key] = kwargs[key][change['new']]
@@ -80,7 +79,9 @@ def interactive_plot_factory(ax, f, x=None,
             raise ValueError(f'x must be None or be 1D but is {x.ndim}D')
 
     if plot_kwargs is None:
-        plot_kwargs = [{}]*len(funcs)
+        plot_kwargs = []
+        for f in funcs:
+            plot_kwargs.append({'label':f.__name__})
     else:
         plot_kwargs = atleast_1d(plot_kwargs)
         assert len(plot_kwargs) == len(funcs)
