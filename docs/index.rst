@@ -9,7 +9,7 @@ Welcome to Jupyter-jukebox's documentation!
    Examples
    
 
-.. image:: images/single_param_interact.gif
+.. image:: images/interactive-plot.gif
 .. image:: images/heatmap_slicer.gif
 
 Indices and tables

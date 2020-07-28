@@ -22,7 +22,7 @@ If you use jupyterlab make sure you follow the full instructions in the ipympl r
 
 
 ## Documentation
-https://ianhi.github.io/jupyter-jukebox/_build/html/Installation.html
+https://ianhi.github.io/ipympl-interactions/_build/html/Installation.html
 
 ## Examples with GIFs!
 Tragically neither github nor the sphinx documentation render the actual moving plots so here are gifs of the functions. The code for these can be found in the notebooks in the examples directory.
