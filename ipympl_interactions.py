@@ -329,6 +329,7 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     return fig,axes
 
 
+# based on https://gist.github.com/tacaswell/3144287
 def zoom_factory(ax, base_scale = 1.1):
     """
     parameters
