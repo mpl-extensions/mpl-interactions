@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(
-    name="jupyter_jukebox",
-    version="0.12",
-    py_modules=['jupyter_jukebox']
+    name="ipympl_interactions",
+    version="0.1",
+    py_modules=['ipympl_interactions']
 )

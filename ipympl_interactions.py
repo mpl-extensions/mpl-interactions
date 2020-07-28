@@ -1,104 +1,47 @@
 import ipywidgets as widgets
-from IPython.display import display
+from IPython.display import display as ipy_display
 from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d
-import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure as mpl_figure
+from matplotlib.pyplot import ioff, ion, rcParams
+from matplotlib import is_interactive
 from collections.abc import Iterable
+from functools import partial
 
 
 # functions that are methods
 __all__ = [
-    'single_param_interact',
-    'single_param_interact_factory',
-    'many_param_interact_factory',
+    'interactive_plot_factory',
+    'interactive_plot',
     'figure',
     'nearest_idx',
     'heatmap_slicer'
 ]
 
 
-def many_param_interact_factory(ax, f, param_values, x=None,
+def interactive_plot_factory(ax, f, x=None,
                                  y_scale='stretch',
                                  slider_format_string='{:.1f}',
-                                 plot_kwargs=[{}],
-                                 title=None,):
+                                 plot_kwargs=None,
+                                 title=None, **kwargs):
     """
-    A function to easily create an interactive plot 1D with a slider for a parameter.
+    Use this function for maximum control over layout of the widgets
     
-    Parameters
-    ----------
     ax : matplotlib axes
     f : function or iterable of functions
-        Each function should have signature f(param). If x=None then f(param) must return [x, y]
-        If f is iterable then plot_kwargs must be as well. 
-    param_values : arraylike
-        The values of the parameter to be availiable in the slider
-    x : arraylike or None
-        x values a which to evaluate the function. If None the function(s) f should
-        return a list of [x, y]
-    ax : matplolibt.Axes or None
-        axes on which to 
-    y_scale : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_ylim. Other options are:
-        'auto': rescale the y axis for every redraw
-        'stretch': only ever expand the ylims.
-    slider_format_string : string
-        A valid format string, this will be used to render
-        the current value of the parameter
-    plot_kwargs : None, dict, or iterable of dicts
-        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
-        None or be iterable.
-    Use this function if you want to manage the layout of widgets yourself
-
-    param_values : array_like
-        e.g. a list of numpy arrays
-    returns
-    -------
-    slider 
-        The slider that will affect the plot
     """
-    fig = ax.get_figure()
+    params = {}
     funcs = atleast_1d(f)
-    param_values = asarray(param_values)
-    
-    if x is not None:
-        x = asarray(x)
-        if x.ndim != 1:
-            raise ValueError(f'x must be None or be 1D but is {x.ndim}D')
-    if len(param_values) != 2:
-        raise ValueError(f'param_values must be 2D but is {len(param_values)}D')
-    if plot_kwargs is None:
-        plot_kwargs = [{}]*len(funcs)
-    else:
-        plot_kwargs = atleast_1d(plot_kwargs)
-    lines = []
-    init_params = []
-    for i in range(len(param_values)):
-        init_params.append(param_values[i][0])
-    for i,f in enumerate(funcs):
 
-        if x is not None:
-            lines.append(ax.plot(x,f(x, *init_params), **plot_kwargs[i])[0])
-        else:
-            lines.append(ax.plot(*f(*init_params), **plot_kwargs[i])[0])
-    if not isinstance(y_scale,str):
-        ax.set_ylim(y_scale)
-    
-    
-    #update function
-    def update(change):
-        # update label
-        params = []
-        for i in range(len(param_values)):
-
-            labels[i].value = slider_format_string.format(param_values[i][sliders[i].value])
-            params.append(param_values[i][sliders[i].value])
+    def update(change, key, label):
+        params[key] = kwargs[key][change['new']]
+        label.value = slider_format_string.format(kwargs[key][change['new']])
         
         # update plot
         for i,f in enumerate(funcs):
             if x is not None:
-                lines[i].set_data(x, f(x, *params))
+                lines[i].set_data(x, f(x, **params))
             else:
-                lines[i].set_data(*f(*params))
+                lines[i].set_data(*f(**params))
         cur_lims = ax.get_ylim()
         if y_scale=='auto':
             ax.relim()
@@ -112,69 +55,66 @@ def many_param_interact_factory(ax, f, param_values, x=None,
                 ]
             ax.set_ylim(new_lims)
         fig.canvas.draw_idle()
-    # make sliders
+    fig = ax.get_figure()
     labels = []
     sliders = []
     controls = []
-    for p_val in param_values:
-        labels.append( widgets.Label(value=f'{p_val[0]}'))
-        sliders.append(widgets.IntSlider(min=0, max=p_val.size-1, readout=False))
-        sliders[-1].observe(update, names='value')
-        controls.append(widgets.HBox([sliders[-1], labels[-1]]))
-    return widgets.VBox(controls)
-
-def single_param_interact_factory(ax, f, param_values, x=None,
-                                 y_scale='stretch',
-                                 slider_format_string='{:.1f}',
-                                 plot_kwargs=[{}],
-                                 title=None,):
-    """
-    A function to easily create an interactive plot 1D with a slider for a parameter.
-    
-    Parameters
-    ----------
-    ax : matplotlib axes
-    f : function or iterable of functions
-        Each function should have signature f(param). If x=None then f(param) must return [x, y]
-        If f is iterable then plot_kwargs must be as well. 
-    param_values : arraylike
-        The values of the parameter to be availiable in the slider
-    x : arraylike or None
-        x values a which to evaluate the function. If None the function(s) f should
-        return a list of [x, y]
-    ax : matplolibt.Axes or None
-        axes on which to 
-    y_scale : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_ylim. Other options are:
-        'auto': rescale the y axis for every redraw
-        'stretch': only ever expand the ylims.
-    slider_format_string : string
-        A valid format string, this will be used to render
-        the current value of the parameter
-    plot_kwargs : None, dict, or iterable of dicts
-        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
-        None or be iterable.
-    """
+    for key, val in kwargs.items():
+        val = atleast_1d(val)
+        if val.ndim > 1:
+            raise ValueError(f'{key} is {val.ndim}D but can only be 1D or a scalar')
+        if len(val)==1:
+            # don't need to create a slider
+            fixed_params[key] = val
+            params[key] = val
+        else:
+            params[key] = val[0]
+            labels.append( widgets.Label(value=f'{val[0]}'))
+            sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
+            controls.append(widgets.HBox([sliders[-1], labels[-1]]))
+            sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
     if x is not None:
         x = asarray(x)
         if x.ndim != 1:
-            raise ValueError(f'x must be None or 1D but it is {x.ndim}D')
-    if param_values.ndim != 1:
-        raise ValueError(f'param_values must be 1D but it is {param_values.ndim}D')
-    return many_param_interact_factory(ax, f, [param_values], x, y_scale, slider_format_string, plot_kwargs)
+            raise ValueError(f'x must be None or be 1D but is {x.ndim}D')
+
+    if plot_kwargs is None:
+        plot_kwargs = [{}]*len(funcs)
+    else:
+        plot_kwargs = atleast_1d(plot_kwargs)
+        assert len(plot_kwargs) == len(funcs)
+
+    lines = []
+    for i,f in enumerate(funcs):
+
+        if x is not None:
+            lines.append(ax.plot(x,f(x, **params), **plot_kwargs[i])[0])
+        else:
+            lines.append(ax.plot(*f(**params), **plot_kwargs[i])[0])
+    if not isinstance(y_scale,str):
+        ax.set_ylim(y_scale)
 
 
-def single_param_interact(f, param_values, x=None, ax=None, y_scale='stretch', slider_format_string='{:.1f}',plot_kwargs=None, title=None,):
+
+    return controls
+
+def interactive_plot(f, x=None, y_scale='stretch',
+                        slider_format_string='{:.1f}',
+                        plot_kwargs=[{}],
+                        title=None,figsize=None, display=True, **kwargs):
     """
-    A function to easily create an interactive plot 1D with a slider for a parameter.
+    Make a plot interactive using sliders. just pass the keyword arguments of the function
+    you want to plot to this function like so:
     
-    Parameters
+    ```
+    tau = np.linspace()
+    def f(x, tau):
+        return np.sin(x*tau)
+    interactive_plot(f, tau=tau)
+    ```
+
+    parameters
     ----------
-    f : function or iterable of functions
-        Each function should have signature f(param). If x=None then f(param) must return [x, y]
-        If f is iterable then plot_kwargs must be as well. 
-    param_values : arraylike
-        The values of the parameter to be availiable in the slider
     x : arraylike or None
         x values a which to evaluate the function. If None the function(s) f should
         return a list of [x, y]
@@ -190,22 +130,37 @@ def single_param_interact(f, param_values, x=None, ax=None, y_scale='stretch', s
     plot_kwargs : None, dict, or iterable of dicts
         Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
         None or be iterable.
+    figsize : tuple or scalar
+        If tuple it will be used as the matplotlib figsize. If a number
+        then it will be used to scale the current rcParams figsize
+    display : boolean
+        If True then the output and controls will be automatically displayed
+
+    returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axis
+    controls : list of slider widgets
     """
-        
-    #create initial plot
-    plt.ioff() # turn off interactive mode briefly to prevent extra figure appearing
-    fig = plt.figure()
+                                 
+    was_interactive = False
+    if is_interactive():
+        was_interactive = True
+        ioff()
+    fig = figure()
     ax = fig.gca()
-    plt.ion()
-    control = single_param_interact_factory(ax,f,param_values,x, y_scale, slider_format_string, plot_kwargs, title)
-    display(widgets.VBox([control,fig.canvas]))
-    return fig, ax
+    if was_interactive:
+        ion()
+    controls = widgets.VBox(interactive_plot_factory(ax, f, x=x,**kwargs))
+    if display:
+        ipy_display(widgets.VBox([controls, fig.canvas]))
+    return fig, ax, controls
 
 
 def figure(figsize=1,*args,**kwargs):
     if not isinstance(figsize,Iterable):
-        figsize = [figsize*x for x in plt.rcParams['figure.figsize']]
-    return plt.figure(figsize=figsize,*args,**kwargs)
+        figsize = [figsize*x for x in rcParams['figure.figsize']]
+    return mpl_figure(figsize=figsize,*args,**kwargs)
 
 def nearest_idx(array,value,axis=None):
     """
@@ -242,8 +197,21 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         Direction to draw slice on heatmap. both will draw horizontal and vertical traces on the same
         plot, while both_separate will make a line plot for each.
     max_cols : int, optional - not working yet :(
-        Maximum number of columns to allow in the subplot
-    figsize : (float, float) optional
+        Maximum number of columns to allo    x : arraylike or None
+        x values a which to evaluate the function. If None the function(s) f should
+        return a list of [x, y]
+    ax : matplolibt.Axes or None
+        axes on which to 
+    y_scale : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_ylim. Other options are:
+        'auto': rescale the y axis for every redraw
+        'stretch': only ever expand the ylims.
+    slider_format_string : string
+        A valid format string, this will be used to render
+        the current value of the parameter
+    plot_kwargs : None, dict, or iterable of dicts
+        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
+        None or be iterable.l
         figure size to pass to `plt.subplots`
     labels : (string, string), optional
     interaction_type : str
