@@ -17,6 +17,7 @@ __all__ = [
     'nearest_idx',
     'heatmap_slicer',
     'zoom_factory',
+    'panhandler',
 ]
 
 # use until https://github.com/matplotlib/matplotlib/pull/17371 has a conclusion
@@ -399,3 +400,58 @@ def zoom_factory(ax, base_scale = 1.1):
 
     #return the disconnect function
     return disconnect_zoom
+
+class panhandler:
+    """
+    enable click to pan image.
+    button determines which button will be used (default right click)
+    Left: 1
+    Middle: 2
+    Right: 3
+    """
+    def __init__(self, fig, button=3):
+        self.fig = fig
+        self._id_drag = None
+        self.button = button
+        self.fig.canvas.mpl_connect('button_press_event', self.press)
+        self.fig.canvas.mpl_connect('button_release_event', self.release)
+
+    def _cancel_action(self):
+        self._xypress = []
+        if self._id_drag:
+            self.fig.canvas.mpl_disconnect(self._id_drag)
+            self._id_drag = None
+        
+    def press(self, event):
+        if event.button != self.button:
+            self._cancel_action()
+            return
+
+        x, y = event.x, event.y
+
+        self._xypress = []
+        for i, a in enumerate(self.fig.get_axes()):
+            if (x is not None and y is not None and a.in_axes(event) and
+                    a.get_navigate() and a.can_pan()):
+                a.start_pan(x, y, event.button)
+                self._xypress.append((a, i))
+                self._id_drag = self.fig.canvas.mpl_connect(
+                    'motion_notify_event', self._mouse_move)
+    def release(self, event):
+        self._cancel_action()
+        self.fig.canvas.mpl_disconnect(self._id_drag)
+
+
+        for a, _ind in self._xypress:
+            a.end_pan()
+        if not self._xypress:
+            self._cancel_action()
+            return
+        self._cancel_action()
+
+    def _mouse_move(self, event):
+        for a, _ind in self._xypress:
+            # safer to use the recorded button at the _press than current
+            # button: # multiple button can get pressed during motion...
+            a.drag_pan(1, event.key, event.x, event.y)
+        self.fig.canvas.draw_idle()
