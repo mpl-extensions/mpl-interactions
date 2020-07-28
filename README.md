@@ -7,21 +7,18 @@ I think that `ipywidgets.interact` is great and I use it myself, but I prefer th
 
 `ipympl-interaction` has three main goals:
 1. Make it 5-10% easier to make an interactive plot line plot
-    - Pass numpy arrays that will become sliders with the value displayed rather than the index (contrast to selectionSlider)
-    - Never have to call `widgets.FloatSlider` again
-    - handles re-limming the y axis
-    - you are only responsible for defining the function you want to plot, not for handling the plotting update logic
+    - Accept numpy arrays as arugments. They will become sliders with the value displayed rather than the index (contrast to selectionSlider)
+    - Handle all the logic for updating the plot - you are only responsible for defining the function you want to plot
 2. Provide a very niche (but very cool) way to compare 2D heatmap
 3. Expand this list with other useful premade ways to interact with plots
     - Viewing slices of an array with imshow and `set_data`
     - other things ????
 
 ## Installation
-
-
 ```bash
 pip install ipympl-interactions
 ```
+If you use jupyterlab make sure you follow the full instructions in the ipympl readme https://github.com/matplotlib/ipympl#install-the-jupyterlab-extension in particular installing jupyterlab-manager.
 
 
 ## Documentation
@@ -31,9 +28,9 @@ https://ianhi.github.io/jupyter-jukebox/_build/html/Installation.html
 Tragically neither github nor the sphinx documentation render the actual moving plots so here are gifs of the functions. The code for these can be found in the notebooks in the examples directory.
 
 
-### single_param_interact
+### interactive_plot
 Easily make a line plot interactive:
-![](docs/images/single_param_interact.gif)
+![](docs/images/interactive-plot.gif)
 
 
 ### heatmap_slicer

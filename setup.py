@@ -5,6 +5,7 @@ setup(
     py_modules=['ipympl_interactions'],
     install_requires = [
         'ipympl>=0.5.6',
+        # implicitly picks up a ipywidgets dep by way of ipympl
     ],
     author          = 'Ian Hunt-Isaak',
     author_email    = 'ianhuntisaak@gmail.com',
