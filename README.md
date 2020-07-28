@@ -1,21 +1,29 @@
-# Jupyter-Jukebox
+# ipympl-interactions
 
-A collection of handy one off functions when working in jupyterlab.
+This library provides a different approach than `ipywidgets.interact` to make an interactive matplotlib plot. When you use `interact` you are responsible for doing all the plotting and updating the plot approriately as the slider values change. In contrast `ipympl-interactions` accepts functions in a more mathematical sense, you just need to provide `f(x, ...) => y` and the library handles all of the plotting and and boilerplate associated with keeping the plot constantly updating.
+
+I think that `ipywidgets.interact` is great and I use it myself, but I prefer the paradigm of just defining the function I want to plot as it makes quick exploration/debugging easier. I also found that I was constantly repeating code to make the interactive plots I want and thus was born this library.
+
+
+`ipympl-interaction` has three main goals:
+1. Make it 5-10% easier to make an interactive plot line plot
+    - Pass numpy arrays that will become sliders with the value displayed rather than the index (contrast to selectionSlider)
+    - Never have to call `widgets.FloatSlider` again
+    - handles re-limming the y axis
+    - you are only responsible for defining the function you want to plot, not for handling the plotting update logic
+2. Provide a very niche (but very cool) way to compare 2D heatmap
+3. Expand this list with other useful premade ways to interact with plots
+    - Viewing slices of an array with imshow and `set_data`
+    - other things ????
 
 ## Installation
 
-This very much depends on having [jupyter-matplotlib](https://github.com/matplotlib/jupyter-matplotlib) installed. So you will first need to install that and then install this library
 
 ```bash
-conda install -c conda-forge ipympl
-
-conda install nodejs
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter labextension install jupyter-matplotlib
-git clone https://github.com/ianhi/jupyter-jukebox.git .
-cd jupyter-jukebox
-python setup.py install
+pip install ipympl-interactions
 ```
+
+
 ## Documentation
 https://ianhi.github.io/jupyter-jukebox/_build/html/Installation.html
 

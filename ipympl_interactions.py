@@ -31,6 +31,7 @@ def interactive_plot_factory(ax, f, x=None,
     """
     params = {}
     funcs = atleast_1d(f)
+    print(plot_kwargs)
 
     def update(change, key, label):
         params[key] = kwargs[key][change['new']]
@@ -93,6 +94,9 @@ def interactive_plot_factory(ax, f, x=None,
             lines.append(ax.plot(*f(**params), **plot_kwargs[i])[0])
     if not isinstance(y_scale,str):
         ax.set_ylim(y_scale)
+    # make sure the home button will work
+    fig.canvas.toolbar.push_current()
+    
 
 
 
@@ -100,7 +104,7 @@ def interactive_plot_factory(ax, f, x=None,
 
 def interactive_plot(f, x=None, y_scale='stretch',
                         slider_format_string='{:.1f}',
-                        plot_kwargs=[{}],
+                        plot_kwargs=None,
                         title=None,figsize=None, display=True, **kwargs):
     """
     Make a plot interactive using sliders. just pass the keyword arguments of the function
@@ -151,7 +155,9 @@ def interactive_plot(f, x=None, y_scale='stretch',
     ax = fig.gca()
     if was_interactive:
         ion()
-    controls = widgets.VBox(interactive_plot_factory(ax, f, x=x,**kwargs))
+    controls = widgets.VBox(interactive_plot_factory(ax, f, x,
+                                        y_scale, slider_format_string,
+                                        plot_kwargs, title, **kwargs))
     if display:
         ipy_display(widgets.VBox([controls, fig.canvas]))
     return fig, ax, controls
