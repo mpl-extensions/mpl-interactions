@@ -2,7 +2,7 @@ import ipywidgets as widgets
 from IPython.display import display as ipy_display
 from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d
 from matplotlib.pyplot import figure as mpl_figure
-from matplotlib.pyplot import ioff, ion, rcParams
+from matplotlib.pyplot import ioff, ion, rcParams, subplots
 from matplotlib import is_interactive
 from collections.abc import Iterable
 from functools import partial
@@ -264,7 +264,7 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         raise ValueError(f"heatmaps must be 2D or 3D but is {heatmaps.ndim}D")
 
 
-    fig, axes = plt.subplots(1,num_axes,figsize=figsize)
+    fig, axes = subplots(1,num_axes,figsize=figsize)
     hlines = []
     vlines = []
     init_idx = 0
