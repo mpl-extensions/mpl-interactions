@@ -2,7 +2,7 @@ from setuptools import setup
 setup(
     name="ipympl_interactions",
     version="0.1",
-    py_modules=['ipympl_interactions']
+    py_modules=['ipympl_interactions'],
     install_requires = [
         'ipympl>=0.5.6',
     ],
