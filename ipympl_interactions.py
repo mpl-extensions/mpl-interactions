@@ -12,11 +12,29 @@ from functools import partial
 __all__ = [
     'interactive_plot_factory',
     'interactive_plot',
+    'ioff',
     'figure',
     'nearest_idx',
     'heatmap_slicer'
 ]
 
+# use until https://github.com/matplotlib/matplotlib/pull/17371 has a conclusion
+class _ioff_class():
+    def __call__(self):
+        """Turn the interactive mode off."""
+        matplotlib.interactive(False)
+        uninstall_repl_displayhook()
+
+    def __enter__(self):
+        self.wasinteractive = isinteractive()
+        self.__call__()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.wasinteractive:
+            matplotlib.interactive(True)
+            install_repl_displayhook()
+        del self.wasinteractive
+ioff = _ioff_class()
 
 def interactive_plot_factory(ax, f, x=None,
                                  y_scale='stretch',
@@ -148,14 +166,9 @@ def interactive_plot(f, x=None, y_scale='stretch',
     controls : list of slider widgets
     """
                                  
-    was_interactive = False
-    if is_interactive():
-        was_interactive = True
-        ioff()
-    fig = figure()
-    ax = fig.gca()
-    if was_interactive:
-        ion()
+    with ioff():
+        fig = figure()
+        ax = fig.gca()
     controls = widgets.VBox(interactive_plot_factory(ax, f, x,
                                         y_scale, slider_format_string,
                                         plot_kwargs, title, **kwargs))
