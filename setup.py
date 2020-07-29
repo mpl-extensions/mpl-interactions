@@ -24,6 +24,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Framework :: Jupyter',
+        'Framework :: Matplolib'
     ],
     url = 'https://github.com/ianhi/ipympl-interactions',
     extras_require = {
