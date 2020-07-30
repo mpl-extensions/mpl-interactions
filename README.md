@@ -39,3 +39,7 @@ Easily make a line plot interactive:
 ### heatmap_slicer
 Compare vertical and horizontal slices across multiple heatmaps:
 ![](docs/images/heatmap_slicer.gif)
+
+
+### scrolling zoom + middle click pan
+![](docs/images/zoom-and-pan.gif)
