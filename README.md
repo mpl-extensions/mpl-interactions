@@ -3,24 +3,25 @@
 
 <img src=docs/images/short-interactive.gif height=200>  <img src=docs/images/tight-layout-heatmap-slicer.gif height=200>
 
-This library provides a different approach than `ipywidgets.interact` to make an interactive matplotlib plot. When using `interact` you are responsible for:
+The main purpose of this library is to provide a different approach than `ipywidgets.interact` to making an interactive matplotlib plot. When using `interact` you are responsible for:
 1. Defining the function to plot `f(x,...) => y`
 2. Handling the plotting logic (`plt.plot`, `fig.cla`, `ax.set_ylim`, etc)
 
-In contrast `ipympl-interactions` accepts functions in a more mathematical sense, you only need provide `f(x, ...) => y` and the plotting and updating boilerplate are handled for you.
+In contrast, with `ipympl-interactions` you only need provide `f(x, ...) => y` and the plotting and updating boilerplate are handled for you.
 
+Additionally there are other useful functions for greater interactivity with matplolib. These are not necessarily dependent on `ipympl` and will probably work in all backends except for inline backends.
+Currently these extra goodies are:
+1. A very niche (but very cool) way to compare 2D heatmaps
+2. scroll to zoom
+3. middle click to pan
+4. `ioff` as a context manager
+5. `figure` that accepts a scalars as `figsize` that will scale the default dimensions
 
-`ipympl-interaction` has three main goals:
-1. Make it easier to make an interactive line plot
-    - Accept numpy arrays as arugments. They will become sliders with the value displayed rather than the index (contrast to selectionSlider)
-    - Handle all the logic for updating the plot - you are only responsible for defining the function you want to plot
-2. Provide a very niche (but very cool) way to compare 2D heatmaps
-3. Provide other useful matplotlib interactions
-    - scroll to zoom
-    - middle click to pan
-    - `ioff` as a context manager
-4. Eventually
-    - interactive_plot2D
+Future functions:
+1. interactive_plot2D
+2. Others?
+    - As I discover a need for more tools I will create them and have them live here. 
+    - If you have an idea feel free to add it :)
 
 
 ## Installation
@@ -28,13 +29,14 @@ In contrast `ipympl-interactions` accepts functions in a more mathematical sense
 git clone https://github.com/ianhi/ipympl-interactions.git
 cd ipympl-interactions
 pip install .
-# soon to be published on pypi
+# hopefully to be published on pypi soon
 ```
 If you use jupyterlab make sure you follow the full instructions in the ipympl readme https://github.com/matplotlib/ipympl#install-the-jupyterlab-extension in particular installing jupyterlab-manager.
 
 
 ## Documentation
-https://ianhi.github.io/ipympl-interactions/_build/html/Installation.html
+Definitely a work in progress - I would recommend checking out the examples directory for now.
+https://ipympl-interactions.readthedocs.io/en/latest/
 
 ## Examples with GIFs!
 Tragically neither github nor the sphinx documentation render the actual moving plots so here are gifs of the functions. The code for these can be found in the notebooks in the examples directory.
