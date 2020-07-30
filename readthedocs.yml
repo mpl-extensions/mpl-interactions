@@ -5,3 +5,7 @@ python:
       - method: setuptools
         path: .
       - requirements: docs/requirements.txt
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/conf.py
