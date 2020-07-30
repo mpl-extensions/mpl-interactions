@@ -168,7 +168,7 @@ def interactive_plot(f, x=None, y_scale='stretch',
     controls : list of slider widgets
     """
                                  
-    with ioff():
+    with ioff:
         fig = figure()
         ax = fig.gca()
     controls = widgets.VBox(interactive_plot_factory(ax, f, x,
