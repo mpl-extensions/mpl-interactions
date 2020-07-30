@@ -9,14 +9,17 @@ I think that `ipywidgets.interact` is great and I use it myself, but I prefer th
 1. Make it 5-10% easier to make an interactive plot line plot
     - Accept numpy arrays as arugments. They will become sliders with the value displayed rather than the index (contrast to selectionSlider)
     - Handle all the logic for updating the plot - you are only responsible for defining the function you want to plot
-2. Provide a very niche (but very cool) way to compare 2D heatmap
+2. Provide a very niche (but very cool) way to compare 2D heatmaps
 3. Expand this list with other useful premade ways to interact with plots
     - Viewing slices of an array with imshow and `set_data`
     - other things ????
 
 ## Installation
 ```bash
-pip install ipympl-interactions
+git clone https://github.com/ianhi/ipympl-interactions.git
+cd ipympl-interactions
+pip install .
+# soon to be published on pypi
 ```
 If you use jupyterlab make sure you follow the full instructions in the ipympl readme https://github.com/matplotlib/ipympl#install-the-jupyterlab-extension in particular installing jupyterlab-manager.
 
@@ -36,3 +39,7 @@ Easily make a line plot interactive:
 ### heatmap_slicer
 Compare vertical and horizontal slices across multiple heatmaps:
 ![](docs/images/heatmap_slicer.gif)
+
+
+### scrolling zoom + middle click pan
+![](docs/images/zoom-and-pan.gif)

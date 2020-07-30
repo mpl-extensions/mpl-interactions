@@ -2,8 +2,8 @@ import ipywidgets as widgets
 from IPython.display import display as ipy_display
 from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d
 from matplotlib.pyplot import figure as mpl_figure
-from matplotlib.pyplot import ioff, ion, rcParams, subplots
-from matplotlib import is_interactive
+from matplotlib.pyplot import ioff, ion, rcParams, subplots, interactive, install_repl_displayhook, uninstall_repl_displayhook
+from matplotlib import is_interactive, interactive
 from collections.abc import Iterable
 from functools import partial
 
@@ -15,23 +15,25 @@ __all__ = [
     'ioff',
     'figure',
     'nearest_idx',
-    'heatmap_slicer'
+    'heatmap_slicer',
+    'zoom_factory',
+    'panhandler',
 ]
 
 # use until https://github.com/matplotlib/matplotlib/pull/17371 has a conclusion
 class _ioff_class():
     def __call__(self):
         """Turn the interactive mode off."""
-        matplotlib.interactive(False)
+        interactive(False)
         uninstall_repl_displayhook()
 
     def __enter__(self):
-        self.wasinteractive = isinteractive()
+        self.wasinteractive = is_interactive()
         self.__call__()
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.wasinteractive:
-            matplotlib.interactive(True)
+            interactive(True)
             install_repl_displayhook()
         del self.wasinteractive
 ioff = _ioff_class()
@@ -325,3 +327,132 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         plt.close(fig)
         raise ValueError(f'{interaction_type} is not a valid option for interaction_type, valid options are \'click\' or \'move\'')
     return fig,axes
+
+
+# based on https://gist.github.com/tacaswell/3144287
+def zoom_factory(ax, base_scale = 1.1):
+    """
+    parameters
+    ----------
+    ax : matplotlib axes object
+        axis on which to implement scroll to zoom
+    base_scale : float
+        how much zoom on each tick of scroll wheel
+ 
+    returns
+    -------
+    disconnect_zoom : function
+        call this to disconnect the scroll listener
+    """
+    def limits_to_range(lim):
+        return lim[1] - lim[0]
+    
+    fig = ax.get_figure() # get the figure of interest
+    fig.canvas.capture_scroll = True
+    toolbar = fig.canvas.toolbar
+    toolbar.push_current()
+    orig_xlim = ax.get_xlim()
+    orig_ylim = ax.get_ylim()
+    orig_yrange = limits_to_range(orig_ylim)
+    orig_xrange = limits_to_range(orig_xlim)
+    orig_center = ((orig_xlim[0]+orig_xlim[1])/2, (orig_ylim[0]+orig_ylim[1])/2)
+    out = widgets.Output()
+    def zoom_fun(event):
+        # get the current x and y limits
+        cur_xlim = ax.get_xlim()
+        cur_ylim = ax.get_ylim()
+        # set the range
+        cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+        cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+        xdata = event.xdata # get event x location
+        ydata = event.ydata # get event y location
+        if event.button == 'up':
+            # deal with zoom in
+            scale_factor = base_scale
+        elif event.button == 'down':
+            # deal with zoom out
+            scale_factor = 1/base_scale
+        else:
+            # deal with something that should never happen
+            scale_factor = 1
+        # set new limits
+        new_xlim = [xdata - (xdata-cur_xlim[0]) / scale_factor,
+                    xdata + (cur_xlim[1]-xdata) / scale_factor]
+        new_ylim = [ydata - (ydata-cur_ylim[0]) / scale_factor,
+                        ydata + (cur_ylim[1]-ydata) / scale_factor]
+        new_yrange = limits_to_range(new_ylim)
+        new_xrange = limits_to_range(new_xlim)
+
+        if abs(new_yrange)>abs(orig_yrange):
+            new_ylim = orig_center[1] -new_yrange/2 , orig_center[1] +new_yrange/2
+        if abs(new_xrange)>abs(orig_xrange):
+            new_xlim = orig_center[0] -new_xrange/2 , orig_center[0] +new_xrange/2
+        ax.set_xlim(new_xlim)
+        ax.set_ylim(new_ylim)
+
+        toolbar.push_current()
+        ax.figure.canvas.draw_idle() # force re-draw
+
+
+    # attach the call back
+    cid = fig.canvas.mpl_connect('scroll_event',zoom_fun)
+    def disconnect_zoom():
+        fig.canvas.mpl_disconnect(cid)    
+
+    #return the disconnect function
+    return disconnect_zoom
+
+class panhandler:
+    """
+    enable click to pan image.
+    button determines which button will be used (default right click)
+    Left: 1
+    Middle: 2
+    Right: 3
+    """
+    def __init__(self, fig, button=3):
+        self.fig = fig
+        self._id_drag = None
+        self.button = button
+        self.fig.canvas.mpl_connect('button_press_event', self.press)
+        self.fig.canvas.mpl_connect('button_release_event', self.release)
+
+    def _cancel_action(self):
+        self._xypress = []
+        if self._id_drag:
+            self.fig.canvas.mpl_disconnect(self._id_drag)
+            self._id_drag = None
+        
+    def press(self, event):
+        if event.button != self.button:
+            self._cancel_action()
+            return
+
+        x, y = event.x, event.y
+
+        self._xypress = []
+        for i, a in enumerate(self.fig.get_axes()):
+            if (x is not None and y is not None and a.in_axes(event) and
+                    a.get_navigate() and a.can_pan()):
+                a.start_pan(x, y, event.button)
+                self._xypress.append((a, i))
+                self._id_drag = self.fig.canvas.mpl_connect(
+                    'motion_notify_event', self._mouse_move)
+    def release(self, event):
+        self._cancel_action()
+        self.fig.canvas.mpl_disconnect(self._id_drag)
+
+
+        for a, _ind in self._xypress:
+            a.end_pan()
+        if not self._xypress:
+            self._cancel_action()
+            return
+        self._cancel_action()
+
+    def _mouse_move(self, event):
+        for a, _ind in self._xypress:
+            # safer to use the recorded button at the _press than current
+            # button: # multiple button can get pressed during motion...
+            a.drag_pan(1, event.key, event.x, event.y)
+        self.fig.canvas.draw_idle()
