@@ -3,6 +3,6 @@ Functions
 =========
 
 
-.. automodule:: jupyter_jukebox
+.. automodule:: ipympl_interactions
    :members:
 

@@ -1,5 +1,5 @@
-Welcome to Jupyter-jukebox's documentation!
-===========================================
+Welcome to ipympl-interactions's documentation!
+===============================================
 
 .. toctree::
    :maxdepth: 2

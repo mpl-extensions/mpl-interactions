@@ -15,16 +15,14 @@ import sys
 sys.path.insert(0, os.path.abspath('../'))
 
 
-import mock
 import sys
-from unittest.mock import MagicMock
 
 #MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'matplotlib.pyplot', 'scipy.interpolate']
 #for mod_name in MOCK_MODULES:
 #    sys.modules[mod_name] = mock.Mock()
 # -- Project information -----------------------------------------------------
 
-project = 'Jupyter-jukebox'
+project = 'ipympl-interactions'
 copyright = '2020, Ian Hunt-Isaak'
 author = 'Ian Hunt-Isaak'
 
@@ -85,4 +83,4 @@ html_static_path = ['_static']
 # following: https://github.com/readthedocs/sphinx_rtd_theme/issues/766#issuecomment-517145293
 # to fix an issue with rendering numpydoc in read the docs style
 def setup(app):
-    app.add_stylesheet("basic.css")
+    app.add_css_file("basic.css")

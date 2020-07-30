@@ -131,13 +131,6 @@ def interactive_plot(f, x=None, y_scale='stretch',
     Make a plot interactive using sliders. just pass the keyword arguments of the function
     you want to plot to this function like so:
     
-    ```
-    tau = np.linspace()
-    def f(x, tau):
-        return np.sin(x*tau)
-    interactive_plot(f, tau=tau)
-    ```
-
     parameters
     ----------
     x : arraylike or None
@@ -166,6 +159,13 @@ def interactive_plot(f, x=None, y_scale='stretch',
     fig : matplotlib figure
     ax : matplotlib axis
     controls : list of slider widgets
+
+    Examples 
+    --------
+    tau = np.linspace()
+    def f(x, tau):
+        return np.sin(x*tau)
+    interactive_plot(f, tau=tau)
     """
                                  
     with ioff:
