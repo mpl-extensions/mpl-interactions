@@ -39,6 +39,7 @@ class _ioff_class():
 ioff = _ioff_class()
 
 def interactive_plot_factory(ax, f, x=None,
+                                 x_scale='stretch',
                                  y_scale='stretch',
                                  slider_format_string='{:.1f}',
                                  plot_kwargs=None,
@@ -62,18 +63,27 @@ def interactive_plot_factory(ax, f, x=None,
                 lines[i].set_data(x, f(x, **params))
             else:
                 lines[i].set_data(*f(**params))
-        cur_lims = ax.get_ylim()
+        cur_xlims = ax.get_xlim()
+        cur_ylims = ax.get_ylim()
+        ax.relim() # this may be expensive? don't do if not necessary?
         if y_scale=='auto':
-            ax.relim()
-            ax.autoscale_view()
+            ax.autoscale_view(scalex=False)
         elif y_scale=='stretch':
-            ax.relim()
             new_lims = [ax.dataLim.y0, ax.dataLim.y0+ax.dataLim.height]
             new_lims = [
-                new_lims[0] if new_lims[0]<cur_lims[0] else cur_lims[0],
-                new_lims[1] if new_lims[1]>cur_lims[1] else cur_lims[1]
+                new_lims[0] if new_lims[0]<cur_ylims[0] else cur_ylims[0],
+                new_lims[1] if new_lims[1]>cur_ylims[1] else cur_ylims[1]
                 ]
             ax.set_ylim(new_lims)
+        if x_scale=='auto':
+            ax.autoscale_view(scaley=False)
+        elif x_scale=='stretch':
+            new_lims = [ax.dataLim.x0, ax.dataLim.x0+ax.dataLim.width]
+            new_lims = [
+                new_lims[0] if new_lims[0]<cur_xlims[0] else cur_xlims[0],
+                new_lims[1] if new_lims[1]>cur_xlims[1] else cur_xlims[1]
+                ]
+            ax.set_xlim(new_lims)
         fig.canvas.draw_idle()
     fig = ax.get_figure()
     labels = []
@@ -119,7 +129,7 @@ def interactive_plot_factory(ax, f, x=None,
     fig.canvas.toolbar.push_current()
     return controls
 
-def interactive_plot(f, x=None, y_scale='stretch',
+def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
                         slider_format_string='{:.1f}',
                         plot_kwargs=None,
                         title=None,figsize=None, display=True, **kwargs):
@@ -134,10 +144,13 @@ def interactive_plot(f, x=None, y_scale='stretch',
         return a list of [x, y]
     ax : matplolibt.Axes or None
         axes on which to 
+    x_scale : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_xlim. Other options are:
+        'auto': rescale the x axis for every redraw
+        'stretch': only ever expand the xlims.
     y_scale : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_ylim. Other options are:
-        'auto': rescale the y axis for every redraw
-        'stretch': only ever expand the ylims.
+        If a tuple it will be passed to ax.set_ylim. Other options are same
+        as x_scale
     slider_format_string : string
         A valid format string, this will be used to render
         the current value of the parameter
@@ -167,7 +180,7 @@ def interactive_plot(f, x=None, y_scale='stretch',
     with ioff:
         fig = figure()
         ax = fig.gca()
-    controls = widgets.VBox(interactive_plot_factory(ax, f, x,
+    controls = widgets.VBox(interactive_plot_factory(ax, f, x, x_scale,
                                         y_scale, slider_format_string,
                                         plot_kwargs, title, **kwargs))
     if display:
