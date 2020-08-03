@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 from IPython.display import display as ipy_display
-from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d
+from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d, arange
 from matplotlib.pyplot import figure as mpl_figure
 from matplotlib.pyplot import ioff, ion, rcParams, subplots, interactive, install_repl_displayhook, uninstall_repl_displayhook
 from matplotlib import is_interactive, interactive
@@ -39,6 +39,7 @@ class _ioff_class():
 ioff = _ioff_class()
 
 def interactive_plot_factory(ax, f, x=None,
+                                 x_scale='stretch',
                                  y_scale='stretch',
                                  slider_format_string='{:.1f}',
                                  plot_kwargs=None,
@@ -58,22 +59,34 @@ def interactive_plot_factory(ax, f, x=None,
         
         # update plot
         for i,f in enumerate(funcs):
-            if x is not None:
+            if x is not None and not indexed_x:
                 lines[i].set_data(x, f(x, **params))
+            elif indexed_x:
+                lines[i].set_data(x, f(**params))
             else:
                 lines[i].set_data(*f(**params))
-        cur_lims = ax.get_ylim()
+
+        cur_xlims = ax.get_xlim()
+        cur_ylims = ax.get_ylim()
+        ax.relim() # this may be expensive? don't do if not necessary?
         if y_scale=='auto':
-            ax.relim()
-            ax.autoscale_view()
+            ax.autoscale_view(scalex=False)
         elif y_scale=='stretch':
-            ax.relim()
             new_lims = [ax.dataLim.y0, ax.dataLim.y0+ax.dataLim.height]
             new_lims = [
-                new_lims[0] if new_lims[0]<cur_lims[0] else cur_lims[0],
-                new_lims[1] if new_lims[1]>cur_lims[1] else cur_lims[1]
+                new_lims[0] if new_lims[0]<cur_ylims[0] else cur_ylims[0],
+                new_lims[1] if new_lims[1]>cur_ylims[1] else cur_ylims[1]
                 ]
             ax.set_ylim(new_lims)
+        if x_scale=='auto':
+            ax.autoscale_view(scaley=False)
+        elif x_scale=='stretch':
+            new_lims = [ax.dataLim.x0, ax.dataLim.x0+ax.dataLim.width]
+            new_lims = [
+                new_lims[0] if new_lims[0]<cur_xlims[0] else cur_xlims[0],
+                new_lims[1] if new_lims[1]>cur_xlims[1] else cur_xlims[1]
+                ]
+            ax.set_xlim(new_lims)
         fig.canvas.draw_idle()
     fig = ax.get_figure()
     labels = []
@@ -93,10 +106,19 @@ def interactive_plot_factory(ax, f, x=None,
             sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
             controls.append(widgets.HBox([sliders[-1], labels[-1]]))
             sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
+    indexed_x = False
     if x is not None:
         x = asarray(x)
         if x.ndim != 1:
             raise ValueError(f'x must be None or be 1D but is {x.ndim}D')
+    else:
+        # call f once to determine it returns x
+        out = asarray(f(**params))
+        if len(out.shape) != 2 or (len(out.shape)==2 and out.shape[0]==1):
+            # probably should use arange to set the x values
+            indexed_x = True
+            x = arange(out.size)
+
 
     if plot_kwargs is None:
         plot_kwargs = []
@@ -109,21 +131,21 @@ def interactive_plot_factory(ax, f, x=None,
     lines = []
     for i,f in enumerate(funcs):
 
-        if x is not None:
-            lines.append(ax.plot(x,f(x, **params), **plot_kwargs[i])[0])
+        if x is not None and not indexed_x:
+            lines.append(ax.plot(x, f(x, **params), **plot_kwargs[i])[0])
+        elif indexed_x:
+            lines.append(ax.plot(x, f(**params), **plot_kwargs[i])[0])
         else:
             lines.append(ax.plot(*f(**params), **plot_kwargs[i])[0])
+    if not isinstance(x_scale,str):
+        ax.set_ylim(x_scale)
     if not isinstance(y_scale,str):
         ax.set_ylim(y_scale)
     # make sure the home button will work
     fig.canvas.toolbar.push_current()
-    
-
-
-
     return controls
 
-def interactive_plot(f, x=None, y_scale='stretch',
+def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
                         slider_format_string='{:.1f}',
                         plot_kwargs=None,
                         title=None,figsize=None, display=True, **kwargs):
@@ -138,10 +160,13 @@ def interactive_plot(f, x=None, y_scale='stretch',
         return a list of [x, y]
     ax : matplolibt.Axes or None
         axes on which to 
+    x_scale : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_xlim. Other options are:
+        'auto': rescale the x axis for every redraw
+        'stretch': only ever expand the xlims.
     y_scale : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_ylim. Other options are:
-        'auto': rescale the y axis for every redraw
-        'stretch': only ever expand the ylims.
+        If a tuple it will be passed to ax.set_ylim. Other options are same
+        as x_scale
     slider_format_string : string
         A valid format string, this will be used to render
         the current value of the parameter
@@ -171,7 +196,7 @@ def interactive_plot(f, x=None, y_scale='stretch',
     with ioff:
         fig = figure()
         ax = fig.gca()
-    controls = widgets.VBox(interactive_plot_factory(ax, f, x,
+    controls = widgets.VBox(interactive_plot_factory(ax, f, x, x_scale,
                                         y_scale, slider_format_string,
                                         plot_kwargs, title, **kwargs))
     if display:
@@ -213,15 +238,13 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     X,Y : 1D array
     heatmaps : array_like
        must be 2-D or 3-D. If 3-D the last two axes should be (X,Y) 
-    heatmap_names : (String, String, ...)
-        An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
     slice : {'horizontal', 'vertical', 'both'}
         Direction to draw slice on heatmap. both will draw horizontal and vertical traces on the same
         plot, while both_separate will make a line plot for each.
+    heatmap_names : (String, String, ...)
+        An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
     max_cols : int, optional - not working yet :(
-        Maximum number of columns to allo    x : arraylike or None
-        x values a which to evaluate the function. If None the function(s) f should
-        return a list of [x, y]
+        Maximum number of columns to allo   
     ax : matplolibt.Axes or None
         axes on which to 
     y_scale : string or tuple of floats, optional
@@ -319,6 +342,7 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
                 x_idx = nearest_idx(X,event.xdata)
                 lines[0].set_xdata(X[x_idx])
                 lines[1].set_ydata(heatmaps[i,:,x_idx])
+        fig.canvas.draw_idle()
     if interaction_type == 'move':
         fig.canvas.mpl_connect('motion_notify_event',update_lines) 
     elif interaction_type == 'click':
