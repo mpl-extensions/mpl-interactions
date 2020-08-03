@@ -117,10 +117,6 @@ def interactive_plot_factory(ax, f, x=None,
         ax.set_ylim(y_scale)
     # make sure the home button will work
     fig.canvas.toolbar.push_current()
-    
-
-
-
     return controls
 
 def interactive_plot(f, x=None, y_scale='stretch',
@@ -213,15 +209,13 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     X,Y : 1D array
     heatmaps : array_like
        must be 2-D or 3-D. If 3-D the last two axes should be (X,Y) 
-    heatmap_names : (String, String, ...)
-        An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
     slice : {'horizontal', 'vertical', 'both'}
         Direction to draw slice on heatmap. both will draw horizontal and vertical traces on the same
         plot, while both_separate will make a line plot for each.
+    heatmap_names : (String, String, ...)
+        An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
     max_cols : int, optional - not working yet :(
-        Maximum number of columns to allo    x : arraylike or None
-        x values a which to evaluate the function. If None the function(s) f should
-        return a list of [x, y]
+        Maximum number of columns to allo   
     ax : matplolibt.Axes or None
         axes on which to 
     y_scale : string or tuple of floats, optional
