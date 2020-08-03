@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 from IPython.display import display as ipy_display
-from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d
+from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d, arange
 from matplotlib.pyplot import figure as mpl_figure
 from matplotlib.pyplot import ioff, ion, rcParams, subplots, interactive, install_repl_displayhook, uninstall_repl_displayhook
 from matplotlib import is_interactive, interactive
@@ -59,10 +59,13 @@ def interactive_plot_factory(ax, f, x=None,
         
         # update plot
         for i,f in enumerate(funcs):
-            if x is not None:
+            if x is not None and not indexed_x:
                 lines[i].set_data(x, f(x, **params))
+            elif indexed_x:
+                lines[i].set_data(x, f(**params))
             else:
                 lines[i].set_data(*f(**params))
+
         cur_xlims = ax.get_xlim()
         cur_ylims = ax.get_ylim()
         ax.relim() # this may be expensive? don't do if not necessary?
@@ -103,10 +106,19 @@ def interactive_plot_factory(ax, f, x=None,
             sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
             controls.append(widgets.HBox([sliders[-1], labels[-1]]))
             sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
+    indexed_x = False
     if x is not None:
         x = asarray(x)
         if x.ndim != 1:
             raise ValueError(f'x must be None or be 1D but is {x.ndim}D')
+    else:
+        # call f once to determine it returns x
+        out = asarray(f(**params))
+        if len(out.shape) != 2 or (len(out.shape)==2 and out.shape[0]==1):
+            # probably should use arange to set the x values
+            indexed_x = True
+            x = arange(out.size)
+
 
     if plot_kwargs is None:
         plot_kwargs = []
@@ -119,10 +131,14 @@ def interactive_plot_factory(ax, f, x=None,
     lines = []
     for i,f in enumerate(funcs):
 
-        if x is not None:
-            lines.append(ax.plot(x,f(x, **params), **plot_kwargs[i])[0])
+        if x is not None and not indexed_x:
+            lines.append(ax.plot(x, f(x, **params), **plot_kwargs[i])[0])
+        elif indexed_x:
+            lines.append(ax.plot(x, f(**params), **plot_kwargs[i])[0])
         else:
             lines.append(ax.plot(*f(**params), **plot_kwargs[i])[0])
+    if not isinstance(x_scale,str):
+        ax.set_ylim(x_scale)
     if not isinstance(y_scale,str):
         ax.set_ylim(y_scale)
     # make sure the home button will work
