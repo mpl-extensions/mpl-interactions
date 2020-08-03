@@ -3,9 +3,10 @@ from IPython.display import display as ipy_display
 from numpy import asarray, abs, argmin, min, max, swapaxes, atleast_1d, arange
 from matplotlib.pyplot import figure as mpl_figure
 from matplotlib.pyplot import ioff, ion, rcParams, subplots, interactive, install_repl_displayhook, uninstall_repl_displayhook
-from matplotlib import is_interactive, interactive
+from matplotlib import is_interactive, interactive, get_backend
 from collections.abc import Iterable
 from functools import partial
+from warnings import warn
 
 
 # functions that are methods
@@ -193,14 +194,26 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
     interactive_plot(f, tau=tau)
     """
                                  
-    with ioff:
+    backend = get_backend().lower()
+    if 'ipympl' in backend:
+        ipympl = True
+        with ioff:
+            fig = figure()
+            ax = fig.gca()
+    else:
+        ipympl = False
+        if backend == 'nbAgg'.lower():
+            warn('You are using an outdated backend. You should use %matplotlib ipympl instead of %matplotlib notebook')
         fig = figure()
         ax = fig.gca()
     controls = widgets.VBox(interactive_plot_factory(ax, f, x, x_scale,
                                         y_scale, slider_format_string,
                                         plot_kwargs, title, **kwargs))
     if display:
-        ipy_display(widgets.VBox([controls, fig.canvas]))
+        if ipympl:
+            ipy_display(widgets.VBox([controls, fig.canvas]))
+        else:
+            ipy_display(controls)
     return fig, ax, controls
 
 
