@@ -7,7 +7,7 @@ The main purpose of this library is to provide a different approach than `ipywid
 1. Defining the function to plot `f(x,...) => y`
 2. Handling the plotting logic (`plt.plot`, `fig.cla`, `ax.set_ylim`, etc)
 
-In contrast, with `ipympl-interactions` you only need provide `f(x, ...) => y` and the plotting and updating boilerplate are handled for you.
+In contrast, with `mpl-interactions` you only need provide `f(x, ...) => y` and the plotting and updating boilerplate are handled for you.
 
 Additionally there are other useful functions for greater interactivity with matplolib. These are not necessarily dependent on `ipympl` and will probably work in all backends except for inline backends.
 Currently these extra goodies are:
@@ -26,7 +26,7 @@ Future functions:
 
 ## Installation
 ```bash
-git clone https://github.com/ianhi/ipympl-interactions.git
+git clone https://github.com/ianhi/mpl-interactions.git
 cd ipympl-interactions
 pip install .
 # hopefully to be published on pypi soon
@@ -36,7 +36,7 @@ If you use jupyterlab make sure you follow the full instructions in the ipympl r
 
 ## Documentation
 Definitely a work in progress - I would recommend checking out the examples directory for now.
-https://ipympl-interactions.readthedocs.io/en/latest/
+https://mpl-interactions.readthedocs.io/en/latest/
 
 ## Examples with GIFs!
 Tragically neither github nor the sphinx documentation render the actual moving plots so here are gifs of the functions. The code for these can be found in the notebooks in the examples directory.

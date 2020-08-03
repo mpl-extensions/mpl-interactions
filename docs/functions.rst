@@ -3,6 +3,6 @@ Functions
 =========
 
 
-.. automodule:: ipympl_interactions
+.. automodule:: mpl_interactions
    :members:
 

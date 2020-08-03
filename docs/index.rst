@@ -1,4 +1,4 @@
-Welcome to ipympl-interactions's documentation!
+Welcome to mpl-interactions's documentation!
 ===============================================
 
 .. toctree::
