@@ -5,6 +5,7 @@ setup(
     packages=find_packages(),
     install_requires = [
         'ipywidgets',
+        'matplotlib'
     ],
     author          = 'Ian Hunt-Isaak',
     author_email    = 'ianhuntisaak@gmail.com',
