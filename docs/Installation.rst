@@ -18,7 +18,7 @@ Which you can install by running:
 
 Then you can run::
 
-    python setup.py install
+    pip install .
 
 .. index::
    pair: Syntax; Code Example

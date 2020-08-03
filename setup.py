@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 setup(
-    name="ipympl_interactions",
+    name="mpl_interactions",
     version="0.1",
-    py_modules=['ipympl_interactions'],
+    packages=find_packages(),
     install_requires = [
-        'ipympl>=0.5.6',
-        # implicitly picks up a ipywidgets dep by way of ipympl
+        'ipywidgets',
+        'matplotlib'
     ],
     author          = 'Ian Hunt-Isaak',
     author_email    = 'ianhuntisaak@gmail.com',
@@ -26,7 +26,7 @@ setup(
         'Framework :: Jupyter',
         'Framework :: Matplolib'
     ],
-    url = 'https://github.com/ianhi/ipympl-interactions',
+    url = 'https://github.com/ianhi/mpl-interactions',
     extras_require = {
         'docs': [
             'sphinx>=1.5',
