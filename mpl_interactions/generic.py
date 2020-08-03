@@ -120,7 +120,7 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
                 x_idx = nearest_idx(X,event.xdata)
                 lines[0].set_xdata(X[x_idx])
                 lines[1].set_ydata(heatmaps[i,:,x_idx])
-        # fig.canvas.draw_idle()
+        fig.canvas.draw_idle()
     if interaction_type == 'move':
         fig.canvas.mpl_connect('motion_notify_event',update_lines) 
     elif interaction_type == 'click':
