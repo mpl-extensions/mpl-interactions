@@ -24,7 +24,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Framework :: Jupyter',
-        'Framework :: Matplolib'
+        'Framework :: Matplotlib'
     ],
     url = 'https://github.com/ianhi/mpl-interactions',
     extras_require = {
