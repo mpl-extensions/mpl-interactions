@@ -1,0 +1,2 @@
+conda install -c conda-forge nodejs=12
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
