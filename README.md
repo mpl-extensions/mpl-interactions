@@ -1,5 +1,5 @@
-# ipympl-interactions
-[![Documentation Status](https://readthedocs.org/projects/ipympl-interactions/badge/?version=latest)](https://ipympl-interactions.readthedocs.io/en/latest/?badge=latest)
+# mpl-interactions
+[![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)
 
 <img src=docs/images/short-interactive.gif height=200>  <img src=docs/images/tight-layout-heatmap-slicer.gif height=200>
 
@@ -27,7 +27,7 @@ Future functions:
 ## Installation
 ```bash
 git clone https://github.com/ianhi/mpl-interactions.git
-cd ipympl-interactions
+cd mpl-interactions
 pip install .
 # hopefully to be published on pypi soon
 ```
