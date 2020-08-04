@@ -63,6 +63,8 @@ def interactive_plot_factory(ax, f, x=None,
                 new_lims[1] if new_lims[1]>cur_xlims[1] else cur_xlims[1]
                 ]
             ax.set_xlim(new_lims)
+        if title is not None:
+            ax.set_title(title.format(**params))
         fig.canvas.draw_idle()
     fig = ax.get_figure()
     labels = []
@@ -149,6 +151,9 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
     plot_kwargs : None, dict, or iterable of dicts
         Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
         None or be iterable.
+    title : None or string
+        If a string then you can have it update automatically using string formatting of the names
+        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau}'
     figsize : tuple or scalar
         If tuple it will be used as the matplotlib figsize. If a number
         then it will be used to scale the current rcParams figsize
