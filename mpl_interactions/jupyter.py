@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 from IPython.display import display as ipy_display
-from numpy import asarray, atleast_1d, arange
+from numpy import asarray, atleast_1d, arange, linspace
 from matplotlib import get_backend
 from functools import partial
 from warnings import warn
@@ -71,6 +71,12 @@ def interactive_plot_factory(ax, f, x=None,
     sliders = []
     controls = []
     for key, val in kwargs.items():
+        if isinstance(val, tuple) and len(val) in [2, 3]:
+            # treat as an argument to linspace
+            # idk if it's acceptable to overwrite kwargs like this
+            # but I think at this point kwargs is just a dict like any other
+            val = linspace(*val)
+            kwargs[key] = val
         val = atleast_1d(val)
         if val.ndim > 1:
             raise ValueError(f'{key} is {val.ndim}D but can only be 1D or a scalar')
@@ -168,10 +174,18 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
 
     Examples 
     --------
-    tau = np.linspace()
+    x = np.linspac(0,2*np.pi)
+    tau = np.linspace(0, np.pi)
     def f(x, tau):
-        return np.sin(x*tau)
-    interactive_plot(f, tau=tau)
+        return np.sin(x+tau)
+    interactive_plot(f, x=x, tau=tau)
+
+    --------
+
+    x = np.linspac(0,2*np.pi)
+    def f(x, tau):
+        return np.sin(x+tau)
+    interactive_plot(f, x=x, tau=(0, np.pi, 1000))
     """
                                  
     backend = get_backend().lower()
