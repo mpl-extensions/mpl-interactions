@@ -160,6 +160,9 @@ def interactive_plot_factory(ax, f, x=None,
         ax.set_ylim(x_scale)
     if not isinstance(y_scale,str):
         ax.set_ylim(y_scale)
+    if title is not None:
+        ax.set_title(title.format(**params))
+
     # make sure the home button will work
     fig.canvas.toolbar.push_current()
     return controls
