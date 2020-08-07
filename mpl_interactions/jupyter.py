@@ -4,6 +4,7 @@ from numpy import asarray, atleast_1d, arange, linspace
 from matplotlib import get_backend
 from functools import partial
 from warnings import warn
+from collections import defaultdict
 from .utils import ioff, figure
 
 
@@ -28,10 +29,18 @@ def interactive_plot_factory(ax, f, x=None,
     """
     params = {}
     funcs = atleast_1d(f)
+    if isinstance(slider_format_string, str):
+        slider_format_strings = defaultdict(lambda: slider_format_string)
+    elif isinstance(slider_format_string, dict):
+        slider_format_strings = defaultdict(lambda: '{:.1f}')
+        for key, val in slider_format_string.items():
+            slider_format_strings[key] = val
+    else:
+        raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
 
     def update(change, key, label):
         params[key] = kwargs[key][change['new']]
-        label.value = slider_format_string.format(kwargs[key][change['new']])
+        label.value = slider_format_strings[key].format(kwargs[key][change['new']])
         
         # update plot
         for i,f in enumerate(funcs):
@@ -86,7 +95,7 @@ def interactive_plot_factory(ax, f, x=None,
             params[key] = val
         else:
             params[key] = val[0]
-            labels.append( widgets.Label(value=f'{val[0]}'))
+            labels.append( widgets.Label(value=slider_format_strings[key].format(val[0])))
             sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
             controls.append(widgets.HBox([sliders[-1], labels[-1]]))
             sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
@@ -151,9 +160,10 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
     y_scale : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_ylim. Other options are same
         as x_scale
-    slider_format_string : string
-        A valid format string, this will be used to render
-        the current value of the parameter
+    slider_format_string : string | dictionary
+        A valid format string, this will be used to render the current value of the parameter.
+        To control on a per slider basis pass a dictionary of format strings with the parameter
+        names as the keys.
     plot_kwargs : None, dict, or iterable of dicts
         Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
         None or be iterable.
