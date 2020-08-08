@@ -4,6 +4,7 @@ from numpy import asarray, atleast_1d, arange, linspace
 from matplotlib import get_backend
 from functools import partial
 from warnings import warn
+from collections import defaultdict
 from .utils import ioff, figure
 
 
@@ -28,10 +29,23 @@ def interactive_plot_factory(ax, f, x=None,
     """
     params = {}
     funcs = atleast_1d(f)
+    if isinstance(slider_format_string, str):
+        slider_format_strings = defaultdict(lambda: slider_format_string)
+    elif isinstance(slider_format_string, dict):
+        slider_format_strings = defaultdict(lambda: '{:.1f}')
+        for key, val in slider_format_string.items():
+            slider_format_strings[key] = val
+    else:
+        raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
 
     def update(change, key, label):
-        params[key] = kwargs[key][change['new']]
-        label.value = slider_format_string.format(kwargs[key][change['new']])
+        if label:
+            #continuous
+            params[key] = kwargs[key][change['new']]
+            label.value = slider_format_strings[key].format(kwargs[key][change['new']])
+        else:
+            # categorical
+            params[key] = change['new']
         
         # update plot
         for i,f in enumerate(funcs):
@@ -71,25 +85,46 @@ def interactive_plot_factory(ax, f, x=None,
     sliders = []
     controls = []
     for key, val in kwargs.items():
-        if isinstance(val, tuple) and len(val) in [2, 3]:
-            # treat as an argument to linspace
-            # idk if it's acceptable to overwrite kwargs like this
-            # but I think at this point kwargs is just a dict like any other
-            val = linspace(*val)
-            kwargs[key] = val
-        val = atleast_1d(val)
-        if val.ndim > 1:
-            raise ValueError(f'{key} is {val.ndim}D but can only be 1D or a scalar')
-        if len(val)==1:
-            # don't need to create a slider
-            fixed_params[key] = val
-            params[key] = val
-        else:
+        if isinstance(val, set):
+            if len(val) == 1:
+                val = val.pop()
+                if isinstance(val, tuple):
+                    # want the categories to be ordered
+                    pass
+                else:
+                    # fixed parameter
+                    params[key] = val
+            else:
+                val = list(val)
+
+            # categorical
+            if len(val) <= 3:
+                selector = widgets.RadioButtons(options = val)
+            else:
+                 selector = widgets.Select(options=val)
             params[key] = val[0]
-            labels.append( widgets.Label(value=f'{val[0]}'))
-            sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
-            controls.append(widgets.HBox([sliders[-1], labels[-1]]))
-            sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
+            controls.append(selector)
+            selector.observe(partial(update, key = key, label=None), names=['value'])
+            
+        else:
+            if isinstance(val, tuple) and len(val) in [2, 3]:
+                # treat as an argument to linspace
+                # idk if it's acceptable to overwrite kwargs like this
+                # but I think at this point kwargs is just a dict like any other
+                val = linspace(*val)
+                kwargs[key] = val
+            val = atleast_1d(val)
+            if val.ndim > 1:
+                raise ValueError(f'{key} is {val.ndim}D but can only be 1D or a scalar')
+            if len(val)==1:
+                # don't need to create a slider
+                params[key] = val
+            else:
+                params[key] = val[0]
+                labels.append( widgets.Label(value=slider_format_strings[key].format(val[0])))
+                sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
+                controls.append(widgets.HBox([sliders[-1], labels[-1]]))
+                sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
     indexed_x = False
     if x is not None:
         x = asarray(x)
@@ -125,6 +160,9 @@ def interactive_plot_factory(ax, f, x=None,
         ax.set_ylim(x_scale)
     if not isinstance(y_scale,str):
         ax.set_ylim(y_scale)
+    if title is not None:
+        ax.set_title(title.format(**params))
+
     # make sure the home button will work
     fig.canvas.toolbar.push_current()
     return controls
@@ -151,9 +189,10 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
     y_scale : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_ylim. Other options are same
         as x_scale
-    slider_format_string : string
-        A valid format string, this will be used to render
-        the current value of the parameter
+    slider_format_string : string | dictionary
+        A valid format string, this will be used to render the current value of the parameter.
+        To control on a per slider basis pass a dictionary of format strings with the parameter
+        names as the keys.
     plot_kwargs : None, dict, or iterable of dicts
         Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
         None or be iterable.
