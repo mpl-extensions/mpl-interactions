@@ -105,7 +105,16 @@ def interactive_plot_factory(ax, f, x=None,
             params[key] = val[0]
             controls.append(selector)
             selector.observe(partial(update, key = key, label=None), names=['value'])
-            
+        elif isinstance(val, widgets.Widget) or isinstance(val, widgets.fixed):
+            if not hasattr(val, 'value'):
+                raise TypeError("widgets passed as parameters must have the `value` trait."
+                                "But the widget passed for {key} does not have a `.value` attribute")
+            if isinstance(val, widgets.fixed):
+                params[key] = val.value
+            else:
+                params[key] = val.value
+                controls.append(val)
+                val.observe(partial(update, key =key, label=None), names=['value'])
         else:
             if isinstance(val, tuple) and len(val) in [2, 3]:
                 # treat as an argument to linspace
