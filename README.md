@@ -1,5 +1,5 @@
 # mpl-interactions
-[![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: binder launch will be laggy)
+[![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: The interactions will be laggy when on binder)
 
 <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/short-interactive.gif height=200>  <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/heatmap_slicer.gif height=200>
 
@@ -21,7 +21,7 @@ def f(x, beta):
 interactive_plot(f, x=x, beta=beta)
 ```
 
-Except for `%matplotlib inline` this will work with any backend. But, if you want to have the best performance and UX in a notebook, you should try to use these with `%matplotlib ipympl` which uses the Matplotlib jupyter extension [ipympl](https://github.com/matplotlib/ipympl).
+These functions are designed to be used with [ipympl](https://github.com/matplotlib/ipympl), the backend that is designed for use in Jupyter notebooks. So for optimal performance, make sure you set the backend with `%matplotlib ipympl`. That said, these functions will also work with any interactive backend (e.g. `%matplotlib qt5`).
 
 
 **generic**
@@ -69,7 +69,7 @@ If you use jupyterlab, make sure you follow the full instructions in the ipympl 
 I use the GitHub [issues](https://github.com/ianhi/mpl-interactions/issues) to keep track of ideas I have, so looking through those should serve as a roadmap of sorts. For the most part I add to the library when I create a function that is useful for the science I am doing. If you create something that seems useful a PR would be most welcome so we can share it easily with more people. I'm also open to feature requests if you have an idea.
 
 ## Documentation
-Definitely a work in progress--I would recommend checking out the [examples directory](https://mpl-interactions.readthedocs.io/en/latest/) for now.
+Definitely a work in progress--I would recommend checking out the [examples directory](https://github.com/ianhi/mpl-interactions/tree/master/examples). The minimal narrative documentation can be found on [ReadTheDocs](https://mpl-interactions.readthedocs.io/en/latest/)
 
 
 ## Examples with GIFs!
