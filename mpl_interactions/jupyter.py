@@ -222,18 +222,22 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
 
     Examples 
     --------
-    x = np.linspac(0,2*np.pi)
-    tau = np.linspace(0, np.pi)
-    def f(x, tau):
-        return np.sin(x+tau)
-    interactive_plot(f, x=x, tau=tau)
 
-    --------
+    With numpy arrays::
 
-    x = np.linspac(0,2*np.pi)
-    def f(x, tau):
-        return np.sin(x+tau)
-    interactive_plot(f, x=x, tau=(0, np.pi, 1000))
+        x = np.linspac(0,2*np.pi)
+        tau = np.linspace(0, np.pi)
+        def f(x, tau):
+            return np.sin(x+tau)
+        interactive_plot(f, x=x, tau=tau)
+
+    with tuples::
+
+        x = np.linspac(0,2*np.pi)
+        def f(x, tau):
+            return np.sin(x+tau)
+        interactive_plot(f, x=x, tau=(0, np.pi, 1000))
+
     """
                                  
     backend = get_backend().lower()

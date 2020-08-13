@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../mpl_interactions'))
 
 
 import sys
@@ -22,7 +22,7 @@ import sys
 #    sys.modules[mod_name] = mock.Mock()
 # -- Project information -----------------------------------------------------
 
-project = 'ipympl-interactions'
+project = 'mpl-interactions'
 copyright = '2020, Ian Hunt-Isaak'
 author = 'Ian Hunt-Isaak'
 
@@ -36,14 +36,31 @@ release = '0.12'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-#    'sphinx.ext.autodoc',
-#    'sphinx.ext.autosummary',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'nbsphinx',
     'nbsphinx_link',
     'sphinx.ext.mathjax',
 #    'sphinx.ext.napoleon']
     'numpydoc',]
 
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = False
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = False
+napoleon_use_rtype = False
+
+autosummary_generate = True
+autodoc_default_options = {
+    'members':True,
+    'show-inheritance':True,
+}
 nbsphinx_execute = 'always'
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
@@ -64,8 +81,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**ipynb_checkpoints']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'nature'
-html_theme = 'alabaster'
+# html_theme = 'nature'
+# html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
