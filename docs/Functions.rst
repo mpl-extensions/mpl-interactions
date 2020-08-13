@@ -1,5 +1,5 @@
 =========
-Functions
+API
 =========
 
 
@@ -8,5 +8,5 @@ Functions
    :toctree: autoapi
    :nosignatures:
 
-
    ~mpl_interactions.interactive_plot
+   ~mpl_interactions.interactive_plot_factory

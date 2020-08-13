@@ -14,7 +14,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../mpl_interactions'))
 
-
+import inspect
 import sys
 
 #MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'matplotlib.pyplot', 'scipy.interpolate']
@@ -41,6 +41,7 @@ extensions = [
     'nbsphinx',
     'nbsphinx_link',
     'sphinx.ext.mathjax',
+    'sphinx.ext.linkcode',
 #    'sphinx.ext.napoleon']
     'numpydoc',]
 
@@ -66,6 +67,10 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
+html_static_path = ['_static']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -99,4 +104,51 @@ master_doc = 'index'
 # following: https://github.com/readthedocs/sphinx_rtd_theme/issues/766#issuecomment-517145293
 # to fix an issue with rendering numpydoc in read the docs style
 def setup(app):
-    app.add_css_file("basic.css")
+    app.add_css_file("custom.css")
+
+
+import mpl_interactions as mpl_inter
+# based on pandas/doc/source/conf.py
+def linkcode_resolve(domain, info):
+    """
+    Determine the URL corresponding to Python object
+    """
+    if domain != "py":
+        return None
+
+    modname = info["module"]
+    fullname = info["fullname"]
+
+    submod = sys.modules.get(modname)
+    if submod is None:
+        return None
+
+    print('here?')
+    obj = submod
+    for part in fullname.split("."):
+        try:
+            obj = getattr(obj, part)
+        except AttributeError:
+            return None
+
+    try:
+        fn = inspect.getsourcefile(inspect.unwrap(obj))
+    except TypeError:
+        fn = None
+    if not fn:
+        return None
+
+    try:
+        source, lineno = inspect.getsourcelines(obj)
+    except OSError:
+        lineno = None
+
+    if lineno:
+        linespec = f"#L{lineno}-L{lineno + len(source) - 1}"
+    else:
+        linespec = ""
+
+    fn = os.path.relpath(fn, start=os.path.dirname(mpl_inter.__file__))
+
+            #  https://github.com/ianhi/mpl-interactions/blob/master/mpl_interactions/jupyter.py
+    return f"https://github.com/ianhi/mpl-interactions/blob/master/mpl_interactions/{fn}{linespec}"
