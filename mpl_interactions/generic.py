@@ -11,6 +11,8 @@ __all__ = [
 def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_cols=None,figsize=(18,9),linecolor='k',labels=('X','Y'),interaction_type='move'):
     
     """
+    Compare horizontal and/or vertical slices accross multiple arrays.
+
     Parameters
     ----------
     X,Y : 1D array
@@ -134,6 +136,8 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
 # based on https://gist.github.com/tacaswell/3144287
 def zoom_factory(ax, base_scale = 1.1):
     """
+    Add ability to zoom with the scroll wheel.
+
     parameters
     ----------
     ax : matplotlib axes object
@@ -205,7 +209,8 @@ def zoom_factory(ax, base_scale = 1.1):
 
 class panhandler:
     """
-    enable click to pan image.
+    Enable panning a plot with any mouse button.
+    
     button determines which button will be used (default right click)
     Left: 1
     Middle: 2

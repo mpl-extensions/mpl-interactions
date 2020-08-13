@@ -17,9 +17,6 @@ sys.path.insert(0, os.path.abspath('../mpl_interactions'))
 import inspect
 import sys
 
-#MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'matplotlib.pyplot', 'scipy.interpolate']
-#for mod_name in MOCK_MODULES:
-#    sys.modules[mod_name] = mock.Mock()
 # -- Project information -----------------------------------------------------
 
 project = 'mpl-interactions'
@@ -42,7 +39,7 @@ extensions = [
     'nbsphinx_link',
     'sphinx.ext.mathjax',
     'sphinx.ext.linkcode',
-#    'sphinx.ext.napoleon']
+    'sphinx.ext.napoleon',
     'numpydoc',]
 
 
@@ -56,6 +53,7 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = False
 napoleon_use_rtype = False
+add_module_names=False
 
 autosummary_generate = True
 autodoc_default_options = {
@@ -86,8 +84,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**ipynb_checkpoints']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'nature'
-# html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
@@ -101,8 +97,6 @@ html_theme_options = {
 master_doc = 'index'
 
 
-# following: https://github.com/readthedocs/sphinx_rtd_theme/issues/766#issuecomment-517145293
-# to fix an issue with rendering numpydoc in read the docs style
 def setup(app):
     app.add_css_file("custom.css")
 
@@ -150,5 +144,4 @@ def linkcode_resolve(domain, info):
 
     fn = os.path.relpath(fn, start=os.path.dirname(mpl_inter.__file__))
 
-            #  https://github.com/ianhi/mpl-interactions/blob/master/mpl_interactions/jupyter.py
     return f"https://github.com/ianhi/mpl-interactions/blob/master/mpl_interactions/{fn}{linespec}"
