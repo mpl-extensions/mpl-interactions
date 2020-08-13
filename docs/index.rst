@@ -1,8 +1,6 @@
-mpl-interactions Documentation Home
-===============================================
-
 Welcome to mpl-interactions' documentation!
---------------------------------------------
+===========================================
+
 
 mpl-interactions' design creates helpful ways of interacting with `Matplotlib <http://www.matplotlib.org>`_ plots. 
 The library provides three key types of utility for easy-to-use, accessible infographics. These modules 
@@ -73,7 +71,7 @@ Follow the links below for further information on installation, functions, and p
    :maxdepth: 2
 
    Installation
-   Functions
+   API
    Examples
    
 
@@ -81,7 +79,7 @@ Follow the links below for further information on installation, functions, and p
 .. image:: images/heatmap_slicer.gif
 
 Indices and Tables
--------------------
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
