@@ -37,3 +37,12 @@ Utilities
 ---------
 
 Functions that make it a bit more convenient to do some things in matplotlib.
+
+.. currentmodule:: mpl_interactions
+.. autosummary::
+   :toctree: autoapi
+   :nosignatures:
+
+   ~mpl_interactions.ioff
+   ~mpl_interactions.figure
+   ~mpl_interactions.nearest_idx
