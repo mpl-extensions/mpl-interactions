@@ -73,6 +73,7 @@ Follow the links below for further information on installation, functions, and p
    Installation
    API
    Examples
+   Contributing
    
 
 .. image:: images/interactive-plot.gif
