@@ -47,6 +47,7 @@ setup(
             'nbsphinx-link',
             'pytest_check_links',
             'pypandoc',
+            'jupyter-sphinx'
         ],
     }
 )

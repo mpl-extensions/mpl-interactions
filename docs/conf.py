@@ -40,7 +40,9 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.linkcode',
     'sphinx.ext.napoleon',
-    'numpydoc',]
+    'numpydoc',
+    'jupyter_sphinx.execute',
+    ]
 
 
 napoleon_google_docstring = False

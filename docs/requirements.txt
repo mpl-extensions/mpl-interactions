@@ -9,3 +9,4 @@ sphinx_rtd_theme
 numpydoc
 mock
 nbsphinx-link
+jupyter-sphinx
