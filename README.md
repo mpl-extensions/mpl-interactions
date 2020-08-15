@@ -1,7 +1,7 @@
 # mpl-interactions
 [![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: The interactions will be laggy when on binder)
 
-<img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/short-interactive.gif height=200>  <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/heatmap_slicer.gif height=200>
+<img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/short-interactive.gif width=45%>  <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/heatmap_slicer.gif width=45%>
 
 This library provides helpful ways to interact with [Matplotlib](https://matplotlib.org/) plots. There are three submodules:
 
