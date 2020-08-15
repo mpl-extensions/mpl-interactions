@@ -13,7 +13,9 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../mpl_interactions'))
+import mpl_interactions as mpl_inter
 
+release = mpl_inter.__version__
 import inspect
 import sys
 
@@ -24,7 +26,6 @@ copyright = '2020, Ian Hunt-Isaak'
 author = 'Ian Hunt-Isaak'
 
 # The full version, including alpha/beta/rc tags
-release = '0.12'
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,6 +37,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'nbsphinx',
+    'nbsphinx_link',
     'sphinx.ext.mathjax',
     'sphinx.ext.linkcode',
     'sphinx.ext.napoleon',
@@ -103,7 +105,6 @@ def setup(app):
     app.add_css_file("custom.css")
 
 
-import mpl_interactions as mpl_inter
 # based on pandas/doc/source/conf.py
 def linkcode_resolve(domain, info):
     """
