@@ -10,3 +10,4 @@ numpydoc
 mock
 nbsphinx-link
 jupyter-sphinx
+sphinx-copybutton
