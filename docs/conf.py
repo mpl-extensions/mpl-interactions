@@ -18,6 +18,7 @@ import mpl_interactions as mpl_inter
 release = mpl_inter.__version__
 import inspect
 import sys
+import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
@@ -34,8 +35,8 @@ author = 'Ian Hunt-Isaak'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
+    #'sphinx.ext.autodoc',
+    #'sphinx.ext.autosummary',
     'nbsphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.linkcode',
@@ -58,11 +59,11 @@ napoleon_use_param = False
 napoleon_use_rtype = False
 add_module_names=False
 
-autosummary_generate = True
-autodoc_default_options = {
-    'members':True,
-    'show-inheritance':True,
-}
+# autosummary_generate = True
+#autodoc_default_options = {
+#    'members':True,
+#    'show-inheritance':True,
+#}
 nbsphinx_execute = 'always'
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
@@ -88,6 +89,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**ipynb_checkpoints']
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_theme_options = {
         # Toc options

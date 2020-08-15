@@ -1,10 +1,10 @@
 ipympl
 jupyter_client
 matplotlib
-nbsphinx>=0.5
 numpy
 recommonmark
 sphinx>=2
+nbsphinx>=0.2.13,<0.4.0
 sphinx_rtd_theme
 numpydoc
 mock
