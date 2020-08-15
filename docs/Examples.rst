@@ -4,7 +4,7 @@ Examples
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    examples/interactive_plot-examples.nblink
    examples/heatmap_slicer.nblink

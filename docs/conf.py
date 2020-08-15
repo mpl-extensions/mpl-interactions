@@ -93,7 +93,7 @@ html_theme_options = {
         # Toc options
         'collapse_navigation': False,
         'sticky_navigation': True,
-        'navigation_depth': 2,
+        # 'navigation_depth': 4,
 }
 
 
@@ -120,7 +120,6 @@ def linkcode_resolve(domain, info):
     if submod is None:
         return None
 
-    print('here?')
     obj = submod
     for part in fullname.split("."):
         try:
