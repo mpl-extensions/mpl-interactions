@@ -18,7 +18,7 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(),
     install_requires = [
-        'ipywidgets',
+        'ipywidgets>=7.5.0,<8',
         'matplotlib',
         'ipympl>=0.5.7'
     ],
