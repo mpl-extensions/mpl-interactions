@@ -2,11 +2,13 @@
 Control Plots with Sliders
 ==========================
 
-Unfortunately the interactive plots won't work on a website as there is no Python kernel
-running. So for all the interactive outputs have been replaced by gifs of what you should expect.
+.. note::
+    Unfortunately the interactive plots won't work on a website as there is no Python kernel
+    running. So for all the interactive outputs have been replaced by gifs of what you should expect.
 
-As discussed in the [TODO: Add a link to backend discussion] page you will have the best
-performance with the ipympl backed, so make sure you set that using ``%matplotlib ipympl``.
+.. note::
+    As discussed in the [TODO: Add a link to backend discussion] page you will have the best
+    performance with the ipympl backed, so make sure you set that using ``%matplotlib ipympl``.
 
 
 .. jupyter-execute::
