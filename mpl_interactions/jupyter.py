@@ -149,12 +149,23 @@ def interactive_plot_factory(ax, f, x=None,
 
 
     if plot_kwargs is None:
-        plot_kwargs = []
-        for f in funcs:
-            plot_kwargs.append({'label':f.__name__})
+        plot_kwargs = [{}] * len(funcs)
     else:
         plot_kwargs = atleast_1d(plot_kwargs)
-        assert len(plot_kwargs) == len(funcs)
+        if not len(plot_kwargs) == len(funcs):
+            raise ValueError('If using multiple functions'
+                            ' then plot_kwargs must be a list'
+                            ' of the same length or None.')
+    
+    # make sure plot labels make sense
+    for i, (pk, f) in enumerate(zip(plot_kwargs, funcs)):
+        if pk is None:
+            pk = {}
+            plot_kwargs[i] = pk
+        if 'label' not in pk:
+            pk['label'] = f.__name__
+
+
 
     lines = []
     for i,f in enumerate(funcs):
