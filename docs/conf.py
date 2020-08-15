@@ -41,7 +41,7 @@ extensions = [
     'sphinx.ext.linkcode',
     'sphinx.ext.napoleon',
     'numpydoc',
-    'jupyter_sphinx.execute',
+    'jupyter_sphinx',
     'sphinx_copybutton',
     ]
 

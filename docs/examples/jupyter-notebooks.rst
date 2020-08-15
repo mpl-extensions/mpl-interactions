@@ -62,7 +62,6 @@ but in general you should not need to use that.
 
 
 One other caveat is that the slider's label will not update as that also requires a Python kernel.
-blarg blarg blarg
 
 .. jupyter-execute::
 
