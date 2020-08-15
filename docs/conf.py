@@ -36,7 +36,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'nbsphinx',
-    'nbsphinx_link',
     'sphinx.ext.mathjax',
     'sphinx.ext.linkcode',
     'sphinx.ext.napoleon',

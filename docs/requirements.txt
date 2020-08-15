@@ -8,6 +8,5 @@ sphinx>=2
 sphinx_rtd_theme
 numpydoc
 mock
-nbsphinx-link
 jupyter-sphinx
 sphinx-copybutton
