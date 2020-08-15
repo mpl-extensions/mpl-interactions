@@ -8,5 +8,5 @@ sphinx>=2
 sphinx_rtd_theme
 numpydoc
 mock
-jupyter-sphinx
+jupyter-sphinx>=0.2.4
 sphinx-copybutton
