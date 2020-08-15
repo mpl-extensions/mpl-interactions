@@ -19,6 +19,19 @@ Control Plots with Sliders
     import ipywidgets as widgets
     from mpl_interactions import interactive_plot, interactive_plot_factory
 
+asdf
+
+.. jupyter-execute::
+
+    slider = widgets.IntSlider()
+    display(slider)
+
+slider_format_string
+
+.. jupyter-execute::
+
+    slider2 = widgets.IntSlider()
+    slider2
 
 Simple Example
 --------------
@@ -73,6 +86,7 @@ One other caveat is that the slider's label will not update as that also require
     c = {'this', 'set will be', 'unordered'}
     d = {('this', 'set will be', 'ordered')}
     e = 0 # this will not get a slider
+    print('does this output show up?')
     f = widgets.Checkbox(value=True, description='A checkbox!!')
     display(interactive_plot(foo, x=x, a=a, b=b, c=c, d=d, e=e, f_=f, display=False)[-1])
 
