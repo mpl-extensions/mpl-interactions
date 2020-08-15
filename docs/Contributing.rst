@@ -52,3 +52,17 @@ Then run the following commands
     make html
 
 If you open the ``index.html`` file in your browser then you should now be able to see the rendered documentation.
+
+Autobuild the documentation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can also use `sphinx-autobuild <https://github.com/GaretJax/sphinx-autobuild>`_ to continuously watch the documentation for changes and rebuild it for you.
+sphinx-autobuild will be installed automatically by the above ``pip`` command so all you need to do is:
+
+.. code-block:: bash
+
+    cd docs
+    sphinx-autobuild . _build/html -B
+
+and then in a few seconds your webbrowser should open up the documentation. Then whenever you save a file
+the documentation will automatically regenerate and the webpage should even refresh for you!

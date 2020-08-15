@@ -49,6 +49,7 @@ setup(
             'pypandoc',
             'jupyter-sphinx',
             'sphinx-copybutton',
+            'sphinx-autobuild',
         ],
     }
 )
