@@ -10,4 +10,3 @@ numpydoc
 mock
 jupyter-sphinx>=0.2.4
 sphinx-copybutton
-ipywidgets==7
