@@ -4,7 +4,6 @@ matplotlib
 numpy
 recommonmark
 sphinx>=2
-nbsphinx>=0.2.13,<0.4.0
 sphinx_rtd_theme
 numpydoc
 mock
