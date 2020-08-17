@@ -57,12 +57,12 @@ Autobuild the documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can also use `sphinx-autobuild <https://github.com/GaretJax/sphinx-autobuild>`_ to continuously watch the documentation for changes and rebuild it for you.
-sphinx-autobuild will be installed automatically by the above ``pip`` command so all you need to do is:
+sphinx-autobuild will be installed automatically by the above ``pip`` command and we've added it to the ``Makefile`` so all you need to do is:
 
 .. code-block:: bash
 
     cd docs
-    sphinx-autobuild . _build/html -B
+    make watch
 
 and then in a few seconds your webbrowser should open up the documentation. Then whenever you save a file
 the documentation will automatically regenerate and the webpage should even refresh for you!
