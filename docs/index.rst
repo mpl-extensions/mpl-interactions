@@ -4,7 +4,7 @@ Welcome to mpl-interactions' documentation!
 mpl_interactions: Easy and interactive Matplotlib plots
 --------------------------------------------------------
 
-mpl-interactions' aims to make it as easy as possible for users to create  `Matplotlib <http://www.matplotlib.org>`_ plots. 
+mpl_interactions' aims to make it as easy as possible for users to create  `Matplotlib <http://www.matplotlib.org>`_ plots. 
 In particular, you can:
 
 * Better understand a function's change with respect to a parameter.
@@ -19,9 +19,7 @@ To achieve this, mpl_interactions provides:
 Installation
 ^^^^^^^^^^^^^
 
-To install, simply run:
-
-``pip install mpl_interactions``
+To install, simply run: ``pip install mpl_interactions``
 
 Further instructions for installation from JupyterLab can be found on the :ref:`Installation` page. 
 
@@ -44,7 +42,8 @@ To control a plot with a slider:
    fig, ax, sliders = interactive_plot([f1, f2], x=x, τ = τ, β = β)
    _ = plt.legend()
 
-**add appropriate gif here**
+.. image:: images/interactive-plot.gif
+.. image:: images/heatmap_slicer.gif
 
 For other functionality and more detailed examples, visit the :ref:`Examples` page. 
 
@@ -54,3 +53,22 @@ Matplotlib backends
 mpl_interactions' functions are written for primary use with `ipympl <https://github.com/matplotlib/ipympl>`_, the backend 
 designed for Jupyter Notebooks. Further explaination of how to run mpl_interactions optimally can be found 
 on the :ref:`Matplotlib Backends` page. 
+
+*Follow the links below for further information on installation, functions, and plot examples.* 
+
+.. toctree::
+   :maxdepth: 3
+
+   Installation
+   Backends
+   compare-to-ipywidgets
+   API
+   Examples
+   Contributing
+
+Indices and Tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
