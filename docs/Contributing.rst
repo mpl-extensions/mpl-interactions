@@ -9,6 +9,8 @@ found unclear, and requesting new features are all super valuable contributions.
 Code Improvements
 -----------------
 
+All development for this library happens on Github at https://github.com/ianhi/mpl-interactions
+
 Seeing your changes
 ^^^^^^^^^^^^^^^^^^^
 
@@ -28,7 +30,7 @@ Working with Git
 ^^^^^^^^^^^^^^^^
 
 Using Git/Github can confusing (https://xkcd.com/1597/) so if you're new to Git you may find
-it helpful to use a program like `Github Desktop <desktop.github.com>`_ as well as to follow
+it helpful to use a program like `Github Desktop <desktop.github.com>`_ and to follow
 a `guide <https://github.com/firstcontributions/first-contributions#first-contributions>`_. 
 
 Also feel free to ask for help/advice on the relevant Github `issue <https://github.com/ianhi/mpl-interactions/issues>`_.
