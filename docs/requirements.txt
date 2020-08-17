@@ -1,11 +1,11 @@
 ipympl
 jupyter_client
 matplotlib
-nbsphinx>=0.5
 numpy
 recommonmark
-sphinx>=1.4.6
+sphinx>=2
 sphinx_rtd_theme
 numpydoc
 mock
-nbsphinx-link
+jupyter-sphinx>=0.2.4
+sphinx-copybutton

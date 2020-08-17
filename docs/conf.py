@@ -12,22 +12,21 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../mpl_interactions'))
+import mpl_interactions as mpl_inter
 
-
+release = mpl_inter.__version__
+import inspect
 import sys
+import sphinx_rtd_theme
 
-#MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'matplotlib.pyplot', 'scipy.interpolate']
-#for mod_name in MOCK_MODULES:
-#    sys.modules[mod_name] = mock.Mock()
 # -- Project information -----------------------------------------------------
 
-project = 'ipympl-interactions'
+project = 'mpl-interactions'
 copyright = '2020, Ian Hunt-Isaak'
 author = 'Ian Hunt-Isaak'
 
 # The full version, including alpha/beta/rc tags
-release = '0.12'
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,19 +35,44 @@ release = '0.12'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-#    'sphinx.ext.autodoc',
-#    'sphinx.ext.autosummary',
+    #'sphinx.ext.autodoc',
+    #'sphinx.ext.autosummary',
     'nbsphinx',
-    'nbsphinx_link',
     'sphinx.ext.mathjax',
-#    'sphinx.ext.napoleon']
-    'numpydoc',]
+    'sphinx.ext.linkcode',
+    'sphinx.ext.napoleon',
+    'numpydoc',
+    'jupyter_sphinx',
+    'sphinx_copybutton',
+    ]
 
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = False
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = False
+napoleon_use_rtype = False
+add_module_names=False
+
+autosummary_generate = True
+autodoc_default_options = {
+   'members':True,
+   'show-inheritance':True,
+}
 nbsphinx_execute = 'always'
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
+html_static_path = ['_static']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -64,22 +88,63 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**ipynb_checkpoints']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'nature'
-html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_theme_options = {
         # Toc options
         'collapse_navigation': False,
         'sticky_navigation': True,
-        'navigation_depth': 2,
+        'navigation_depth': 4,
 }
 
 
 master_doc = 'index'
 
 
-# following: https://github.com/readthedocs/sphinx_rtd_theme/issues/766#issuecomment-517145293
-# to fix an issue with rendering numpydoc in read the docs style
 def setup(app):
-    app.add_css_file("basic.css")
+    app.add_css_file("custom.css")
+
+
+# based on pandas/doc/source/conf.py
+def linkcode_resolve(domain, info):
+    """
+    Determine the URL corresponding to Python object
+    """
+    if domain != "py":
+        return None
+
+    modname = info["module"]
+    fullname = info["fullname"]
+
+    submod = sys.modules.get(modname)
+    if submod is None:
+        return None
+
+    obj = submod
+    for part in fullname.split("."):
+        try:
+            obj = getattr(obj, part)
+        except AttributeError:
+            return None
+
+    try:
+        fn = inspect.getsourcefile(inspect.unwrap(obj))
+    except TypeError:
+        fn = None
+    if not fn:
+        return None
+
+    try:
+        source, lineno = inspect.getsourcelines(obj)
+    except OSError:
+        lineno = None
+
+    if lineno:
+        linespec = f"#L{lineno}-L{lineno + len(source) - 1}"
+    else:
+        linespec = ""
+
+    fn = os.path.relpath(fn, start=os.path.dirname(mpl_inter.__file__))
+
+    return f"https://github.com/ianhi/mpl-interactions/blob/master/mpl_interactions/{fn}{linespec}"

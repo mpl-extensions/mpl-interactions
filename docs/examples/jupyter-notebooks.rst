@@ -1,0 +1,148 @@
+==========================
+Control Plots with Sliders
+==========================
+
+.. note::
+    Unfortunately the interactive plots won't work on a website as there is no Python kernel
+    running. So for all the interactive outputs have been replaced by gifs of what you should expect.
+
+.. note::
+    As discussed in the [TODO: Add a link to backend discussion] page you will have the best
+    performance with the ipympl backed, so make sure you set that using ``%matplotlib ipympl``.
+
+
+.. jupyter-execute::
+
+    %matplotlib ipympl
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import ipywidgets as widgets
+    from mpl_interactions import interactive_plot, interactive_plot_factory
+
+Simple Example
+--------------
+
+To use the interactive plot function all you need to do is write a function that will
+return a numpy array or a list of numbers. You can provide the parameters that you want
+to vary with sliders as keyword arguments to the :meth:`~mpl_interactions.interactive_plot` function. 
+
+.. jupyter-execute::
+
+    x = np.linspace(0,np.pi,100)
+    tau = np.linspace(1,10, 100)
+    beta = np.linspace(1,10)
+    def f(x, tau, beta):
+        return np.sin(x*tau)*x**beta
+
+and then to display the plot
+
+.. code-block:: python
+
+    fig, ax, sliders = interactive_plot(f, x=x, τ = τ, β = β)
+
+
+.. image:: interactive-plot-images/simple.gif
+
+Other ways to set parameter values
+----------------------------------
+
+You can set parameters with any of the following:
+
+- **numpy array/list** - Creates a slider with the values in the array
+- **tuple** - Acts as an argument to linspace. Can have either 2 or 3 items
+- **set** - Creates a categorical selector (order will not preserved)
+- **set(tuple())** - Categorical selector with order maintained
+- **scalar** - Fixed value
+- **ipywidgets.Widget** any subclass of `ipywidgets.Widget` that has a ``value`` attribute can be used as is
+
+Here is an example using all of the possibilities with a dummy function. The `display=False`
+prevent the widgets from being automatically displayed which makes it easier to render them in this webpage,
+but in general you should not need to use that.
+
+
+.. note::
+    The slider labels will not update here as that update requires a Python kernel.
+
+.. jupyter-execute::
+
+    def foo(x, **kwargs):
+        return x
+    
+    a = np.linspace(0,10)
+    b = (0, 10, 15)
+    c = {'this', 'set will be', 'unordered'}
+    d = {('this', 'set will be', 'ordered')}
+    e = 0 # this will not get a slider
+    f = widgets.Checkbox(value=True, description='A checkbox!!')
+    display(interactive_plot(foo, x=x, a=a, b=b, c=c, d=d, e=e, f_=f, display=False)[-1])
+
+Multiple Functions
+------------------
+
+To plot multiple functions simply pass a list of functions as the first argument ``interactive_plot([f1, f2],...)``.
+Also, whenever you add a legend to the resulting plot the names of the functions will be used as the labels, unless you
+override that using the the plot_kwargs argument [TODO add link to that section of examples].
+
+.. code-block:: python
+
+    def f1(x, tau, beta):
+        return np.sin(x*tau)*x*beta
+    def f2(x, tau, beta):
+        return np.sin(x*beta)*x*tau
+    fig, ax, sliders = interactive_plot([f1, f2], x=x, tau = tau, beta = beta, display=False)
+    _ = plt.legend()
+
+.. image:: interactive-plot-images/multiple-functions.gif
+
+Styling
+-------
+Calling ``interactive_plot`` will create and display a new figure for you. After that you can
+use standard ``pyplot`` command to continue to modify the plot or you can use the references to the ``figure`` and ``axis``
+that are returned by interactive_plot. Though be careful, anything you add will not be affected by the sliders.
+
+
+
+Slider Precision
+^^^^^^^^^^^^^^^^
+
+You can change the precision of individual slider displays by passing slider_format_string as a dictionary. 
+The below example will give the tau slider 99 decimal points of precision and use scientific notation to display it. The
+beta slider will use the default 1 decimal point of precision
+
+.. code-block:: python
+
+    interactive_plot(f, x=x, tau=tau, beta=beta, slider_format_string = {"tau": '{:.99e}'})
+
+.. image:: interactive-plot-images/slider-precision.png
+
+Axis limits
+^^^^^^^^^^^
+You can control how ``xlim/ylims`` behave using the ``x_scale/y_scale`` arguments.
+Your options are:
+
+1. ``'stretch'`` - The default, allow the x/y axes to expand but never shrink
+2. ``'auto'`` - autoscale the limits for every plot update
+3. ``'fixed'`` - never automatically update the limits
+4. [``float``, ``float``] - This value will be passed through to ``plt.xlim`` or ``plt.ylim``
+
+Reference parameter values in the Title
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You can make the title auto update with information about the values by using ``title`` argument.
+Just use the name of one of the parameters as in a format specifier in the string.
+e.g. to put the value of `tau` in the title and round it to two decimals use the following
+title string: `{'tau:.2f}'`
+
+Matplolitb keyword arguments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can pass keyword arguments (kwargs) through to the ``plt.plot`` calls using the ``plot_kwargs``
+argument to ``interactive_plot``. For example to add a label and some styling to one of the functions you
+can do the following:
+
+.. code-block:: python
+
+    interactive_plot([f1, f2], x=x, beta=beta, tau=tau, 
+                        plot_kwargs=[{}, {'label':'custom label!', 'linestyle':'--'}],
+                        title='the value of tau is: {tau:.2f}'))
+
+.. image:: interactive-plot-images/styling.gif

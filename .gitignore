@@ -133,3 +133,7 @@ dmypy.json
 *.swp
 
 _build
+
+
+# autoapi stuff - may be bad to ignore this idk
+autoapi
