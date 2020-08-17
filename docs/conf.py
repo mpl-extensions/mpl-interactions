@@ -59,11 +59,11 @@ napoleon_use_param = False
 napoleon_use_rtype = False
 add_module_names=False
 
-# autosummary_generate = True
-#autodoc_default_options = {
-#    'members':True,
-#    'show-inheritance':True,
-#}
+autosummary_generate = True
+autodoc_default_options = {
+   'members':True,
+   'show-inheritance':True,
+}
 nbsphinx_execute = 'always'
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
@@ -95,7 +95,7 @@ html_theme_options = {
         # Toc options
         'collapse_navigation': False,
         'sticky_navigation': True,
-        # 'navigation_depth': 4,
+        'navigation_depth': 4,
 }
 
 

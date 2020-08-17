@@ -68,9 +68,11 @@ updating boilerplate handled for you.
 Follow the links below for further information on installation, functions, and plot examples.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    Installation
+   Backends
+   compare-to-ipywidgets
    API
    Examples
    Contributing
