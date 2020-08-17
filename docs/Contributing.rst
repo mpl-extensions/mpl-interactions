@@ -9,15 +9,15 @@ on things you find unclear, and requesting new features, are all super valuable 
 Code Improvements
 -----------------
 
-All development for this library happens on Github at `mpl_interactions <https://github.com/ianhi/mpl-interactions>`_
+All development for this library happens on Github at `mpl_interactions <https://github.com/ianhi/mpl-interactions>`_.
 
 Seeing your changes
 ^^^^^^^^^^^^^^^^^^^
 
-If you are working in a Jupyter Notebook then in order to see your code changes you will need to either:
+If you are working in a Jupyter Notebook, then in order to see your code changes you will need to either:
 
 * Restart the Kernel every time you make a change to the code.
-* **Or** Make the function reload from the source file every time you run it by using `autoreload <https://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html>`_.
+* **Or:** Make the function reload from the source file every time you run it by using `autoreload <https://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html>`_.
 
 .. code-block:: python
 
@@ -60,7 +60,7 @@ Autobuild the documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Alternatively, you can use `sphinx-autobuild <https://github.com/GaretJax/sphinx-autobuild>`_ to continuously watch the documentation for changes and rebuild it for you.
-sphinx-autobuild will be installed automatically by the above ``pip`` command and we've added it to the ``Makefile``. All you need to do is:
+Sphinx-autobuild will be installed automatically by the above ``pip`` command, and we've added it to the ``Makefile``. All you need to do is:
 
 .. code-block:: bash
 
@@ -73,8 +73,5 @@ the documentation will automatically regenerate and the webpage will refresh for
 Thank you to our current team!
 ------------------------------
 
-+----------------------------+----------------------------+----------------------------+
-| *enter name here*          | *enter name here*          | *enter name here*          |
-| *github link*              | *github link*              | *github link*              |
-| *contribution emoji*       | *contribution emoji*       | *contribution emoji*       |
-+----------------------------+----------------------------+----------------------------+
+This project follows the `all-contributors <https://github.com/all-contributors/all-contributors>`_ specification. 
+Contributors members can be found on mpl_interactions' `README <https://github.com/ianhi/mpl-interactions#contributors->`_ page.
