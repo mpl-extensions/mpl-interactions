@@ -4,7 +4,7 @@ Examples
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    examples/jupyter-notebooks.rst
    examples/heatmap-slicer.rst
