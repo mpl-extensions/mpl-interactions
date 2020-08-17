@@ -3,21 +3,21 @@ Contributing
 ============
 
 Thanks for thinking of a way to help improve this library! Remember that contributions come in all
-shapes and sizes beyond writing bug fixes. Contributing documentation or opening new `issues <https://github.com/ianhi/mpl-interactions/issues>`_ for bugs, clarification on things you
-found unclear, and requesting new features are all super valuable contributions. 
+shapes and sizes beyond writing bug fixes. Contributing to documentation, opening new `issues <https://github.com/ianhi/mpl-interactions/issues>`_ for bugs, asking for clarification 
+on things you find unclear, and requesting new features, are all super valuable contributions. 
 
 Code Improvements
 -----------------
 
-All development for this library happens on Github at https://github.com/ianhi/mpl-interactions
+All development for this library happens on Github at `mpl_interactions <https://github.com/ianhi/mpl-interactions>`_
 
 Seeing your changes
 ^^^^^^^^^^^^^^^^^^^
 
-If you are working in a Jupyter notebook then in order to be able to see your code changes you will either need to restart
-the Kernel every time you make a change to the code. Or you make the function be reloaded from the source file every time you run it
-using `autoreload <https://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html>`_.
+If you are working in a Jupyter Notebook then in order to see your code changes you will need to either:
 
+* Restart the Kernel every time you make a change to the code.
+* **Or** Make the function reload from the source file every time you run it by using `autoreload <https://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html>`_.
 
 .. code-block:: python
 
@@ -29,7 +29,7 @@ using `autoreload <https://ipython.readthedocs.io/en/stable/config/extensions/au
 Working with Git
 ^^^^^^^^^^^^^^^^
 
-Using Git/Github can confusing (https://xkcd.com/1597/) so if you're new to Git you may find
+Using Git/Github can confusing (https://xkcd.com/1597/) so if you're new to Git, you may find
 it helpful to use a program like `Github Desktop <desktop.github.com>`_ and to follow
 a `guide <https://github.com/firstcontributions/first-contributions#first-contributions>`_. 
 
@@ -38,33 +38,43 @@ Also feel free to ask for help/advice on the relevant Github `issue <https://git
 Documentation
 -------------
 
-Building the documentation:
+Following changes to the source files, you can view recent adjustments by building the documentation.
 
-First make sure you have installed the requirements for building the documentation
+1. Make sure you have installed the requirements for building the documentation:
 
 .. code-block:: bash
 
+    cd mpl-interactions
     pip install -e.[docs]
 
-Then run the following commands
+2. Run the following commands:
 
 .. code-block:: bash
 
     cd docs
     make html
 
-If you open the ``index.html`` file in your browser then you should now be able to see the rendered documentation.
+If you open the ``index.html`` file in your browser you should now be able to see the rendered documentation.
 
 Autobuild the documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can also use `sphinx-autobuild <https://github.com/GaretJax/sphinx-autobuild>`_ to continuously watch the documentation for changes and rebuild it for you.
-sphinx-autobuild will be installed automatically by the above ``pip`` command and we've added it to the ``Makefile`` so all you need to do is:
+Alternatively, you can use `sphinx-autobuild <https://github.com/GaretJax/sphinx-autobuild>`_ to continuously watch the documentation for changes and rebuild it for you.
+sphinx-autobuild will be installed automatically by the above ``pip`` command and we've added it to the ``Makefile``. All you need to do is:
 
 .. code-block:: bash
 
     cd docs
     make watch
 
-and then in a few seconds your webbrowser should open up the documentation. Then whenever you save a file
-the documentation will automatically regenerate and the webpage should even refresh for you!
+In a few seconds your web browser should open up the documentation. Now whenever you save a file
+the documentation will automatically regenerate and the webpage will refresh for you!
+
+Thank you to our current team!
+------------------------------
+
++----------------------------+----------------------------+----------------------------+
+| *enter name here*          | *enter name here*          | *enter name here*          |
+| *github link*              | *github link*              | *github link*              |
+| *contribution emoji*       | *contribution emoji*       | *contribution emoji*       |
++----------------------------+----------------------------+----------------------------+
