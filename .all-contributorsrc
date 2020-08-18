@@ -13,6 +13,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "samanthahamilton",
+      "name": "Sam",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/67113216?v=4",
+      "profile": "https://darlingdocs.wordpress.com/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,

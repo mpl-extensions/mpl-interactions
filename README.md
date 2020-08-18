@@ -1,6 +1,6 @@
 # mpl-interactions
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 [![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: The interactions will be laggy when on binder)
 
@@ -101,6 +101,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="http://ianhi.github.io"><img src="https://avatars0.githubusercontent.com/u/10111092?v=4" width="100px;" alt=""/><br /><sub><b>Ian Hunt-Isaak</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=ianhi" title="Code">💻</a></td>
+    <td align="center"><a href="https://darlingdocs.wordpress.com/"><img src="https://avatars1.githubusercontent.com/u/67113216?v=4" width="100px;" alt=""/><br /><sub><b>Sam</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=samanthahamilton" title="Documentation">📖</a></td>
   </tr>
 </table>
 
