@@ -7,13 +7,13 @@ User install
 To install simply run:
 ``pip install mpl_interactions``
 
-Jupyterlab setup
-----------------
+Optional JupyterLab setup
+-------------------------
 
-If you plan on using `mpl_interactions` in the notebook then you need to ensure you have a fully working
-installation of `ipympl <https://github.com/matplotlib/ipympl>`_. The ``ipympl`` python package is installed as dependency, however you
-may need to take a few extra steps to get it to work in jupyterlab. In particular you need to make sure ``nodejs > 10`` is availiable
-and that you have installed ``jupyterlab-manager``
+If you plan on using mpl_interactions in notebooks with `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/#>`_ then you need to ensure you have a fully working
+installation of `ipympl <https://github.com/matplotlib/ipympl>`_. The ``ipympl`` python package is installed as a dependency; however, you
+may need to take a few extra steps to get it to work in JupyterLab. In particular you need to make sure ``nodejs > 10`` is availiable
+and that you have installed ``jupyterlab-manager``.
 
 
 .. code-block:: bash
@@ -25,7 +25,7 @@ and that you have installed ``jupyterlab-manager``
 .. index::
    pair: Syntax; Code Example
 
-Development Installation
+Development installation
 ------------------------
 
 First create your own fork of https://github.com/ianhi/mpl-interactions.
