@@ -1,12 +1,16 @@
-# mpl-interactions
+# mpl_interactions
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 [![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: The interactions will be laggy when on binder)
 
+## Welcome!
+
+mpl_interactions' library provides helpful ways to interact with [Matplotlib](https://matplotlib.org/) plots. A summary of key components can be found below. Fuller narrative, further examples, and more information can be found on [ReadtheDocs](https://mpl-interactions.readthedocs.io/en/latest/#).
+
 <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/short-interactive.gif width=45%>  <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/heatmap_slicer.gif width=45%>
 
-This library provides helpful ways to interact with [Matplotlib](https://matplotlib.org/) plots. There are three submodules:
+There are three submodules:
 
 **jupyter**
 
@@ -24,19 +28,19 @@ def f(x, beta):
 interactive_plot(f, x=x, beta=beta)
 ```
 
-These functions are designed to be used with [ipympl](https://github.com/matplotlib/ipympl), the backend that is designed for use in Jupyter notebooks. So for optimal performance, make sure you set the backend with `%matplotlib ipympl`. That said, these functions will also work with any interactive backend (e.g. `%matplotlib qt5`).
+These functions are designed to be used with [ipympl](https://github.com/matplotlib/ipympl), the backend that is designed for use in Jupyter Notebooks. So for optimal performance, make sure you set the backend with `%matplotlib ipympl`. That said, these functions will also work with any interactive backend (e.g. `%matplotlib qt5`).
 
 
 **generic**
 
-Provides ways to interact with Matplotlib that will work outside of a jupyter notebook; this should work equally well with any backend.
+Provides ways to interact with Matplotlib that will work outside of a Jupyter Notebook; this should work equally well with any backend.
 1. A very niche (but very cool) way to compare 2D heatmaps
 2. Scroll to zoom
 3. Middle click to pan
 
 **utils**
 
-This module includes utility functions to make things just that little bit easier
+This module includes utility functions to make things just that little bit easier.
 
 1. `ioff` as a context manager
 
@@ -63,16 +67,18 @@ fig = figure(3)
 pip install mpl_interactions
 
 # if using jupyterlab
-conda install -c conda-forge nodejs>10
+conda install nodejs=12
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 ```
-If you use jupyterlab, make sure you follow the full instructions in the ipympl [readme](https://github.com/matplotlib/ipympl#install-the-jupyterlab-extension) in particular installing jupyterlab-manager.
+If you use JupyterLab, make sure you follow the full instructions in the ipympl [readme](https://github.com/matplotlib/ipympl#install-the-jupyterlab-extension) in particular installing jupyterlab-manager.
 ## Contributing / feature requests / roadmap
 
 I use the GitHub [issues](https://github.com/ianhi/mpl-interactions/issues) to keep track of ideas I have, so looking through those should serve as a roadmap of sorts. For the most part I add to the library when I create a function that is useful for the science I am doing. If you create something that seems useful a PR would be most welcome so we can share it easily with more people. I'm also open to feature requests if you have an idea.
 
 ## Documentation
-Definitely a work in progress--I would recommend checking out the [examples directory](https://github.com/ianhi/mpl-interactions/tree/master/examples). The minimal narrative documentation can be found on [ReadTheDocs](https://mpl-interactions.readthedocs.io/en/latest/)
+Definitely a work in progress---I would recommend checking out the [examples directory](https://github.com/ianhi/mpl-interactions/tree/master/examples). If you have comments, suggestions, or need clarification, please reach out.
+
+The fuller narrative documentation can be found on [ReadTheDocs](https://mpl-interactions.readthedocs.io/en/latest/)
 
 
 ## Examples with GIFs!
