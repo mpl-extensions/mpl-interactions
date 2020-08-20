@@ -354,7 +354,8 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
 
     new_x, new_y, new_patches = simple_hist(funcs[0](**params), density=density, bins=bins, weights=weights)
     pc.set_paths(new_patches)
-    stretch(ax, new_x, new_y)
+    ax.set_xlim(new_x)
+    ax.set_ylim(new_y)
 
     display(widgets.VBox(controls))
     display(fig.canvas)
