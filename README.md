@@ -76,9 +76,8 @@ If you use JupyterLab, make sure you follow the full instructions in the ipympl 
 I use the GitHub [issues](https://github.com/ianhi/mpl-interactions/issues) to keep track of ideas I have, so looking through those should serve as a roadmap of sorts. For the most part I add to the library when I create a function that is useful for the science I am doing. If you create something that seems useful a PR would be most welcome so we can share it easily with more people. I'm also open to feature requests if you have an idea.
 
 ## Documentation
-Definitely a work in progress---I would recommend checking out the [examples directory](https://github.com/ianhi/mpl-interactions/tree/master/examples). If you have comments, suggestions, or need clarification, please reach out.
 
-The fuller narrative documentation can be found on [ReadTheDocs](https://mpl-interactions.readthedocs.io/en/latest/)
+The fuller narrative documentation can be found on [ReadTheDocs](https://mpl-interactions.readthedocs.io/en/latest/). You may also find it helpful to check out the [examples directory](https://github.com/ianhi/mpl-interactions/tree/master/examples).
 
 
 ## Examples with GIFs!
@@ -97,6 +96,7 @@ Compare vertical and horizontal slices across multiple heatmaps:
 
 ### scrolling zoom + middle click pan
 ![](docs/images/zoom-and-pan.gif)
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
