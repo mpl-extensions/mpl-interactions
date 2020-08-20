@@ -33,6 +33,7 @@ Functions that will be useful irrespective of backend.
    ~mpl_interactions.heatmap_slicer
    ~mpl_interactions.zoom_factory
    ~mpl_interactions.panhandler
+   ~mpl_interactions.image_segmenter
 
 
 utilities
