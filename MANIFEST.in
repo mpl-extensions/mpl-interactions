@@ -13,6 +13,7 @@ prune docs/build
 prune docs/_build
 prune docs/gh-pages
 prune docs/dist
+prune docs/docs
 
 # Examples
 graft examples
