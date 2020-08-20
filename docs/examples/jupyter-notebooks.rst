@@ -38,7 +38,7 @@ and then to display the plot
 
 .. code-block:: python
 
-    fig, ax, sliders = interactive_plot(f, x=x, τ = τ, β = β)
+    fig, ax, sliders = interactive_plot(f, x=x, tau = tau, beta = beta)
 
 
 .. image:: interactive-plot-images/simple.gif
