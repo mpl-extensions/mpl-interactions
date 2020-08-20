@@ -14,6 +14,61 @@ __all__ = [
     'interactive_plot',
 ]
 
+def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
+    labels = []
+    sliders = []
+    controls = []
+    for key, val in kwargs.items():
+        if isinstance(val, set):
+            if len(val) == 1:
+                val = val.pop()
+                if isinstance(val, tuple):
+                    # want the categories to be ordered
+                    pass
+                else:
+                    # fixed parameter
+                    params[key] = val
+            else:
+                val = list(val)
+
+            # categorical
+            if len(val) <= 3:
+                selector = widgets.RadioButtons(options = val)
+            else:
+                    selector = widgets.Select(options=val)
+            params[key] = val[0]
+            controls.append(selector)
+            selector.observe(partial(update, key = key, label=None), names=['value'])
+        elif isinstance(val, widgets.Widget) or isinstance(val, widgets.fixed):
+            if not hasattr(val, 'value'):
+                raise TypeError("widgets passed as parameters must have the `value` trait."
+                                "But the widget passed for {key} does not have a `.value` attribute")
+            if isinstance(val, widgets.fixed):
+                params[key] = val.value
+            else:
+                params[key] = val.value
+                controls.append(val)
+                val.observe(partial(update, key =key, label=None), names=['value'])
+        else:
+            if isinstance(val, tuple) and len(val) in [2, 3]:
+                # treat as an argument to linspace
+                # idk if it's acceptable to overwrite kwargs like this
+                # but I think at this point kwargs is just a dict like any other
+                val = linspace(*val)
+                kwargs[key] = val
+            val = atleast_1d(val)
+            if val.ndim > 1:
+                raise ValueError(f'{key} is {val.ndim}D but can only be 1D or a scalar')
+            if len(val)==1:
+                # don't need to create a slider
+                params[key] = val
+            else:
+                params[key] = val[0]
+                labels.append( widgets.Label(value=slider_format_strings[key].format(val[0])))
+                sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
+                controls.append(widgets.HBox([sliders[-1], labels[-1]]))
+                sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
+    return sliders, labels, controls
 
 def interactive_plot_factory(ax, f, x=None,
                                  x_scale='stretch',
@@ -81,59 +136,9 @@ def interactive_plot_factory(ax, f, x=None,
             ax.set_title(title.format(**params))
         fig.canvas.draw_idle()
     fig = ax.get_figure()
-    labels = []
-    sliders = []
-    controls = []
-    for key, val in kwargs.items():
-        if isinstance(val, set):
-            if len(val) == 1:
-                val = val.pop()
-                if isinstance(val, tuple):
-                    # want the categories to be ordered
-                    pass
-                else:
-                    # fixed parameter
-                    params[key] = val
-            else:
-                val = list(val)
-
-            # categorical
-            if len(val) <= 3:
-                selector = widgets.RadioButtons(options = val)
-            else:
-                 selector = widgets.Select(options=val)
-            params[key] = val[0]
-            controls.append(selector)
-            selector.observe(partial(update, key = key, label=None), names=['value'])
-        elif isinstance(val, widgets.Widget) or isinstance(val, widgets.fixed):
-            if not hasattr(val, 'value'):
-                raise TypeError("widgets passed as parameters must have the `value` trait."
-                                "But the widget passed for {key} does not have a `.value` attribute")
-            if isinstance(val, widgets.fixed):
-                params[key] = val.value
-            else:
-                params[key] = val.value
-                controls.append(val)
-                val.observe(partial(update, key =key, label=None), names=['value'])
-        else:
-            if isinstance(val, tuple) and len(val) in [2, 3]:
-                # treat as an argument to linspace
-                # idk if it's acceptable to overwrite kwargs like this
-                # but I think at this point kwargs is just a dict like any other
-                val = linspace(*val)
-                kwargs[key] = val
-            val = atleast_1d(val)
-            if val.ndim > 1:
-                raise ValueError(f'{key} is {val.ndim}D but can only be 1D or a scalar')
-            if len(val)==1:
-                # don't need to create a slider
-                params[key] = val
-            else:
-                params[key] = val[0]
-                labels.append( widgets.Label(value=slider_format_strings[key].format(val[0])))
-                sliders.append(widgets.IntSlider(min=0, max=val.size-1, readout=False, description = key))
-                controls.append(widgets.HBox([sliders[-1], labels[-1]]))
-                sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
+    sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+    # for key, val in kwargs.items():
+    #     _kwarg_to_widget(key, val, params, sliders, labels, controls, update, slider_format_strings)
     indexed_x = False
     if x is not None:
         x = asarray(x)
@@ -272,3 +277,4 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
         else:
             ipy_display(controls)
     return fig, ax, controls
+
