@@ -22,6 +22,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "jcoulter12",
+      "name": "Jenny Coulter",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/14036348?v=4",
+      "profile": "https://github.com/jcoulter12",
+      "contributions": [
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
