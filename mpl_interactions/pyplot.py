@@ -6,6 +6,12 @@ from functools import partial
 from warnings import warn
 from collections import defaultdict
 from .utils import ioff, figure
+import matplotlib.widgets as mwidgets
+from collections.abc import Iterable
+from matplotlib.pyplot import axes, sca
+import numpy as np
+from matplotlib.patches import Rectangle
+from matplotlib.collections import PatchCollection
 
 
 # functions that are methods
@@ -71,12 +77,134 @@ def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
                 sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=['value'])
     return sliders, labels, controls
 
+
+def _extract_num_options(val):
+    """
+    convert a categorical to a number of options
+    """
+    if len(val) == 1:
+        for v in val:
+            if isinstance(v, tuple):
+                # this looks nightmarish...
+                # but i think it should always work
+                # should also check if the tuple has length one here.
+                # that will only be an issue if a trailing comma was used to make the tuple ('beep',)
+                # but not ('beep') - the latter is not actually a tuple
+                return len(v)
+            else:
+                return 0
+    else:
+        return len(val)
+
+def _changeify(val, key, update):
+    """
+    make matplotlib update functions return a dict with key 'new'.
+    Do this for compatibility with ipywidgets
+    """
+    update({'new': val}, key, None)
+
+# this is a bunch of hacky nonsense
+# making it involved me holding a ruler up to my monitor
+# if you have a better solution I would love to hear about it :)
+# - Ian 2020-08-22
+def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string):
+    n_opts = 0
+    n_radio = 0
+    n_sliders = 0
+    for key, val in kwargs.items():
+        if isinstance(val, set):
+            new_opts = extract_num_options(val)
+            if new_opts>0:
+                n_radio += 1
+                n_opts += new_opts
+        elif not isinstance(val, mwidgets.AxesWidget) and not isinstance(val, widgets.fixed) and isinstance(val, Iterable) and len(val)>1:
+            n_sliders += 1
+
+    # These are roughly the sizes used in the matplotlib widget tutorial
+    # https://matplotlib.org/3.2.2/gallery/widgets/slider_demo.html#sphx-glr-gallery-widgets-slider-demo-py
+    slider_in = .15
+    radio_in = .6/3
+    widget_gap_in = .1
+
+    widget_inches = n_sliders*slider_in + n_opts*radio_in + widget_gap_in * (n_sliders + n_radio + 1) + .5 # half an inch for margin
+    with ioff:
+        fig = figure()
+    size = fig.get_size_inches()
+    fig_h = widget_inches
+    fig.set_size_inches(size[0], widget_inches)
+    slider_height = slider_in / fig_h
+    radio_height  = radio_in / fig_h
+    # radio
+    gap_height = widget_gap_in/fig_h
+    widget_y = .05
+    slider_ax = []
+    sliders = []
+    radio_ax = []
+    radio_buttons = []
+    cbs = []
+    for key, val in kwargs.items():
+        if isinstance(val, set):
+            if len(val) == 1:
+                val = val.pop()
+                if isinstance(val, tuple):
+                    pass
+                else:
+                    params[key] = val
+                    continue
+            else:
+                val = list(val)
+
+            n = len(val)
+            longest_len = max(list(map(lambda x: len(list(x)),map(str,val))))
+            # should probably use something based on fontsize rather that .015
+            width = max(.15, .015*longest_len)
+            radio_ax.append(axes([.2 ,.9 - widget_y - radio_height*n, width, radio_height*n]))
+            widget_y += radio_height * n + gap_height
+            radio_buttons.append(mwidgets.RadioButtons(radio_ax[-1], val, active=0))
+            cbs.append(radio_buttons[-1].on_clicked(partial(_changeify,key=key, update=update)))
+            params[key] = val[0]
+        elif isinstance(val, mwidgets.RadioButtons):
+            val.on_clicked(partial(_changeify, key=key, update=update))
+        elif isinstance(val, mwidgets.Slider):
+            val.on_changed(partial(_changeify, key=key, update=update))
+        else:
+            if isinstance(val, tuple):
+                if len(val) == 2:
+                    min_ = val[0]
+                    max_ = val[1]
+                elif len(val) == 3:
+                    # should warn that that doesn't make sense with matplotlib sliders
+                    min_ = val[0]
+                    max_ = val[1]
+            else:
+                val = np.atleast_1d(val)
+                if val.ndim > 1:
+                    raise ValueError(f'{key} is {val.ndim}D but can only be 1D or a scalar')
+                if len(val)==1:
+                    # don't need to create a slider
+                    params[key] = val[0]
+                    continue
+                else:
+                    # list or numpy array
+                    # should warn here as well
+                    min_ = np.min(val)
+                    max_ = np.max(val)
+
+            slider_ax.append(axes([.2, .9- widget_y-gap_height, .65, slider_height]))
+            sliders.append(mwidgets.Slider(slider_ax[-1], key, min_, max_, valinit=min_))
+            cbs.append(sliders[-1].on_changed(partial(_changeify, key=key, update=update)))
+            widget_y += slider_height + gap_height
+            params[key] = min_
+    controls = [fig, radio_ax, radio_buttons, slider_ax, sliders]
+    return controls
+
+
 def interactive_plot_factory(ax, f, x=None,
                                  x_scale='stretch',
                                  y_scale='stretch',
                                  slider_format_string='{:.1f}',
                                  plot_kwargs=None,
-                                 title=None, **kwargs):
+                                 title=None, use_ipywidgets=True, **kwargs):
     """
     Use this function for maximum control over layout of the widgets
     
@@ -137,9 +265,12 @@ def interactive_plot_factory(ax, f, x=None,
             ax.set_title(title.format(**params))
         fig.canvas.draw_idle()
     fig = ax.get_figure()
-    sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
-    # for key, val in kwargs.items():
-    #     _kwarg_to_widget(key, val, params, sliders, labels, controls, update, slider_format_strings)
+    if use_ipywidgets:
+        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+    else:
+        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string)
+        sca(ax)
+
     indexed_x = False
     if x is not None:
         x = asarray(x)
@@ -196,7 +327,7 @@ def interactive_plot_factory(ax, f, x=None,
 def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
                         slider_format_string='{:.1f}',
                         plot_kwargs=None,
-                        title=None,figsize=None, display=True, **kwargs):
+                        title=None,figsize=None, display=True, force_ipywidgets=False, **kwargs):
     """
     Make a plot interactive using sliders. just pass the keyword arguments of the function
     you want to plot to this function like so:
@@ -230,6 +361,10 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
         then it will be used to scale the current rcParams figsize
     display : boolean
         If True then the output and controls will be automatically displayed
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
 
     returns
     -------
@@ -266,23 +401,34 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
     else:
         ipympl = False
         if backend == 'nbAgg'.lower():
-            warn('You are using an outdated backend. You should use %matplotlib ipympl instead of %matplotlib notebook')
+            warn('You are using an outdated backend. You should use `%matplotlib ipympl` instead of `%matplotlib notebook`')
+            ipympl = True
+        
         fig = figure()
         ax = fig.gca()
-    controls = widgets.VBox(interactive_plot_factory(ax, f, x, x_scale,
-                                        y_scale, slider_format_string,
-                                        plot_kwargs, title, **kwargs))
-    if display:
-        if ipympl:
-            ipy_display(widgets.VBox([controls, fig.canvas]))
-        else:
-            ipy_display(controls)
+    use_ipywidgets = ipympl or force_ipywidgets
+    controls = interactive_plot_factory(ax, f, x, x_scale,
+                            y_scale, slider_format_string,
+                            plot_kwargs, title,
+                            use_ipywidgets=use_ipywidgets, **kwargs)
+    if use_ipywidgets:
+        controls = widgets.VBox(controls) 
+        if display:
+            if ipympl:
+                ipy_display(widgets.VBox([controls, fig.canvas]))
+            else:
+                # for the case of using %matplotlib qt
+                # but also want ipywidgets sliders
+                # ie with force_ipywidgets = True
+                ipy_display(controls)
+                fig.show()
+    else:
+        if display:
+            fig.show()
+            controls[0].show()
     return fig, ax, controls
 
 
-import numpy as np
-from matplotlib.patches import Rectangle
-from matplotlib.collections import PatchCollection
 
 def simple_hist(arr, bins='auto', density=None, weights=None):
     heights, bins = np.histogram(arr, bins=bins,  density=density,weights=weights)
