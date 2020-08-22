@@ -457,7 +457,7 @@ def stretch(ax, xlims, ylims):
         ]
     ax.set_xlim(new_lims)
 
-def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_string='{:.2f}',  **kwargs):
+def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_string='{:.2f}', force_ipywidgets=False, **kwargs):
 
     params = {}
     funcs = atleast_1d(f)
@@ -473,9 +473,21 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
     else:
         raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
 
-    with ioff:
+    backend = get_backend().lower()
+    if 'ipympl' in backend:
+        ipympl = True
+        with ioff:
+            fig = figure()
+            ax = fig.gca()
+    else:
+        ipympl = False
+        if backend == 'nbAgg'.lower():
+            warn('You are using an outdated backend. You should use `%matplotlib ipympl` instead of `%matplotlib notebook`')
+            ipympl = True
+        
         fig = figure()
         ax = fig.gca()
+    use_ipywidgets = ipympl or force_ipywidgets
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
@@ -496,12 +508,30 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
         fig.canvas.draw() # same effect with draw_idle
 
     # this line implicitly fills the params dict
-    sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+    if use_ipywidgets:
+        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+    else:
+        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string)
 
     new_x, new_y, new_patches = simple_hist(funcs[0](**params), density=density, bins=bins, weights=weights)
     pc.set_paths(new_patches)
     ax.set_xlim(new_x)
     ax.set_ylim(new_y)
 
-    display(widgets.VBox(controls))
-    display(fig.canvas)
+
+    if use_ipywidgets:
+        controls = widgets.VBox(controls) 
+        if display:
+            if ipympl:
+                ipy_display(widgets.VBox([controls, fig.canvas]))
+            else:
+                # for the case of using %matplotlib qt
+                # but also want ipywidgets sliders
+                # ie with force_ipywidgets = True
+                ipy_display(controls)
+                fig.show()
+    else:
+        if display:
+            fig.show()
+            controls[0].show()
+    return fig, ax, controls
