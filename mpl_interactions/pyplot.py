@@ -22,6 +22,10 @@ __all__ = [
 ]
 
 def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
+    """
+    this will break if you pass a matplotlib slider. I suppose it could support mixed types of sliders
+    but that doesn't really seem worthwhile?
+    """
     labels = []
     sliders = []
     controls = []
@@ -165,8 +169,10 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string):
             params[key] = val[0]
         elif isinstance(val, mwidgets.RadioButtons):
             val.on_clicked(partial(_changeify, key=key, update=update))
+            params[key] = val.val
         elif isinstance(val, mwidgets.Slider):
             val.on_changed(partial(_changeify, key=key, update=update))
+            params[key] = val.val
         else:
             if isinstance(val, tuple):
                 if len(val) == 2:
