@@ -238,8 +238,8 @@ def _create_slider_format_dict(slider_format_string, use_ipywidgets):
         raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
     return slider_format_strings
 def interactive_plot_factory(ax, f, x=None,
-                                 x_scale='stretch',
-                                 y_scale='stretch',
+                                 xlim='stretch',
+                                 ylim='stretch',
                                  slider_format_string=None,
                                  plot_kwargs=None,
                                  title=None, use_ipywidgets=None, **kwargs):
@@ -281,18 +281,18 @@ def interactive_plot_factory(ax, f, x=None,
         cur_xlims = ax.get_xlim()
         cur_ylims = ax.get_ylim()
         ax.relim() # this may be expensive? don't do if not necessary?
-        if y_scale=='auto':
+        if ylim=='auto':
             ax.autoscale_view(scalex=False)
-        elif y_scale=='stretch':
+        elif ylim=='stretch':
             new_lims = [ax.dataLim.y0, ax.dataLim.y0+ax.dataLim.height]
             new_lims = [
                 new_lims[0] if new_lims[0]<cur_ylims[0] else cur_ylims[0],
                 new_lims[1] if new_lims[1]>cur_ylims[1] else cur_ylims[1]
                 ]
             ax.set_ylim(new_lims)
-        if x_scale=='auto':
+        if xlim=='auto':
             ax.autoscale_view(scaley=False)
-        elif x_scale=='stretch':
+        elif xlim=='stretch':
             new_lims = [ax.dataLim.x0, ax.dataLim.x0+ax.dataLim.width]
             new_lims = [
                 new_lims[0] if new_lims[0]<cur_xlims[0] else cur_xlims[0],
@@ -348,10 +348,10 @@ def interactive_plot_factory(ax, f, x=None,
             lines.append(ax.plot(x, f(**params), **plot_kwargs[i])[0])
         else:
             lines.append(ax.plot(*f(**params), **plot_kwargs[i])[0])
-    if not isinstance(x_scale,str):
-        ax.set_ylim(x_scale)
-    if not isinstance(y_scale,str):
-        ax.set_ylim(y_scale)
+    if not isinstance(xlim,str):
+        ax.set_ylim(xlim)
+    if not isinstance(ylim,str):
+        ax.set_ylim(ylim)
     if title is not None:
         ax.set_title(title.format(**params))
 
@@ -359,7 +359,7 @@ def interactive_plot_factory(ax, f, x=None,
     fig.canvas.toolbar.push_current()
     return controls
 
-def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
+def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
                         slider_format_string=None,
                         plot_kwargs=None,
                         title=None,figsize=None, display=True, force_ipywidgets=False, **kwargs):
@@ -376,13 +376,13 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
         return a list of [x, y]
     ax : matplolibt.Axes or None
         axes on which to 
-    x_scale : string or tuple of floats, optional
+    xlim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_xlim. Other options are:
         'auto': rescale the x axis for every redraw
         'stretch': only ever expand the xlims.
-    y_scale : string or tuple of floats, optional
+    ylim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_ylim. Other options are same
-        as x_scale
+        as xlim
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
@@ -441,8 +441,8 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
         ax = fig.gca()
 
     use_ipywidgets = ipympl or force_ipywidgets
-    controls = interactive_plot_factory(ax, f, x, x_scale,
-                            y_scale, slider_format_string,
+    controls = interactive_plot_factory(ax, f, x, xlim,
+                            ylim, slider_format_string,
                             plot_kwargs, title,
                             use_ipywidgets=use_ipywidgets, **kwargs)
     if use_ipywidgets:

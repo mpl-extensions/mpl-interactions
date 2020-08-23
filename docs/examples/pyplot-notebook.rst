@@ -127,7 +127,7 @@ beta slider will use the default 1 decimal point of precision
 
 Axis limits
 ^^^^^^^^^^^
-You can control how ``xlim/ylims`` behave using the ``x_scale/y_scale`` arguments.
+You can control how ``xlim/ylim``s behave using the ``xlim/ylim`` arguments.
 Your options are:
 
 1. ``'stretch'`` - The default, allow the x/y axes to expand but never shrink
