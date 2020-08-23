@@ -6,6 +6,7 @@ Examples
 .. toctree::
    :maxdepth: 2
 
-   examples/pyplot-notebooks.rst
-   examples/heatmap-slicer.rst
+   examples/pyplot-notebook.rst
    examples/mpl-sliders.rst
+   examples/image-segmentation.rst
+   examples/heatmap-slicer.rst

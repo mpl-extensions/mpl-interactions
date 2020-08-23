@@ -91,7 +91,7 @@ Multiple Functions
 
 To plot multiple functions simply pass a list of functions as the first argument ``interactive_plot([f1, f2],...)``.
 Also, whenever you add a legend to the resulting plot the names of the functions will be used as the labels, unless you
-override that using the the plot_kwargs argument [TODO add link to that section of examples].
+override that using the :ref:`plot_kwargs <plot-kwargs-section>` argument.
 
 .. code-block:: python
 
@@ -127,7 +127,7 @@ beta slider will use the default 1 decimal point of precision
 
 Axis limits
 ^^^^^^^^^^^
-You can control how ``xlim/ylims`` behave using the ``x_scale/y_scale`` arguments.
+You can control how ``xlim/ylim``s behave using the ``xlim/ylim`` arguments.
 Your options are:
 
 1. ``'stretch'`` - The default, allow the x/y axes to expand but never shrink
@@ -141,6 +141,8 @@ You can make the title auto update with information about the values by using ``
 Just use the name of one of the parameters as in a format specifier in the string.
 e.g. to put the value of `tau` in the title and round it to two decimals use the following
 title string: `{'tau:.2f}'`
+
+.. _plot-kwargs-section:
 
 Matplolitb keyword arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

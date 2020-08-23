@@ -1,12 +1,17 @@
-from matplotlib.pyplot import subplots
+from matplotlib.pyplot import subplots, close
+from matplotlib import get_backend
+from matplotlib.widgets import LassoSelector
+from matplotlib.path import Path
 from numpy import swapaxes, asarray, min, max
-from .utils import nearest_idx
+import numpy as np
+from .utils import nearest_idx, ioff, figure
 
 # functions that are methods
 __all__ = [
     'heatmap_slicer',
     'zoom_factory',
-    'panhandler'
+    'panhandler',
+    'image_segmenter'
 ]
 def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_cols=None,figsize=(18,9),linecolor='k',labels=('X','Y'),interaction_type='move'):
     
@@ -128,7 +133,7 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     elif interaction_type == 'click':
         fig.canvas.mpl_connect('button_press_event',update_lines) 
     else:
-        plt.close(fig)
+        close(fig)
         raise ValueError(f'{interaction_type} is not a valid option for interaction_type, valid options are \'click\' or \'move\'')
     return fig,axes
 
@@ -244,10 +249,10 @@ class panhandler:
                 self._xypress.append((a, i))
                 self._id_drag = self.fig.canvas.mpl_connect(
                     'motion_notify_event', self._mouse_move)
+
     def release(self, event):
         self._cancel_action()
         self.fig.canvas.mpl_disconnect(self._id_drag)
-
 
         for a, _ind in self._xypress:
             a.end_pan()
@@ -262,3 +267,101 @@ class panhandler:
             # button: # multiple button can get pressed during motion...
             a.drag_pan(1, event.key, event.x, event.y)
         self.fig.canvas.draw_idle()
+
+import matplotlib.cm as cm
+from matplotlib.colors import to_rgba_array, TABLEAU_COLORS, XKCD_COLORS
+class image_segmenter:
+    """
+    Manually segment an image with the lasso selector.
+    """
+    def __init__(self, img, nclasses = 1, mask = None, mask_colors = None, mask_alpha=.75, figsize=(10,10), cmap = 'viridis'):
+        """
+        parameters
+        ----------
+        img : array_like
+            A valid argument to imshow
+        nclasses : int, default 1
+        mask: arraylike, optional
+            If you want to pre-seed the mask
+        mask_colors : None, color, or array of colors, optional
+            the colors to use for each class. Unselected regions will always be totally transparent
+        mask_alpha : float, default .75
+            The alpha values to use for selected regions. This will always override the alpha values
+            in mask_colors if any were passed
+        figsize : (float, float), optional
+            passed to plt.figure
+        cmap : 'string'
+            the colormap to use if img has shape (X,Y)
+        """
+        
+        #ensure mask colors is iterable and the same length as the number of classes
+        # choose colors from default color cycle?
+
+        self.mask_alpha = mask_alpha
+
+        if mask_colors is None:
+            # this will break if there are more than 10 classes
+            if nclasses <= 10:
+                self.mask_colors = to_rgba_array(list(TABLEAU_COLORS)[:nclasses])
+            else:
+                # up to 949 classes. Hopefully that is always enough....
+                self.mask_colors = to_rgba_array(list(XKCD_COLORS)[:nclasses])
+        else:
+            self.mask_colors = to_rgba_array(np.atleast_1d(mask_colors))
+            # should probably check the shape here
+        self.mask_colors[:,-1] = self.mask_alpha
+
+        self._img = np.asarray(img)
+
+        if mask is None:
+            self.mask = np.zeros(self._img.shape[:2])
+        else:
+            self.mask = mask
+        
+        self._overlay = np.zeros((*self._img.shape[:2], 4))
+        self.nclasses = nclasses
+        for i in range(nclasses+1):
+            idx = self.mask == i
+            if i == 0:
+                self._overlay[idx] = [0,0,0,0]
+            else:
+                self._overlay[idx] = self.mask_colors[i-1]
+        with ioff:
+            self.fig = figure(figsize=figsize)
+            self.ax = self.fig.gca()
+            self.displayed = self.ax.imshow(self._img)
+            self._mask = self.ax.imshow(self._overlay)
+    
+
+
+        lineprops = {'color': 'black', 'linewidth': 1, 'alpha': 0.8}
+        useblit = False if 'ipympl' in get_backend().lower() else True
+        self.lasso = LassoSelector(self.ax, self._onselect, lineprops=lineprops, useblit=useblit)
+        self.lasso.set_visible(True)
+        
+        pix_x = np.arange(self._img.shape[0])
+        pix_y = np.arange(self._img.shape[1])
+        xv, yv = np.meshgrid(pix_y,pix_x)
+        self.pix = np.vstack( (xv.flatten(), yv.flatten()) ).T
+        
+        self.ph = panhandler(self.fig)
+        self.disconnect_zoom = zoom_factory(self.ax)
+        self.current_class = 1
+        self.erasing = False
+        
+    def _onselect(self, verts):
+        self.verts = verts
+        p = Path(verts)
+        self.indices = p.contains_points(self.pix, radius=0).reshape(self.mask.shape)
+        if self.erasing:
+            self.mask[self.indices] = 0
+            self._overlay[self.indices] = [0,0,0,0]
+        else:
+            self.mask[self.indices] = self.current_class
+            self._overlay[self.indices] = self.mask_colors[self.current_class-1]
+
+        self._mask.set_data(self._overlay)
+        self.fig.canvas.draw_idle()
+
+    def _ipython_display_(self):
+        display(self.fig.canvas)

@@ -35,7 +35,7 @@ The ``slices`` argument controls which slices to compare. It accepts values of `
 Potential Improvements
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Do you wish the heatmap_slicer was better or general? Then you should consider helping out
+Do you wish the heatmap_slicer was better or worked with arbitrary angles? Then you should consider helping out
 on one of the open issues for improving it!
 
 1. `Improve the slices argument <https://github.com/ianhi/mpl-interactions/issues/57>`_
