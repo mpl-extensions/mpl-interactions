@@ -9,7 +9,7 @@ In particular, you can:
 
 To achieve this, mpl_interactions provides:
 
-* A Matplotlib/ipympl-aware interact function for Jupyter notebooks.
+* A way to control the output of pyplot functions (e.g. ``plot`` and ``hist``) with sliders
 * A function to compare horizontal and vertical slices of heatmaps.
 * A function allowing zooming using the scroll wheel.
 
@@ -28,28 +28,42 @@ To control a plot with a slider:
 
 .. code-block:: python
 
+   # if running this code in a Jupter notbeook or JupyterLab
    %matplotlib ipympl
+
+.. code-block:: python
+
    from mpl_interactions import interactive_plot
+   import numpy as np
+   import matplotlib.pyplot as plt
    x = np.linspace(0,np.pi,100)
-   τ = np.linspace(.5, 10, 100)
-   β = np.linspace(1, 10, 100)
-   def f1(x, τ, β):
-       return np.sin(x*τ)*x*β
-   def f2(x, τ, β):
-       return np.sin(x*β)*x*τ
-   fig, ax, sliders = interactive_plot([f1, f2], x=x, τ = τ, β = β)
+   tau = np.linspace(.5, 10, 100)
+   def f1(x, tau, beta):
+       return np.sin(x*tau)*x*beta
+   def f2(x, tau, beta):
+       return np.sin(x*beta)*x*tau
+   fig, ax, sliders = interactive_plot([f1, f2], x=x, tau = tau, beta = (1, 10, 100))
    _ = plt.legend()
 
+
+**If you are in Notebook the output will look like this:**
+
 .. image:: images/basic-example.gif
+
+**and from a script or ipython the output will use Matplotlib sliders:**
+
+.. image:: images/front-page-mpl-widgets.gif
+
 
 For other functionality and more detailed examples, visit the :doc:`Examples` page. 
 
 Matplotlib backends
 ^^^^^^^^^^^^^^^^^^^^
 
-mpl_interactions' functions are written for primary use with `ipympl <https://github.com/matplotlib/ipympl>`_, the backend 
-designed for Jupyter Notebooks. Further explaination of how to run mpl_interactions optimally can be found 
-on the :doc:`Backends` page. 
+mpl_interactions' functions will work in any Matplotlib backend. In most backends they will use the Matplotlib
+Slider and Radio button widgets. However, if you are working in a Jupyter notebook the 
+`ipympl <https://github.com/matplotlib/ipympl>`_ backend then ipywidgets sliders will be used as the controls.
+Further discussion of the behavior as a function of backend can be found on the :doc:`Backends` page.
 
 *Follow the links below for further information on installation, functions, and plot examples.* 
 

@@ -7,17 +7,25 @@ Control Plots with Sliders
     running. So for all the interactive outputs have been replaced by gifs of what you should expect.
 
 .. note::
-    As discussed in the [TODO: Add a link to backend discussion] page you will have the best
+    As discussed in the :doc:`../Backends` page you will have the best
     performance with the ipympl backed, so make sure you set that using ``%matplotlib ipympl``.
+
+On this example page all of the outputs will use ipywidgets widgets for controls. However, if you are
+not working in a Jupyter notebook then the examples here will still work with the builting Matplolitb widgets.
+For examples that that explicitly use matplotlib widgets instead of ipywidgets check out the :doc:`mpl-sliders` page.
 
 
 .. jupyter-execute::
 
+    # only run these lines if you are using a jupyter notebook or jupyter lab
     %matplotlib ipympl
+    import ipywidgets as widgets
+
+    # rest of imports
     import matplotlib.pyplot as plt
     import numpy as np
-    import ipywidgets as widgets
     from mpl_interactions import interactive_plot, interactive_plot_factory
+
 
 Simple Example
 --------------
@@ -26,9 +34,10 @@ To use the interactive plot function all you need to do is write a function that
 return a numpy array or a list of numbers. You can provide the parameters that you want
 to vary with sliders as keyword arguments to the :meth:`~mpl_interactions.interactive_plot` function. 
 
+
 .. jupyter-execute::
 
-    x = np.linspace(0,np.pi,100)
+    x = np.linspace(0, np.pi,100)
     tau = np.linspace(1,10, 100)
     beta = np.linspace(1,10)
     def f(x, tau, beta):
@@ -53,7 +62,8 @@ You can set parameters with any of the following:
 - **set** - Creates a categorical selector (order will not preserved)
 - **set(tuple())** - Categorical selector with order maintained
 - **scalar** - Fixed value
-- **ipywidgets.Widget** any subclass of `ipywidgets.Widget` that has a ``value`` attribute can be used as is
+- **ipywidgets.Widget** any subclass of `ipywidgets.Widget` that has a ``value`` attribute can be used
+- **matplotlib.widgets.Slider** or **RadioButton** - Note this cannot be used at the same time as an ipywidgets.Widget
 
 Here is an example using all of the possibilities with a dummy function. The `display=False`
 prevent the widgets from being automatically displayed which makes it easier to render them in this webpage,

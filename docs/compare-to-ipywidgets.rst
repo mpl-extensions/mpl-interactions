@@ -3,7 +3,7 @@ Comparison to ipywidgets
 ========================
 
 **ipywidgets** already provides both an ``interact`` and an ``interactive_output`` function, so why use **mpl_interactions** instead?
-There are two reasons, convenience and performance.
+There are three reasons: performance, portability, and convenience.
 
 Performance
 -----------
@@ -19,6 +19,13 @@ many new figures or recreating the the entire plot every time the sliders change
 You can get around these performance issues by using the ``interact`` function and having the called function use the Matplotlib updating methods 
 such as `line.set_data`. Unfortunately you then end up needing to remember how to do this as well find that you are repeating yourself.
 This was the initial motivation for this library and brings us to the reason of convenience.
+
+Portability
+-----------
+
+mpl_interactions will make use of the widgets provided by ipywidgets if they are available, but unlike interactive output, it will
+work if called from a script or an (i)python repl by falling back to the builtin Matplotlib
+`widgets <https://matplotlib.org/api/widgets_api.html?highlight=widgets#module-matplotlib.widgets>`_
 
 Convenience
 -----------
