@@ -141,15 +141,18 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
     widget_gap_in = .1
 
     widget_inches = n_sliders*slider_in + n_opts*radio_in + widget_gap_in * (n_sliders + n_radio + 1) + .5 # half an inch for margin
-    with ioff:
-        fig = figure()
-    size = fig.get_size_inches()
-    fig_h = widget_inches
-    fig.set_size_inches(size[0], widget_inches)
-    slider_height = slider_in / fig_h
-    radio_height  = radio_in / fig_h
-    # radio
-    gap_height = widget_gap_in/fig_h
+    fig = None
+    if not all(map(lambda x: isinstance(x, mwidgets.AxesWidget), kwargs.values())):
+        # if the only kwargs are existing matplotlib widgets don't make a new figure
+        with ioff:
+            fig = figure()
+        size = fig.get_size_inches()
+        fig_h = widget_inches
+        fig.set_size_inches(size[0], widget_inches)
+        slider_height = slider_in / fig_h
+        radio_height  = radio_in / fig_h
+        # radio
+        gap_height = widget_gap_in/fig_h
     widget_y = .05
     slider_ax = []
     sliders = []
