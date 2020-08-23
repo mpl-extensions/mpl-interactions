@@ -215,25 +215,7 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
     return controls
 
 
-def interactive_plot_factory(ax, f, x=None,
-                                 x_scale='stretch',
-                                 y_scale='stretch',
-                                 slider_format_string='{:.2f}',
-                                 plot_kwargs=None,
-                                 title=None, use_ipywidgets=None, **kwargs):
-    """
-    Use this function for maximum control over layout of the widgets
-    
-    ax : matplotlib axes
-    f : function or iterable of functions
-    use_ipywidgets : None or boolean, optional
-        If None will attempt to infer whether to use ipywidgets based on the backend. Use
-        True or False to ensure ipywidgets is or is not used.
-    """
-    if use_ipywidgets is None:
-        use_ipywidgets = _notebook_backend() 
-    params = {}
-    funcs = atleast_1d(f)
+def _create_slider_format_dict(slider_format_string, use_ipywidgets):
     # mpl sliders for verison 3.3 and onwards support None as an argument for valfmt
     mpl_gr_33 = version.parse(mpl_version) >= version.parse("3.3")
     if isinstance(slider_format_string, str):
@@ -251,7 +233,29 @@ def interactive_plot_factory(ax, f, x=None,
                 slider_format_strings[key] = val
     else:
         raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
+    
+    return slider_format_strings
+def interactive_plot_factory(ax, f, x=None,
+                                 x_scale='stretch',
+                                 y_scale='stretch',
+                                 slider_format_string=None,
+                                 plot_kwargs=None,
+                                 title=None, use_ipywidgets=None, **kwargs):
+    """
+    Use this function for maximum control over layout of the widgets
+    
+    ax : matplotlib axes
+    f : function or iterable of functions
+    use_ipywidgets : None or boolean, optional
+        If None will attempt to infer whether to use ipywidgets based on the backend. Use
+        True or False to ensure ipywidgets is or is not used.
+    """
+    if use_ipywidgets is None:
+        use_ipywidgets = _notebook_backend() 
+    params = {}
+    funcs = atleast_1d(f)
 
+    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
     def update(change, key, label):
         if label:
             #continuous
@@ -376,10 +380,12 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
     y_scale : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_ylim. Other options are same
         as x_scale
-    slider_format_string : string | dictionary
-        A valid format string, this will be used to render the current value of the parameter.
-        To control on a per slider basis pass a dictionary of format strings with the parameter
-        names as the keys.
+    slider_format_string : None, string, or dict
+        If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
+        For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
+        format for all values. A dictionary will allow assigning different formats to different sliders.
+        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        object for matplotlib slider values.
     plot_kwargs : None, dict, or iterable of dicts
         Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
         None or be iterable.
@@ -422,20 +428,15 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
 
     """
                                  
-    backend = get_backend().lower()
-    if 'ipympl' in backend:
-        ipympl = True
+    ipympl = _notebook_backend()
+    if ipympl:
         with ioff:
             fig = figure()
             ax = fig.gca()
     else:
-        ipympl = False
-        if backend == 'nbAgg'.lower():
-            warn('You are using an outdated backend. You should use `%matplotlib ipympl` instead of `%matplotlib notebook`')
-            ipympl = True
-        
         fig = figure()
         ax = fig.gca()
+
     use_ipywidgets = ipympl or force_ipywidgets
     controls = interactive_plot_factory(ax, f, x, x_scale,
                             y_scale, slider_format_string,
@@ -487,41 +488,29 @@ def stretch(ax, xlims, ylims):
         ]
     ax.set_xlim(new_lims)
 
-def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_string='{:.2f}', force_ipywidgets=False, **kwargs):
+def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_string=None, force_ipywidgets=False, **kwargs):
 
     params = {}
     funcs = atleast_1d(f)
     # supporting more would require more thought
     if len(funcs) != 1:
         raise ValueError(f"Currently only a single function is supported. You passed in {len(funcs)} functions")
-    if isinstance(slider_format_string, str):
-        slider_format_strings = defaultdict(lambda: slider_format_string)
-    elif isinstance(slider_format_string, dict):
-        slider_format_strings = defaultdict(lambda: '{:.1f}')
-        for key, val in slider_format_string.items():
-            slider_format_strings[key] = val
-    else:
-        raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
 
-    backend = get_backend().lower()
-    if 'ipympl' in backend:
-        ipympl = True
+    ipympl = _notebook_backend()
+    if ipympl:
         with ioff:
             fig = figure()
             ax = fig.gca()
     else:
-        ipympl = False
-        if backend == 'nbAgg'.lower():
-            warn('You are using an outdated backend. You should use `%matplotlib ipympl` instead of `%matplotlib notebook`')
-            ipympl = True
-        
         fig = figure()
         ax = fig.gca()
     use_ipywidgets = ipympl or force_ipywidgets
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
-        # update plot
+    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
+
+    # update plot
     def update(change, key, label):
         if label:
             #continuous
@@ -541,7 +530,7 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
     if use_ipywidgets:
         sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
     else:
-        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string)
+        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
 
     new_x, new_y, new_patches = simple_hist(funcs[0](**params), density=density, bins=bins, weights=weights)
     pc.set_paths(new_patches)
