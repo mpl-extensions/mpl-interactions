@@ -6,12 +6,8 @@ Control Plots with Sliders
     Unfortunately the interactive plots won't work on a website as there is no Python kernel
     running. So for all the interactive outputs have been replaced by gifs of what you should expect.
 
-.. note::
-    As discussed in the :doc:`../Backends` page you will have the best
-    performance with the ipympl backed, so make sure you set that using ``%matplotlib ipympl``.
-
 On this example page all of the outputs will use ipywidgets widgets for controls. However, if you are
-not working in a Jupyter notebook then the examples here will still work with the builting Matplolitb widgets.
+not working in a Jupyter notebook then the examples here will still work with the built-in Matplolitb widgets.
 For examples that that explicitly use matplotlib widgets instead of ipywidgets check out the :doc:`mpl-sliders` page.
 
 
