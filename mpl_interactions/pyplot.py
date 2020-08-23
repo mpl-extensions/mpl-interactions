@@ -233,7 +233,6 @@ def _create_slider_format_dict(slider_format_string, use_ipywidgets):
                 slider_format_strings[key] = val
     else:
         raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
-    
     return slider_format_strings
 def interactive_plot_factory(ax, f, x=None,
                                  x_scale='stretch',
@@ -244,6 +243,8 @@ def interactive_plot_factory(ax, f, x=None,
     """
     Use this function for maximum control over layout of the widgets
     
+    parameters
+    ----------
     ax : matplotlib axes
     f : function or iterable of functions
     use_ipywidgets : None or boolean, optional
@@ -318,7 +319,6 @@ def interactive_plot_factory(ax, f, x=None,
             indexed_x = True
             x = arange(out.size)
 
-
     if plot_kwargs is None:
         plot_kwargs = [{}] * len(funcs)
     else:
@@ -335,8 +335,6 @@ def interactive_plot_factory(ax, f, x=None,
             plot_kwargs[i] = pk
         if 'label' not in pk:
             pk['label'] = f.__name__
-
-
 
     lines = []
     for i,f in enumerate(funcs):
@@ -359,7 +357,7 @@ def interactive_plot_factory(ax, f, x=None,
     return controls
 
 def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
-                        slider_format_string='{:.1f}',
+                        slider_format_string=None,
                         plot_kwargs=None,
                         title=None,figsize=None, display=True, force_ipywidgets=False, **kwargs):
     """
@@ -413,7 +411,7 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
 
     With numpy arrays::
 
-        x = np.linspac(0,2*np.pi)
+        x = np.linspace(0,2*np.pi)
         tau = np.linspace(0, np.pi)
         def f(x, tau):
             return np.sin(x+tau)
