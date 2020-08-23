@@ -364,11 +364,13 @@ def interactive_plot(f, x=None, x_scale='stretch', y_scale='stretch',
                         plot_kwargs=None,
                         title=None,figsize=None, display=True, force_ipywidgets=False, **kwargs):
     """
-    Make a plot interactive using sliders. just pass the keyword arguments of the function
-    you want to plot to this function like so:
+    Make a plot interactive using sliders.
     
     parameters
     ----------
+    f : function or list(functions)
+        The function(s) to plot. Each function should return either the y values, or
+        a list of both the x and y arrays to plot [x, y]
     x : arraylike or None
         x values a which to evaluate the function. If None the function(s) f should
         return a list of [x, y]
@@ -490,6 +492,57 @@ def stretch(ax, xlims, ylims):
     ax.set_xlim(new_lims)
 
 def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_string=None, force_ipywidgets=False, **kwargs):
+    """
+    Control the contents of a histogram using sliders.
+    
+    See https://github.com/ianhi/mpl-interactions/pull/73#issue-470638134 for a discussion
+    of the limitations of this function. These limitations will be improved once
+    https://github.com/matplotlib/matplotlib/pull/18275 has been merged.
+
+    parameters
+    ----------
+    f : function
+        A function that will return a 1d array of which to take the histogram
+    density : bool, optional
+        whether to plot as a probability density. Passed to np.histogram
+    bins : int or sequence of scalars or str, optional
+        bins argument to np.histogram
+    weights : array_like, optional
+        passed to np.histogram
+    slider_format_string : None, string, or dict
+        If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
+        For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
+        format for all values. A dictionary will allow assigning different formats to different sliders.
+        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        object for matplotlib slider values.
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+
+    returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axis
+    controls : list of slider widgets
+
+    Examples 
+    --------
+
+    With numpy arrays::
+
+        loc = np.linspace(-5, 5, 500)
+        scale = np.linspace(1, 10, 100)
+        def f(loc, scale):
+            return np.random.randn(1000)*scale + loc
+        interactive_hist(f, loc=loc, scale=scale)
+
+    with tuples::
+
+        def f(loc, scale):
+            return np.random.randn(1000)*scale + loc
+        interactive_hist(f, loc=(-5, 5, 500), scale=(1, 10, 100))
+    """
 
     params = {}
     funcs = atleast_1d(f)
