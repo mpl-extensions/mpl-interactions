@@ -12,6 +12,8 @@ from matplotlib.pyplot import axes, sca
 import numpy as np
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
+from matplotlib import __version__ as mpl_version
+from packaging import version
 
 
 # functions that are methods
@@ -21,6 +23,14 @@ __all__ = [
     'interactive_hist',
 ]
 
+def _notebook_backend():
+    backend = get_backend().lower()
+    if 'ipympl' in backend:
+        return True
+    elif backend == 'nbAgg'.lower():
+        warn('You are using an outdated backend. You should use `%matplotlib ipympl` instead of `%matplotlib notebook`')
+        return True
+    return False
 def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
     """
     this will break if you pass a matplotlib slider. I suppose it could support mixed types of sliders
@@ -111,7 +121,7 @@ def _changeify(val, key, update):
 # making it involved me holding a ruler up to my monitor
 # if you have a better solution I would love to hear about it :)
 # - Ian 2020-08-22
-def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string):
+def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
     n_opts = 0
     n_radio = 0
     n_sliders = 0
@@ -197,7 +207,7 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string):
                     max_ = np.max(val)
 
             slider_ax.append(axes([.2, .9- widget_y-gap_height, .65, slider_height]))
-            sliders.append(mwidgets.Slider(slider_ax[-1], key, min_, max_, valinit=min_))
+            sliders.append(mwidgets.Slider(slider_ax[-1], key, min_, max_, valinit=min_, valfmt=slider_format_strings[key]))
             cbs.append(sliders[-1].on_changed(partial(_changeify, key=key, update=update)))
             widget_y += slider_height + gap_height
             params[key] = min_
@@ -208,23 +218,37 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string):
 def interactive_plot_factory(ax, f, x=None,
                                  x_scale='stretch',
                                  y_scale='stretch',
-                                 slider_format_string='{:.1f}',
+                                 slider_format_string='{:.2f}',
                                  plot_kwargs=None,
-                                 title=None, use_ipywidgets=True, **kwargs):
+                                 title=None, use_ipywidgets=None, **kwargs):
     """
     Use this function for maximum control over layout of the widgets
     
     ax : matplotlib axes
     f : function or iterable of functions
+    use_ipywidgets : None or boolean, optional
+        If None will attempt to infer whether to use ipywidgets based on the backend. Use
+        True or False to ensure ipywidgets is or is not used.
     """
+    if use_ipywidgets is None:
+        use_ipywidgets = _notebook_backend() 
     params = {}
     funcs = atleast_1d(f)
+    # mpl sliders for verison 3.3 and onwards support None as an argument for valfmt
+    mpl_gr_33 = version.parse(mpl_version) >= version.parse("3.3")
     if isinstance(slider_format_string, str):
         slider_format_strings = defaultdict(lambda: slider_format_string)
-    elif isinstance(slider_format_string, dict):
-        slider_format_strings = defaultdict(lambda: '{:.1f}')
-        for key, val in slider_format_string.items():
-            slider_format_strings[key] = val
+    elif isinstance(slider_format_string, dict) or slider_format_string is None:
+        if use_ipywidgets:
+            slider_format_strings = defaultdict(lambda: '{:.2f}')
+        elif mpl_gr_33:
+            slider_format_strings = defaultdict(lambda: None)
+        else:
+            slider_format_strings = defaultdict(lambda: '%1.2f')
+
+        if slider_format_string is not None:
+            for key, val in slider_format_string.items():
+                slider_format_strings[key] = val
     else:
         raise ValueError(f'slider_format_string must be a dict or a string but it is a {type(slider_format_string)}')
 
@@ -274,7 +298,7 @@ def interactive_plot_factory(ax, f, x=None,
     if use_ipywidgets:
         sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
     else:
-        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_string)
+        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
         sca(ax)
 
     indexed_x = False
