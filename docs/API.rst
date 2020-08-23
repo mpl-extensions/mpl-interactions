@@ -3,11 +3,12 @@ API
 ===
 
 
-Jupyter
+pyplot
 -------
 
-These functions will only work in the context of a jupyter notebook as they leverage ipywidgets sliders. Consequently
-you will have the best perfomance when using the ipympl backend ``%matplotlib ipympl``
+Connect control the output of standard plotting functions such as ``plot`` and ``hist`` using sliders and other
+control widgets. When using the ``ipympl`` backend these functions will leverage ipywidgets for the controls, otherwise they
+will use the builtin Matplotlib widgets.
 
 .. currentmodule:: mpl_interactions
 .. autosummary::
@@ -16,9 +17,10 @@ you will have the best perfomance when using the ipympl backend ``%matplotlib ip
 
    ~mpl_interactions.interactive_plot
    ~mpl_interactions.interactive_plot_factory
+   ~mpl_interactions.interactive_hist
 
 
-Generic
+generic
 -------
 
 Functions that will be useful irrespective of backend.
@@ -33,7 +35,7 @@ Functions that will be useful irrespective of backend.
    ~mpl_interactions.panhandler
 
 
-Utilities
+utilities
 ---------
 
 Functions that make it a bit more convenient to do some things in matplotlib.

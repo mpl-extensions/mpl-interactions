@@ -8,3 +8,4 @@ Examples
 
    examples/jupyter-notebooks.rst
    examples/heatmap-slicer.rst
+   examples/mpl-sliders.rst

@@ -12,9 +12,11 @@ mpl_interactions' library provides helpful ways to interact with [Matplotlib](ht
 
 There are three submodules:
 
-**jupyter**
+**pyplot**
 
-Provides a different approach than `ipywidgets.interact` for making sliders that affect a Matplotlib plot. When using `interact` you are responsible for:
+Control Matplotlib plots using sliders and other widgets to adjust the parameters of the functions you are plotting. If working in a notebook then ipywidgets will be used to make the sliders, otherwise Matplotlib widgets will be used.
+
+This is a different approach to controlling plots with sliders than `ipywidgets.interact` as when using `interact` you are responsible for:
 1. Defining the function to plot `f(x,...) => y`
 2. Handling the plotting logic (`plt.plot`, `fig.cla`, `ax.set_ylim`, etc)
 
