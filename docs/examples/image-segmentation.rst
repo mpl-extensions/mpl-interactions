@@ -3,7 +3,7 @@ Image Segmentation
 ==================
 
 Hopefully you won't often be faced with the task of manually segmenting images. However, for the times when you must
-it's nice to not need to leave the comfort of python for some other program. Thus we arrive at the :class:`~mpl_itneractions.image_segmenter` class.
+it's nice to not need to leave the comfort of python for some other program. Thus we arrive at the :class:`~mpl_interactions.image_segmenter` class.
 
 (Credit where it's due: This tool was developed as part of a final project in Pavlos Protopapas' class `AC295 <https://harvard-iacs.github.io/2020-AC295/>`_, you can read more about it
 in the project's final write up on `towards data science <https://towardsdatascience.com/how-we-built-an-easy-to-use-image-segmentation-tool-with-transfer-learning-546efb6ae98>`_)

@@ -46,7 +46,7 @@ To control a plot with a slider:
    _ = plt.legend()
 
 
-**If you are in Notebook the output will look like this:**
+**If you are in a Jupyter Notebook the output will look like this:**
 
 .. image:: images/basic-example.gif
 
