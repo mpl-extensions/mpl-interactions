@@ -75,6 +75,7 @@ Further discussion of the behavior as a function of backend can be found on the 
    compare-to-ipywidgets
    API
    Examples
+   Gallery
    Contributing
 
 Indices and Tables
