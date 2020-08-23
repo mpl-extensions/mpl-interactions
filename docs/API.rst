@@ -4,7 +4,7 @@ API
 
 
 pyplot
--------
+------
 
 Connect control the output of standard plotting functions such as ``plot`` and ``hist`` using sliders and other
 control widgets. When using the ``ipympl`` backend these functions will leverage ipywidgets for the controls, otherwise they
