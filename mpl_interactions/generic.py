@@ -271,9 +271,14 @@ class panhandler:
 import matplotlib.cm as cm
 from matplotlib.colors import to_rgba_array, TABLEAU_COLORS, XKCD_COLORS
 class image_segmenter:
+    """
+    Manually segment an image with the lasso selector.
+    """
     def __init__(self, img, nclasses = 1, mask = None, mask_colors = None, mask_alpha=.75, figsize=(10,10), cmap = 'viridis'):
         """
-        img : arraylike
+        parameters
+        ----------
+        img : array_like
             A valid argument to imshow
         nclasses : int, default 1
         mask: arraylike, optional
@@ -331,7 +336,7 @@ class image_segmenter:
 
         lineprops = {'color': 'black', 'linewidth': 1, 'alpha': 0.8}
         useblit = False if 'ipympl' in get_backend().lower() else True
-        self.lasso = LassoSelector(self.ax, self.onselect, lineprops=lineprops, useblit=useblit)
+        self.lasso = LassoSelector(self.ax, self._onselect, lineprops=lineprops, useblit=useblit)
         self.lasso.set_visible(True)
         
         pix_x = np.arange(self._img.shape[0])
@@ -344,7 +349,7 @@ class image_segmenter:
         self.current_class = 1
         self.erasing = False
         
-    def onselect(self, verts):
+    def _onselect(self, verts):
         self.verts = verts
         p = Path(verts)
         self.indices = p.contains_points(self.pix, radius=0).reshape(self.mask.shape)

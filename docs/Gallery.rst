@@ -17,3 +17,7 @@ Gallery
 :meth:`~mpl_interactions.zoom_factory` and :meth:`~mpl_interactions.panhandler`
 
 .. image:: images/zoom-and-pan.gif
+
+:class:`~mpl_interactions.image_segmenter`
+
+.. image:: _static/segment.gif
