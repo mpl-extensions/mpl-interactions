@@ -323,7 +323,9 @@ def interactive_plot_factory(ax, f, x=None,
             x = arange(out.size)
 
     if plot_kwargs is None:
-        plot_kwargs = [{}] * len(funcs)
+        plot_kwargs = []
+        for i in range(len(funcs)):
+            plot_kwargs.append({})
     else:
         plot_kwargs = atleast_1d(plot_kwargs)
         if not len(plot_kwargs) == len(funcs):
@@ -332,12 +334,9 @@ def interactive_plot_factory(ax, f, x=None,
                             ' of the same length or None.')
     
     # make sure plot labels make sense
-    for i, (pk, f) in enumerate(zip(plot_kwargs, funcs)):
-        if pk is None:
-            pk = {}
-            plot_kwargs[i] = pk
-        if 'label' not in pk:
-            pk['label'] = f.__name__
+    for i in range(len(funcs)):
+        if 'label' not in plot_kwargs[i]:
+            plot_kwargs[i]['label'] = funcs[i].__name__
 
     lines = []
     for i,f in enumerate(funcs):
