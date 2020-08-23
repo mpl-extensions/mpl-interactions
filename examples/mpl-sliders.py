@@ -2,7 +2,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_interactions import interactive_plot, interactive_plot_factory
-from IPython import embed
 
 x = np.linspace(0,np.pi,100)
 tau = np.linspace(1,10, 100)
