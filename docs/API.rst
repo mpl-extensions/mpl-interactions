@@ -6,9 +6,9 @@ API
 pyplot
 ------
 
-Connect control the output of standard plotting functions such as ``plot`` and ``hist`` using sliders and other
-control widgets. When using the ``ipympl`` backend these functions will leverage ipywidgets for the controls, otherwise they
-will use the builtin Matplotlib widgets.
+Control the output of standard plotting functions such as ``plot`` and ``hist`` using sliders and other
+widgets. When using the ``ipympl`` backend these functions will leverage ipywidgets for the controls, otherwise they
+will use the built-in Matplotlib widgets.
 
 .. currentmodule:: mpl_interactions
 .. autosummary::
@@ -39,7 +39,7 @@ Functions that will be useful irrespective of backend.
 utilities
 ---------
 
-Functions that make it a bit more convenient to do some things in matplotlib.
+Functions that make some features in Matplotlib a bit more convenient.
 
 .. currentmodule:: mpl_interactions
 .. autosummary::
