@@ -348,7 +348,7 @@ def interactive_plot_factory(ax, f, x=None,
         else:
             lines.append(ax.plot(*f(**params), **plot_kwargs[i])[0])
     if not isinstance(xlim,str):
-        ax.set_ylim(xlim)
+        ax.set_xlim(xlim)
     if not isinstance(ylim,str):
         ax.set_ylim(ylim)
     if title is not None:
