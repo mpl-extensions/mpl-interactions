@@ -244,7 +244,7 @@ def interactive_plot_factory(ax, f, x=None,
                                  plot_kwargs=None,
                                  title=None, use_ipywidgets=None, **kwargs):
     """
-    Use this function for maximum control over layout of the widgets
+    Use this function for maximum control over layout of the widgets.
     
     parameters
     ----------
