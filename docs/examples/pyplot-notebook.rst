@@ -58,10 +58,10 @@ You can set parameters with any of the following:
 - **set** - Creates a categorical selector (order will not preserved)
 - **set(tuple())** - Categorical selector with order maintained
 - **scalar** - Fixed value
-- **ipywidgets.Widget** any subclass of `ipywidgets.Widget` that has a ``value`` attribute can be used
+- **ipywidgets.Widget** any subclass of ``ipywidgets.Widget`` that has a ``value`` attribute can be used
 - **matplotlib.widgets.Slider** or **RadioButton** - Note this cannot be used at the same time as an ipywidgets.Widget
 
-Here is an example using all of the possibilities with a dummy function. The `display=False`
+Here is an example using all of the possibilities with a dummy function. The ``display=False``
 prevent the widgets from being automatically displayed which makes it easier to render them in this webpage,
 but in general you should not need to use that.
 
@@ -123,8 +123,8 @@ beta slider will use the default 1 decimal point of precision
 
 Axis limits
 ^^^^^^^^^^^
-You can control how ``xlim/ylim``s behave using the ``xlim/ylim`` arguments.
-Your options are:
+You can control how the ``xlim/ylim`` behaves using the ``xlim/ylim`` arguments.
+The options are:
 
 1. ``'stretch'`` - The default, allow the x/y axes to expand but never shrink
 2. ``'auto'`` - autoscale the limits for every plot update
@@ -136,7 +136,7 @@ Reference parameter values in the Title
 You can make the title auto update with information about the values by using ``title`` argument.
 Just use the name of one of the parameters as in a format specifier in the string.
 e.g. to put the value of `tau` in the title and round it to two decimals use the following
-title string: `{'tau:.2f}'`
+title string: ``{'tau:.2f}'``
 
 .. _plot-kwargs-section:
 

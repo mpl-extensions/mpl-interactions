@@ -12,7 +12,7 @@ Performance
 
 The ipywidgets functions expect the entire output to be regenerated everytime the slider value changes. This means that
 these functions will work best with the inline backend. In fact they even have some `special casing <https://github.com/jupyter-widgets/ipywidgets/blob/6be18d9b75353f7b4a1c328c6ea06d8959f978f6/ipywidgets/widgets/interaction.py#L230>`_
-to better support the inline backend. Unfortunately this does not work well with the interacive `ipympl` backend which
+to better support the inline backend. Unfortunately this does not work well with the interacive ``ipympl`` backend which
 expects to be shown only once and then updated with Matplotlib methods as controls change. The result of this is that you will often end up making
 many new figures or recreating the the entire plot every time the sliders change values. 
 
@@ -51,8 +51,8 @@ Differences in generated widgets
 **tuple of floats**
 """""""""""""""""""
 
-Both mpl-interactions and ipywidgets will generate a slider. However, mpl-interactions will use `np.linspace`
-and ipywidgets will use `np.arange`.
+Both mpl-interactions and ipywidgets will generate a slider. However, mpl-interactions will use ``np.linspace``
+and ipywidgets will use ``np.arange``.
 
 
 Comparison of the generated widget for ``two_tuple = (1., 5)`` and ``three_tuple = (0., 1250, 100)``

@@ -33,7 +33,7 @@ ioff = _ioff_class()
 
 def figure(figsize=1,*args,**kwargs):
     """
-    Matplotlib figure but a scalar figsize will multiply rcParams figsize
+    Matplotlib figure but a scalar figsize will multiply rcParams figsize.
 
     Examples
     --------
