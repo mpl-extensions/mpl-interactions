@@ -111,23 +111,25 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         ax.pcolormesh(X,Y,heatmaps[i],shading=shading)
         ax.set_xlabel(labels[0])
         ax.set_title(heatmap_names[i])
-        xy_shape = (Y.shape[0], X.shape[0])
         hmap_shape = asanyarray(heatmaps[i]).shape
-        same_shape = xy_shape == hmap_shape
-        if same_shape:
-            x = X
-            y = Y
-        else:
-            x = x_centered
-            y = y_centered
 
         if i > 0:
             ax.set_yticklabels([])
         if horiz:
+            same_shape = X.shape[0] == hmap_shape[1]
+            if same_shape:
+                x = X
+            else:
+                x = x_centered
             data_line = axes[horiz_axis].plot(x,heatmaps[i,init_idx,:],label=f"{heatmap_names[i]}")[0]
             hlines.append((same_shape, ax.axhline(Y[init_idx],color=linecolor),data_line))
 
         if vert:
+            same_shape = Y.shape[0] == hmap_shape[0]
+            if same_shape:
+                y = Y
+            else:
+                y = y_centered
             data_line = axes[vert_axis].plot(y,heatmaps[i,:,init_idx],label=f"{heatmap_names[i]}")[0]
             vlines.append((same_shape, ax.axvline(X[init_idx],color=linecolor), data_line))
 
