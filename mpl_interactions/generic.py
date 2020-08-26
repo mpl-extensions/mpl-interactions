@@ -2,9 +2,11 @@ from matplotlib.pyplot import subplots, close
 from matplotlib import get_backend
 from matplotlib.widgets import LassoSelector
 from matplotlib.path import Path
-from numpy import swapaxes, asarray, min, max
+from numpy import swapaxes, asarray, asanyarray, min, max
 import numpy as np
 from .utils import nearest_idx, ioff, figure
+from matplotlib import __version__ as mpl_version
+from packaging import version
 
 # functions that are methods
 __all__ = [
@@ -92,19 +94,44 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     vlines = []
     init_idx = 0
     axes[0].set_ylabel(labels[1])
+    X = asarray(X)
+    Y = asarray(Y)
+    # mpl pcolormesh from verison 3.3+ handles len(X), len(Y) equal to Z shape
+    # differently than <2. (Unquestionably better, but different enough to justify a shim)
+    # https://github.com/matplotlib/matplotlib/pull/16258
+    mpl_gr_33 = version.parse(mpl_version) >= version.parse("3.3")
+    if mpl_gr_33:
+        shading = 'auto'
+    else:
+        shading = 'flat'
+
+    x_centered = X[:-1] + (X[1:] - X[:-1])/2
+    y_centered = Y[:-1] + (Y[1:] - Y[:-1])/2
     for i,ax in enumerate(axes[:-num_line_axes]):
-        ax.pcolormesh(X,Y,heatmaps[i])
+        ax.pcolormesh(X,Y,heatmaps[i],shading=shading)
         ax.set_xlabel(labels[0])
         ax.set_title(heatmap_names[i])
-        if i>0:
-            ax.set_yticklabels([])
+        hmap_shape = asanyarray(heatmaps[i]).shape
 
+        if i > 0:
+            ax.set_yticklabels([])
         if horiz:
-            data_line = axes[horiz_axis].plot(X,heatmaps[i,init_idx,:],label=f"{heatmap_names[i]}")[0]
-            hlines.append((ax.axhline(Y[init_idx],color=linecolor),data_line))
+            same_shape = X.shape[0] == hmap_shape[1]
+            if same_shape:
+                x = X
+            else:
+                x = x_centered
+            data_line = axes[horiz_axis].plot(x,heatmaps[i,init_idx,:],label=f"{heatmap_names[i]}")[0]
+            hlines.append((same_shape, ax.axhline(Y[init_idx],color=linecolor),data_line))
+
         if vert:
-            data_line = axes[vert_axis].plot(Y,heatmaps[i,:,init_idx],label=f"{heatmap_names[i]}")[0]
-            vlines.append((ax.axvline(X[init_idx],color=linecolor),data_line))
+            same_shape = Y.shape[0] == hmap_shape[0]
+            if same_shape:
+                y = Y
+            else:
+                y = y_centered
+            data_line = axes[vert_axis].plot(y,heatmaps[i,:,init_idx],label=f"{heatmap_names[i]}")[0]
+            vlines.append((same_shape, ax.axvline(X[init_idx],color=linecolor), data_line))
 
     minimum = min(heatmaps)
     maximum = max(heatmaps)
@@ -117,16 +144,39 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         axes[horiz_axis].set_ylim([minimum,maximum])
         axes[horiz_axis].legend()
 
+    def _gen_idxs(orig, centered, same_shape, event_data):
+        """
+        is there a better way? probably, but this gets the job done
+        so here we are...
+        """
+        if same_shape:
+            data_idx = nearest_idx(orig, event_data)
+            if mpl_gr_33:
+                disp_idx = nearest_idx(orig, event_data)
+                arr = orig
+            else:
+                disp_idx = nearest_idx(centered, event_data)
+                arr = centered
+        else:
+            disp_idx = nearest_idx(centered, event_data)
+            data_idx = nearest_idx(centered, event_data)
+            arr = centered
+        return arr, data_idx, disp_idx
+
     def update_lines(event):
-        if event.inaxes is not None:
-            for i,lines in enumerate(hlines):
-                y_idx = nearest_idx(Y,event.ydata)
-                lines[0].set_ydata(Y[y_idx])
-                lines[1].set_ydata(heatmaps[i,y_idx,:])
-            for i,lines in enumerate(vlines):
-                x_idx = nearest_idx(X,event.xdata)
-                lines[0].set_xdata(X[x_idx])
-                lines[1].set_ydata(heatmaps[i,:,x_idx])
+        if event.inaxes in axes[:-num_line_axes]:
+            y = None
+            for i,(same_shape, display_line, data_line) in enumerate(hlines):
+                if y is None:
+                    y, data_idx, disp_idx = _gen_idxs(Y, y_centered, same_shape, event.ydata)
+                display_line.set_ydata(y[disp_idx])
+                data_line.set_ydata(heatmaps[i, data_idx])
+            x = None
+            for i,(same_shape, display_line, data_line) in enumerate(vlines):
+                if x is None:
+                    x, data_idx, disp_idx = _gen_idxs(X, x_centered, same_shape, event.xdata)
+                display_line.set_xdata(x[disp_idx])
+                data_line.set_ydata(heatmaps[i, :, data_idx])
         fig.canvas.draw_idle()
     if interaction_type == 'move':
         fig.canvas.mpl_connect('motion_notify_event',update_lines) 
