@@ -118,7 +118,7 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
         axes[horiz_axis].legend()
 
     def update_lines(event):
-        if event.inaxes is not None:
+        if event.inaxes in axes[:-num_line_axes]:
             for i,lines in enumerate(hlines):
                 y_idx = nearest_idx(Y,event.ydata)
                 lines[0].set_ydata(Y[y_idx])
