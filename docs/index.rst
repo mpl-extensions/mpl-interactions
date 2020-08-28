@@ -9,7 +9,7 @@ In particular, you can:
 
 To achieve this, mpl_interactions provides:
 
-* A way to control the output of pyplot functions (e.g. ``plot`` and ``hist``) with sliders
+* A way to control the output of pyplot functions (e.g. ``plot`` and ``hist``) with sliders.
 * A function to compare horizontal and vertical slices of heatmaps.
 * A function allowing zooming using the scroll wheel.
 
