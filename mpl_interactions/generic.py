@@ -218,6 +218,8 @@ def zoom_factory(ax, base_scale = 1.1):
     orig_xrange = limits_to_range(orig_xlim)
     orig_center = ((orig_xlim[0]+orig_xlim[1])/2, (orig_ylim[0]+orig_ylim[1])/2)
     def zoom_fun(event):
+        if not event.inaxes is ax:
+            return
         # get the current x and y limits
         cur_xlim = ax.get_xlim()
         cur_ylim = ax.get_ylim()
