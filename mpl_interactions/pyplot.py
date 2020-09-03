@@ -21,6 +21,7 @@ __all__ = [
     'interactive_plot_factory',
     'interactive_plot',
     'interactive_hist',
+    'interactive_scatter',
 ]
 
 def _notebook_backend():
@@ -597,4 +598,103 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
     _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
-# def interactive_scatter(f, **kwargs):
+def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, alpha=None,
+                            edgecolors=None, slider_format_string=None, force_ipywidgets=False, **kwargs):
+    """
+    reserve the c and s kwargs
+
+    list:
+        if a list of callables that is the same lengthif they are a list of callables
+    just have to accept a few sharp edges
+
+    should consider checking the c and s values to see if size and color do not vary
+    from scatter doc string:
+    Notes
+        -----
+        * The `.plot` function will be faster for scatterplots where markers
+        don't vary in size or color.
+    """
+    funcs = atleast_1d(f)
+
+    def _gogogo(arg):
+        """
+        for transforming c or s into approriate shaped array/list
+        """
+        arg_funcs = False
+        args = atleast_1d(arg)
+        if arg is None:
+            args = [None]*len(funcs)
+        elif callable(arg) and len(args) == 1:
+            arg_funcs = True
+            args = [arg]*len(funcs)
+        elif all(map(callable, args)) and len(args) == len(funcs):
+            arg_funcs = True
+            args = arg
+        return args, arg_funcs
+    cols, color_funcs = _gogogo(c)
+    sizes, size_funcs = _gogogo(s)
+    alphas, alpha_funcs = _gogogo(alpha)
+    edgecolors, edgecolor_funcs = _gogogo(edgecolors)
+    params = {}
+    ipympl = _notebook_backend()
+    fig, ax = _gogogo_figure(ipympl)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
+    scats = []
+
+
+    def update(change, key, label):
+        ax.relim()
+        if label:
+            #continuous
+            params[key] = kwargs[key][change['new']]
+            label.value = slider_format_strings[key].format(kwargs[key][change['new']])
+        else:
+            # categorical
+            params[key] = change['new']
+        # arr = funcs[0](**params)
+        for i,f in enumerate(funcs):
+            x,y = f(**params)
+            scats[i].set_offsets(np.column_stack([x,y]))
+            if color_funcs:
+                scats[i].set_facecolor(scats[i].cmap(cols[i](x,y,**params)))
+            if edgecolor_funcs:
+                scats[i].set_edgecolor(edgecolors[i](x,y,**params))
+            if size_funcs:
+                scats[i].set_sizes(sizes[i](x,y,**params))
+            if alpha_funcs:
+                scats[i].set_alpha(alphas[i](x,y,**params))
+
+            # mega credit to https://stackoverflow.com/a/51327480/835607
+            ax.update_datalim(scats[i].get_datalim(ax.transData))
+        ax.autoscale_view()
+        fig.canvas.draw() # same effect with draw_idle
+
+    if use_ipywidgets:
+        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+    else:
+        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+    for i, f in enumerate(funcs):
+        # print(cols[i])
+        x,y = f(**params)
+        if color_funcs:
+            c = cols[i](x,y,**params)
+        else:
+            c = cols[i]
+
+        if size_funcs:
+            s = sizes[i](x,y,**params)
+        else:
+            s = sizes[i]
+        if alpha_funcs:
+            a = alphas[i](x,y,**params)
+        else:
+            a = alphas[i]
+        ec = edgecolors[i]
+        if edgecolor_funcs:
+            ec = ec(x,y,**params)
+        scats.append(ax.scatter(x,y, c=c, s=s, vmin = vmin, vmax=vmax, cmap = cmap, alpha=a, edgecolors=ec))
+
+
+    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    return fig, ax, controls
