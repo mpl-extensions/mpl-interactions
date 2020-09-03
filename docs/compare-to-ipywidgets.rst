@@ -24,7 +24,7 @@ Portability
 -----------
 
 mpl_interactions will make use of the widgets provided by ipywidgets if they are available. Unlike interactive output, it will still 
-work if called from a script or an (i)python reply by falling back to the built in Matplotlib
+work if called from a script or an (i)python REPL by falling back to the built in Matplotlib
 `widgets <https://matplotlib.org/api/widgets_api.html?highlight=widgets#module-matplotlib.widgets>`_.
 
 Convenience
