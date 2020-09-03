@@ -2,11 +2,11 @@
 Image Segmentation
 ==================
 
-Hopefully you won't often be faced with the task of manually segmenting images. However, for the times when you must
+Hopefully you won't often be faced with the task of manually segmenting images. However, for the times when you must,
 it's nice to not need to leave the comfort of python for some other program. Thus we arrive at the :class:`~mpl_interactions.image_segmenter` class.
 
-(Credit where it's due: This tool was developed as part of a final project in Pavlos Protopapas' class `AC295 <https://harvard-iacs.github.io/2020-AC295/>`_, you can read more about it
-in the project's final write up on `towards data science <https://towardsdatascience.com/how-we-built-an-easy-to-use-image-segmentation-tool-with-transfer-learning-546efb6ae98>`_)
+(Credit where it's due: This tool was developed as part of a final project in Pavlos Protopapas' class `AC295 <https://harvard-iacs.github.io/2020-AC295/>`_ and you can read more about it
+in the project's final write up on `towards data science <https://towardsdatascience.com/how-we-built-an-easy-to-use-image-segmentation-tool-with-transfer-learning-546efb6ae98>`_.)
 
 
 .. code-block:: python
@@ -23,22 +23,25 @@ in the project's final write up on `towards data science <https://towardsdatasci
     # If you don't keep a reference to the object the call backs will fail
     segmenter = image_segmenter(image, nclasses = 3, mask_colors='red', mask_alpha=.76, figsize=(7,7))
     
-    # if working in a jupyter notebook
+    # If working in a Jupyter Notebook
     display(segmenter)
 
-This will create a matplotlib figure with the image in it. It will automatically apply 
-:meth:`~mpl_interactions.zoom_factory` and :meth:`~mpl_interactions.panhandler` so you can scroll to
-zoom and use middle click to pan. If you left click and drag you can start creating the mask over the image.
+This will create an image in a Matplotlib figure. It will automatically apply 
+:meth:`~mpl_interactions.zoom_factory` and :meth:`~mpl_interactions.panhandler`, so now you can: 
+
+* Scroll to zoom 
+* Use middle click to pan
+* Left click and drag to start creating the mask over the image
 
 .. image:: ../_static/segment.gif
 
-You can switch which class you are marking by directly modifying the `segmenter`'s `current_class` variable.
+You can switch which class you are marking by directly modifying the ``segmenter``'s ``current_class`` variable:
 
 .. code-block:: python
 
     segmenter.current_class = 2
 
-and you can always directly the 2D mask with:
+And you can always direct the 2D mask with:
 
 .. code-block:: python
 
@@ -49,9 +52,9 @@ and you can always directly the 2D mask with:
 Loading existing masks
 ----------------------
 
-You can also load an existing mask. You will need to ensure that it does not contain values greater
-than nclasses and that it has the same shape as the image. There are currently no safegaurds for
-this and when there are exceptions in a matplotlib callback they can be hard to see in the notebook - so be careful!
+You can also load an existing mask. You only need to ensure that (1) it does not contain values greater
+than nclasses, and (2) that it has the same shape as the image. There are currently no safegaurds for
+this, and when there are exceptions in a Matplotlib callback they can be hard to see in the notebook - so be careful!
 
 .. code-block:: python
 
