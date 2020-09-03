@@ -358,6 +358,34 @@ def interactive_plot_factory(ax, f, x=None,
     fig.canvas.toolbar.push_current()
     return controls
 
+def _gogogo_figure(ipympl):
+    """
+    gogogo the greatest function name of all
+    """
+    if ipympl:
+        with ioff:
+            fig = figure()
+            ax = fig.gca()
+    else:
+        fig = figure()
+        ax = fig.gca()
+    return fig, ax
+def _gogogo_display(ipympl, use_ipywidgets, display, controls, fig):
+    if use_ipywidgets:
+        controls = widgets.VBox(controls) 
+        if display:
+            if ipympl:
+                ipy_display(widgets.VBox([controls, fig.canvas]))
+            else:
+                # for the case of using %matplotlib qt
+                # but also want ipywidgets sliders
+                # ie with force_ipywidgets = True
+                ipy_display(controls)
+                fig.show()
+    else:
+        if display:
+            fig.show()
+            controls[0].show()
 def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
                         slider_format_string=None,
                         plot_kwargs=None,
@@ -430,35 +458,15 @@ def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
 
     """
                                  
-    ipympl = _notebook_backend()
-    if ipympl:
-        with ioff:
-            fig = figure()
-            ax = fig.gca()
-    else:
-        fig = figure()
-        ax = fig.gca()
 
+    ipympl = _notebook_backend()
+    fig, ax = _gogogo_figure(ipympl)
     use_ipywidgets = ipympl or force_ipywidgets
     controls = interactive_plot_factory(ax, f, x, xlim,
                             ylim, slider_format_string,
                             plot_kwargs, title,
                             use_ipywidgets=use_ipywidgets, **kwargs)
-    if use_ipywidgets:
-        controls = widgets.VBox(controls) 
-        if display:
-            if ipympl:
-                ipy_display(widgets.VBox([controls, fig.canvas]))
-            else:
-                # for the case of using %matplotlib qt
-                # but also want ipywidgets sliders
-                # ie with force_ipywidgets = True
-                ipy_display(controls)
-                fig.show()
-    else:
-        if display:
-            fig.show()
-            controls[0].show()
+    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
 
@@ -550,14 +558,9 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
         raise ValueError(f"Currently only a single function is supported. You passed in {len(funcs)} functions")
 
     ipympl = _notebook_backend()
-    if ipympl:
-        with ioff:
-            fig = figure()
-            ax = fig.gca()
-    else:
-        fig = figure()
-        ax = fig.gca()
+    fig, ax = _gogogo_figure(ipympl)
     use_ipywidgets = ipympl or force_ipywidgets
+
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
@@ -591,19 +594,7 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
     ax.set_ylim(new_y)
 
 
-    if use_ipywidgets:
-        controls = widgets.VBox(controls) 
-        if display:
-            if ipympl:
-                ipy_display(widgets.VBox([controls, fig.canvas]))
-            else:
-                # for the case of using %matplotlib qt
-                # but also want ipywidgets sliders
-                # ie with force_ipywidgets = True
-                ipy_display(controls)
-                fig.show()
-    else:
-        if display:
-            fig.show()
-            controls[0].show()
+    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
+
+# def interactive_scatter(f, **kwargs):
