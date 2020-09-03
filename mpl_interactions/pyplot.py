@@ -581,7 +581,7 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
         stretch(ax, new_x, new_y)
         pc.set_paths(new_patches)
         ax.autoscale_view()
-        fig.canvas.draw() # same effect with draw_idle
+        fig.canvas.draw_idle()
 
     # this line implicitly fills the params dict
     if use_ipywidgets:
@@ -668,7 +668,7 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
             # mega credit to https://stackoverflow.com/a/51327480/835607
             ax.update_datalim(scats[i].get_datalim(ax.transData))
         ax.autoscale_view()
-        fig.canvas.draw() # same effect with draw_idle
+        fig.canvas.draw_idle(a
 
     if use_ipywidgets:
         sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
