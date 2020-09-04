@@ -592,6 +592,7 @@ def interactive_hist(
     density=False,
     bins="auto",
     weights=None,
+    figsize=None,
     slider_format_string=None,
     force_ipywidgets=False,
     **kwargs,
@@ -613,6 +614,9 @@ def interactive_hist(
         bins argument to np.histogram
     weights : array_like, optional
         passed to np.histogram
+    figsize : tuple or scalar
+        If tuple it will be used as the matplotlib figsize. If a number
+        then it will be used to scale the current rcParams figsize
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default

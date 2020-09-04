@@ -54,7 +54,7 @@ def figure(figsize=1, *args, **kwargs):
         fig1 = figure(2)
         fig2 = plt.figure(figsize=(12.8, 9.6))
     """
-    if not isinstance(figsize, Iterable):
+    if not isinstance(figsize, Iterable) and figsize is not None:
         figsize = [figsize * x for x in rcParams["figure.figsize"]]
     return mpl_figure(figsize=figsize, *args, **kwargs)
 
