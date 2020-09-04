@@ -214,8 +214,12 @@ def zoom_factory(ax, base_scale = 1.1):
     
     fig = ax.get_figure() # get the figure of interest
     fig.canvas.capture_scroll = True
-    toolbar = fig.canvas.toolbar
-    toolbar.push_current()
+    has_toolbar = hasattr(fig.canvas, 'toolbar') and fig.canvas.toolbar is not None
+    if has_toolbar:
+        # it might be possible to have an interactive backend without
+        # a toolbar. I'm not sure so being safe here
+        toolbar = fig.canvas.toolbar
+        toolbar.push_current()
     orig_xlim = ax.get_xlim()
     orig_ylim = ax.get_ylim()
     orig_yrange = limits_to_range(orig_ylim)
@@ -256,7 +260,8 @@ def zoom_factory(ax, base_scale = 1.1):
         ax.set_xlim(new_xlim)
         ax.set_ylim(new_ylim)
 
-        toolbar.push_current()
+        if has_toolbar:
+            toolbar.push_current()
         ax.figure.canvas.draw_idle() # force re-draw
 
 

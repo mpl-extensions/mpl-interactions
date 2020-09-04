@@ -357,7 +357,8 @@ def interactive_plot_factory(ax, f, x=None,
         ax.set_title(title.format(**params))
 
     # make sure the home button will work
-    fig.canvas.toolbar.push_current()
+    if hasattr(fig.canvas, 'toolbar') and fig.canvas.toolbar is not None:
+        fig.canvas.toolbar.push_current()
     return controls
 
 def _gogogo_figure(ipympl):
@@ -388,6 +389,8 @@ def _gogogo_display(ipympl, use_ipywidgets, display, controls, fig):
         if display:
             fig.show()
             controls[0].show()
+
+
 def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
                         slider_format_string=None,
                         plot_kwargs=None,
@@ -660,7 +663,6 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
         else:
             # categorical
             params[key] = change['new']
-        # arr = funcs[0](**params)
         for i,f in enumerate(funcs):
             if point_funcs[i]:
                 x,y = f(**params)
