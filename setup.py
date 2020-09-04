@@ -20,7 +20,8 @@ setup(
     install_requires = [
         'ipywidgets>=7.5.0,<8',
         'matplotlib',
-        'ipympl>=0.5.7'
+        'ipympl>=0.5.7',
+        'packaging',
     ],
     author          = 'Ian Hunt-Isaak',
     author_email    = 'ianhuntisaak@gmail.com',
