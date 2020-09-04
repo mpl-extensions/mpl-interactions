@@ -13,6 +13,7 @@ import numpy as np
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
 from matplotlib import __version__ as mpl_version
+from matplotlib.colors import to_rgba_array
 from packaging import version
 
 
@@ -614,7 +615,14 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
         * The `.plot` function will be faster for scatterplots where markers
         don't vary in size or color.
     """
-    funcs = atleast_1d(f)
+    if isinstance(f, tuple):
+        funcs = atleast_1d([f])
+    else:
+        funcs = atleast_1d(f)
+    point_funcs = []
+    for f in funcs:
+        point_funcs.append(callable(f))
+
 
     def _gogogo(arg):
         """
@@ -654,29 +662,45 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
             params[key] = change['new']
         # arr = funcs[0](**params)
         for i,f in enumerate(funcs):
-            x,y = f(**params)
-            scats[i].set_offsets(np.column_stack([x,y]))
+            if point_funcs[i]:
+                x,y = f(**params)
+                scats[i].set_offsets(np.column_stack([x,y]))
+            else:
+                x,y = f
+            
             if color_funcs:
-                scats[i].set_facecolor(scats[i].cmap(cols[i](x,y,**params)))
+                c = cols[i](x,y,**params)
+                try:
+                    c = to_rgba_array(c)
+                except ValueError as array_err:
+                    try:
+                        c = scats[i].cmap(c)
+                    except TypeError as cmap_err:
+                        raise ValueError("If c is a function it must return either an RGB(A) array"
+                                         "or a 1D array of valid color names or values to be colormapped")
+                scats[i].set_facecolor(c)
+
             if edgecolor_funcs:
                 scats[i].set_edgecolor(edgecolors[i](x,y,**params))
             if size_funcs:
                 scats[i].set_sizes(sizes[i](x,y,**params))
             if alpha_funcs:
-                scats[i].set_alpha(alphas[i](x,y,**params))
+                scats[i].set_alpha(alphas[i](**params))
 
             # mega credit to https://stackoverflow.com/a/51327480/835607
             ax.update_datalim(scats[i].get_datalim(ax.transData))
         ax.autoscale_view()
-        fig.canvas.draw_idle(a
+        fig.canvas.draw_idle()
 
     if use_ipywidgets:
         sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
     for i, f in enumerate(funcs):
-        # print(cols[i])
-        x,y = f(**params)
+        if point_funcs[i]:
+            x,y = f(**params)
+        else:
+            x,y = f
         if color_funcs:
             c = cols[i](x,y,**params)
         else:
@@ -687,12 +711,13 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
         else:
             s = sizes[i]
         if alpha_funcs:
-            a = alphas[i](x,y,**params)
+            a = alphas[i](**params)
         else:
             a = alphas[i]
         ec = edgecolors[i]
         if edgecolor_funcs:
             ec = ec(x,y,**params)
+        
         scats.append(ax.scatter(x,y, c=c, s=s, vmin = vmin, vmax=vmax, cmap = cmap, alpha=a, edgecolors=ec))
 
 
