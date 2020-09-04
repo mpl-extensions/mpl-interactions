@@ -61,7 +61,8 @@ setup(
         'test': [
             'pytest',
             'nbval',
-            'PyQt5'
+            'PyQt5',
+            'black',
         ],
     }
 )
