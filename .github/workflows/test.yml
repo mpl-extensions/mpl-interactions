@@ -11,7 +11,7 @@ on:
 
 jobs:
   test-3x:
-    name: Test Python ${{ matrix.python-version }}
+    name: Python ${{ matrix.python-version }} - Matplotlib ${{ matrix.matplotlib-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -49,4 +49,4 @@ jobs:
 
       - name: Tests
         run: |
-          pytest
+          pytest --color=yes
