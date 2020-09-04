@@ -49,7 +49,7 @@ jobs:
 
       - name: Tests
         run: |
-          black mpl_interactions --check
-          black examples --check
+          black mpl_interactions --check --line-length=100
+          black examples --check --line-length=100
           pytest --color=yes
 
