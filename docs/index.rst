@@ -74,9 +74,17 @@ Further discussion of the behavior as a function of backend can be found on the 
    Backends
    compare-to-ipywidgets
    API
-   Examples
    Gallery
    Contributing
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
+   
+   examples/pyplot-notebook.rst
+   examples/mpl-sliders.rst
+   examples/image-segmentation.rst
+   examples/heatmap-slicer.rst
 
 Indices and Tables
 ------------------
