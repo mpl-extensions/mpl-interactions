@@ -28,7 +28,10 @@ def test_heatmap_slicer():
 def test_image_segmentation():
     with cbook.get_sample_data("ada.png") as image_file:
         image = plt.imread(image_file)
-    mask = np.load("../../examples/ada-mask.npy")
+    try:
+        mask = np.load("../../examples/ada-mask.npy")
+    except FileNotFoundError:
+        mask = np.load("examples/ada-mask.npy")
     preloaded = image_segmenter(image, nclasses=3, mask=mask)
 
     return preloaded.fig
