@@ -361,18 +361,21 @@ def interactive_plot_factory(ax, f, x=None,
         fig.canvas.toolbar.push_current()
     return controls
 
-def _gogogo_figure(ipympl):
+
+def _gogogo_figure(ipympl,figsize):
     """
     gogogo the greatest function name of all
     """
     if ipympl:
         with ioff:
-            fig = figure()
+            fig = figure(figsize=figsize)
             ax = fig.gca()
     else:
-        fig = figure()
+        fig = figure(figsize=figsize)
         ax = fig.gca()
     return fig, ax
+
+
 def _gogogo_display(ipympl, use_ipywidgets, display, controls, fig):
     if use_ipywidgets:
         controls = widgets.VBox(controls) 
@@ -396,7 +399,7 @@ def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
                         plot_kwargs=None,
                         title=None,figsize=None, display=True, force_ipywidgets=False, **kwargs):
     """
-    Make a plot interactive using sliders.
+    Control a plot using widgets
     
     parameters
     ----------
@@ -406,8 +409,6 @@ def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
     x : arraylike or None
         x values a which to evaluate the function. If None the function(s) f should
         return a list of [x, y]
-    ax : matplolibt.Axes or None
-        axes on which to 
     xlim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_xlim. Other options are:
         'auto': rescale the x axis for every redraw
@@ -426,7 +427,7 @@ def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
         None or be iterable.
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
-        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau}'
+        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
     figsize : tuple or scalar
         If tuple it will be used as the matplotlib figsize. If a number
         then it will be used to scale the current rcParams figsize
@@ -441,7 +442,7 @@ def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
     -------
     fig : matplotlib figure
     ax : matplotlib axis
-    controls : list of slider widgets
+    controls : list of widgets
 
     Examples 
     --------
@@ -465,7 +466,7 @@ def interactive_plot(f, x=None, xlim='stretch', ylim='stretch',
                                  
 
     ipympl = _notebook_backend()
-    fig, ax = _gogogo_figure(ipympl)
+    fig, ax = _gogogo_figure(ipympl,figsize)
     use_ipywidgets = ipympl or force_ipywidgets
     controls = interactive_plot_factory(ax, f, x, xlim,
                             ylim, slider_format_string,
@@ -505,7 +506,7 @@ def stretch(ax, xlims, ylims):
 
 def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_string=None, force_ipywidgets=False, **kwargs):
     """
-    Control the contents of a histogram using sliders.
+    Control the contents of a histogram using widgets.
     
     See https://github.com/ianhi/mpl-interactions/pull/73#issue-470638134 for a discussion
     of the limitations of this function. These limitations will be improved once
@@ -536,7 +537,7 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
     -------
     fig : matplotlib figure
     ax : matplotlib axis
-    controls : list of slider widgets
+    controls : list of widgets
 
     Examples 
     --------
@@ -563,7 +564,7 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
         raise ValueError(f"Currently only a single function is supported. You passed in {len(funcs)} functions")
 
     ipympl = _notebook_backend()
-    fig, ax = _gogogo_figure(ipympl)
+    fig, ax = _gogogo_figure(ipympl,figsize=figsize)
     use_ipywidgets = ipympl or force_ipywidgets
 
     pc = PatchCollection([])
@@ -602,11 +603,54 @@ def interactive_hist(f, density=False, bins='auto', weights=None, slider_format_
     _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
-def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, alpha=None,
-                            edgecolors=None, slider_format_string=None, force_ipywidgets=False, **kwargs):
+def interactive_scatter(f, s=None, c=None, cmap = None, vmin=None, vmax = None, alpha=None,
+                            edgecolors=None, slider_format_string=None, title=None, force_ipywidgets=False, **kwargs):
     """
-    reserve the c and s kwargs
+    Control a scatter plot using widgets.
+    
+    parameters
+    ----------
+    f : function or list(functions) or (x, y) or list of tuples
+        The function(s) to plot. Each function should return either the y values, or
+        a list of both the x and y arrays to plot [x, y]. Alternatively you can fix
+        the positions of the points by passing a tuple of (x, y) where x and y are each
+        1D arrays or lists of numbers
+    c : array-like or list of colors or color, optional
+        valid input to plt.scatter, or an array of valid inputs, or a function
+        or an array-like of functions of the same length as f
+    s : float or  array-like shape (n,) or (len(f), n) or function(s)
+        valid input to plt.scatter, or an array of valid inputs, or a function
+        or an array-like of functions of the same length as f
+    slider_format_string : None, string, or dict
+        If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
+        For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
+        format for all values. A dictionary will allow assigning different formats to different sliders.
+        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        object for matplotlib slider values.
+    plot_kwargs : None, dict, or iterable of dicts
+        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
+        None or be iterable.
+    title : None or string
+        If a string then you can have it update automatically using string formatting of the names
+        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
+    figsize : tuple or scalar
+        If tuple it will be used as the matplotlib figsize. If a number
+        then it will be used to scale the current rcParams figsize
+    display : boolean
+        If True then the output and controls will be automatically displayed
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
 
+    returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axis
+    controls : list of widgets
+
+    notes
+    -----
     list:
         if a list of callables that is the same lengthif they are a list of callables
     just have to accept a few sharp edges
@@ -627,7 +671,7 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
         point_funcs.append(callable(f))
 
 
-    def _gogogo(arg):
+    def _gogogo(arg, name):
         """
         for transforming c or s into approriate shaped array/list
         """
@@ -641,14 +685,20 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
         elif all(map(callable, args)) and len(args) == len(funcs):
             arg_funcs = True
             args = arg
+        elif args.shape[0] == len(funcs):
+            pass
+        else:
+            raise ValueError(f"{name} must be a valid argument to plt.scatter or "
+                              "an array of valid values with the same number of entries "
+                              "as there are functions")
         return args, arg_funcs
-    cols, color_funcs = _gogogo(c)
-    sizes, size_funcs = _gogogo(s)
-    alphas, alpha_funcs = _gogogo(alpha)
-    edgecolors, edgecolor_funcs = _gogogo(edgecolors)
+    cols, color_funcs = _gogogo(c, 'c')
+    sizes, size_funcs = _gogogo(s, 's')
+    alphas, alpha_funcs = _gogogo(alpha, 'alpha')
+    edgecolors, edgecolor_funcs = _gogogo(edgecolors, 'edgecolors')
     params = {}
     ipympl = _notebook_backend()
-    fig, ax = _gogogo_figure(ipympl)
+    fig, ax = _gogogo_figure(ipympl,figsize)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
     scats = []
@@ -663,6 +713,8 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
         else:
             # categorical
             params[key] = change['new']
+        if title is not None:
+            ax.set_title(title.format(**params))
         for i,f in enumerate(funcs):
             if point_funcs[i]:
                 x,y = f(**params)
@@ -698,6 +750,8 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
         sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+    if title is not None:
+        ax.set_title(title.format(**params))
     for i, f in enumerate(funcs):
         if point_funcs[i]:
             x,y = f(**params)
@@ -721,7 +775,6 @@ def interactive_scatter(f, c=None, s=None, vmin=None, vmax = None, cmap = None, 
             ec = ec(x,y,**params)
         
         scats.append(ax.scatter(x,y, c=c, s=s, vmin = vmin, vmax=vmax, cmap = cmap, alpha=a, edgecolors=ec))
-
 
     _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
