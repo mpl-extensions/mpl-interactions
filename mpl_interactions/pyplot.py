@@ -94,18 +94,12 @@ def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
                 params[key] = val
             else:
                 params[key] = val[0]
-                labels.append(
-                    widgets.Label(value=slider_format_strings[key].format(val[0]))
-                )
+                labels.append(widgets.Label(value=slider_format_strings[key].format(val[0])))
                 sliders.append(
-                    widgets.IntSlider(
-                        min=0, max=val.size - 1, readout=False, description=key
-                    )
+                    widgets.IntSlider(min=0, max=val.size - 1, readout=False, description=key)
                 )
                 controls.append(widgets.HBox([sliders[-1], labels[-1]]))
-                sliders[-1].observe(
-                    partial(update, key=key, label=labels[-1]), names=["value"]
-                )
+                sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=["value"])
     return sliders, labels, controls
 
 
@@ -146,7 +140,7 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
     n_sliders = 0
     for key, val in kwargs.items():
         if isinstance(val, set):
-            new_opts = extract_num_options(val)
+            new_opts = _extract_num_options(val)
             if new_opts > 0:
                 n_radio += 1
                 n_opts += new_opts
@@ -165,10 +159,7 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
     widget_gap_in = 0.1
 
     widget_inches = (
-        n_sliders * slider_in
-        + n_opts * radio_in
-        + widget_gap_in * (n_sliders + n_radio + 1)
-        + 0.5
+        n_sliders * slider_in + n_opts * radio_in + widget_gap_in * (n_sliders + n_radio + 1) + 0.5
     )  # half an inch for margin
     fig = None
     if not all(map(lambda x: isinstance(x, mwidgets.AxesWidget), kwargs.values())):
@@ -204,16 +195,10 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
             longest_len = max(list(map(lambda x: len(list(x)), map(str, val))))
             # should probably use something based on fontsize rather that .015
             width = max(0.15, 0.015 * longest_len)
-            radio_ax.append(
-                axes([0.2, 0.9 - widget_y - radio_height * n, width, radio_height * n])
-            )
+            radio_ax.append(axes([0.2, 0.9 - widget_y - radio_height * n, width, radio_height * n]))
             widget_y += radio_height * n + gap_height
             radio_buttons.append(mwidgets.RadioButtons(radio_ax[-1], val, active=0))
-            cbs.append(
-                radio_buttons[-1].on_clicked(
-                    partial(_changeify, key=key, update=update)
-                )
-            )
+            cbs.append(radio_buttons[-1].on_clicked(partial(_changeify, key=key, update=update)))
             params[key] = val[0]
         elif isinstance(val, mwidgets.RadioButtons):
             val.on_clicked(partial(_changeify, key=key, update=update))
@@ -233,9 +218,7 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
             else:
                 val = np.atleast_1d(val)
                 if val.ndim > 1:
-                    raise ValueError(
-                        f"{key} is {val.ndim}D but can only be 1D or a scalar"
-                    )
+                    raise ValueError(f"{key} is {val.ndim}D but can only be 1D or a scalar")
                 if len(val) == 1:
                     # don't need to create a slider
                     params[key] = val[0]
@@ -246,9 +229,7 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
                     min_ = np.min(val)
                     max_ = np.max(val)
 
-            slider_ax.append(
-                axes([0.2, 0.9 - widget_y - gap_height, 0.65, slider_height])
-            )
+            slider_ax.append(axes([0.2, 0.9 - widget_y - gap_height, 0.65, slider_height]))
             sliders.append(
                 mwidgets.Slider(
                     slider_ax[-1],
@@ -259,9 +240,7 @@ def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
                     valfmt=slider_format_strings[key],
                 )
             )
-            cbs.append(
-                sliders[-1].on_changed(partial(_changeify, key=key, update=update))
-            )
+            cbs.append(sliders[-1].on_changed(partial(_changeify, key=key, update=update)))
             widget_y += slider_height + gap_height
             params[key] = min_
     controls = [fig, radio_ax, radio_buttons, slider_ax, sliders]
@@ -319,9 +298,7 @@ def interactive_plot_factory(
     params = {}
     funcs = atleast_1d(f)
 
-    slider_format_strings = _create_slider_format_dict(
-        slider_format_string, use_ipywidgets
-    )
+    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
 
     def update(change, key, label):
         if label:
@@ -368,9 +345,7 @@ def interactive_plot_factory(
 
     fig = ax.get_figure()
     if use_ipywidgets:
-        sliders, labels, controls = _kwargs_to_widget(
-            kwargs, params, update, slider_format_strings
-        )
+        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
         sca(ax)
@@ -594,6 +569,7 @@ def interactive_hist(
     weights=None,
     figsize=None,
     slider_format_string=None,
+    display=True,
     force_ipywidgets=False,
     **kwargs,
 ):
@@ -623,6 +599,8 @@ def interactive_hist(
         format for all values. A dictionary will allow assigning different formats to different sliders.
         note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
+    display : boolean
+        If True then the output and controls will be automatically displayed
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -667,9 +645,7 @@ def interactive_hist(
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
-    slider_format_strings = _create_slider_format_dict(
-        slider_format_string, use_ipywidgets
-    )
+    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
 
     # update plot
     def update(change, key, label):
@@ -681,9 +657,7 @@ def interactive_hist(
             # categorical
             params[key] = change["new"]
         arr = funcs[0](**params)
-        new_x, new_y, new_patches = simple_hist(
-            arr, density=density, bins=bins, weights=weights
-        )
+        new_x, new_y, new_patches = simple_hist(arr, density=density, bins=bins, weights=weights)
         stretch(ax, new_x, new_y)
         pc.set_paths(new_patches)
         ax.autoscale_view()
@@ -691,9 +665,7 @@ def interactive_hist(
 
     # this line implicitly fills the params dict
     if use_ipywidgets:
-        sliders, labels, controls = _kwargs_to_widget(
-            kwargs, params, update, slider_format_strings
-        )
+        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
 
@@ -735,9 +707,12 @@ def interactive_scatter(
     c : array-like or list of colors or color, optional
         valid input to plt.scatter, or an array of valid inputs, or a function
         or an array-like of functions of the same length as f
-    s : float or  array-like shape (n,) or (len(f), n) or function(s)
+    s : float or array-like shape (n,) or (len(f), n) or function(s)
         valid input to plt.scatter, or an array of valid inputs, or a function
         or an array-like of functions of the same length as f
+    alpha : float, array-like of floats, function or array-like of functions
+        Affects all scatter points. This will compound with any alpha introduced by
+        the ``c`` argument
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
@@ -819,9 +794,7 @@ def interactive_scatter(
     ipympl = _notebook_backend()
     fig, ax = _gogogo_figure(ipympl, figsize)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = _create_slider_format_dict(
-        slider_format_string, use_ipywidgets
-    )
+    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
     scats = []
 
     def update(change, key, label):
@@ -869,9 +842,7 @@ def interactive_scatter(
         fig.canvas.draw_idle()
 
     if use_ipywidgets:
-        sliders, labels, controls = _kwargs_to_widget(
-            kwargs, params, update, slider_format_strings
-        )
+        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
     if title is not None:
@@ -899,9 +870,7 @@ def interactive_scatter(
             ec = ec(x, y, **params)
 
         scats.append(
-            ax.scatter(
-                x, y, c=c, s=s, vmin=vmin, vmax=vmax, cmap=cmap, alpha=a, edgecolors=ec
-            )
+            ax.scatter(x, y, c=c, s=s, vmin=vmin, vmax=vmax, cmap=cmap, alpha=a, edgecolors=ec)
         )
 
     _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)

@@ -89,9 +89,7 @@ def heatmap_slicer(
         elif slices == "vertical":
             vert = True
         else:
-            raise ValueError(
-                "Valid options for slices are {horizontal, vertical, both}"
-            )
+            raise ValueError("Valid options for slices are {horizontal, vertical, both}")
 
     heatmaps = asarray(heatmaps)
     if heatmap_names is None:
@@ -100,9 +98,7 @@ def heatmap_slicer(
     if heatmaps.ndim == 3:
         num_axes = num_line_axes + heatmaps.shape[0]
         if type(heatmap_names) is str or (len(heatmap_names) != heatmaps.shape[0]):
-            raise ValueError(
-                "need to provide at least as many heatmap_names as heatmaps"
-            )
+            raise ValueError("need to provide at least as many heatmap_names as heatmaps")
     elif heatmaps.ndim == 2:
         heatmaps = heatmaps.reshape(1, *heatmaps.shape)
         if type(heatmap_names) is str:
@@ -153,9 +149,7 @@ def heatmap_slicer(
             data_line = axes[horiz_axis].plot(
                 x, heatmaps[i, init_idx, :], label=f"{heatmap_names[i]}"
             )[0]
-            hlines.append(
-                (same_shape, ax.axhline(Y[init_idx], color=linecolor), data_line)
-            )
+            hlines.append((same_shape, ax.axhline(Y[init_idx], color=linecolor), data_line))
 
         if vert:
             same_shape = Y.shape[0] == hmap_shape[0]
@@ -166,9 +160,7 @@ def heatmap_slicer(
             data_line = axes[vert_axis].plot(
                 y, heatmaps[i, :, init_idx], label=f"{heatmap_names[i]}"
             )[0]
-            vlines.append(
-                (same_shape, ax.axvline(X[init_idx], color=linecolor), data_line)
-            )
+            vlines.append((same_shape, ax.axvline(X[init_idx], color=linecolor), data_line))
 
     minimum = min(heatmaps)
     maximum = max(heatmaps)
@@ -205,17 +197,13 @@ def heatmap_slicer(
             y = None
             for i, (same_shape, display_line, data_line) in enumerate(hlines):
                 if y is None:
-                    y, data_idx, disp_idx = _gen_idxs(
-                        Y, y_centered, same_shape, event.ydata
-                    )
+                    y, data_idx, disp_idx = _gen_idxs(Y, y_centered, same_shape, event.ydata)
                 display_line.set_ydata(y[disp_idx])
                 data_line.set_ydata(heatmaps[i, data_idx])
             x = None
             for i, (same_shape, display_line, data_line) in enumerate(vlines):
                 if x is None:
-                    x, data_idx, disp_idx = _gen_idxs(
-                        X, x_centered, same_shape, event.xdata
-                    )
+                    x, data_idx, disp_idx = _gen_idxs(X, x_centered, same_shape, event.xdata)
                 display_line.set_xdata(x[disp_idx])
                 data_line.set_ydata(heatmaps[i, :, data_idx])
         fig.canvas.draw_idle()
@@ -361,9 +349,7 @@ class panhandler:
             ):
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
-                self._id_drag = self.fig.canvas.mpl_connect(
-                    "motion_notify_event", self._mouse_move
-                )
+                self._id_drag = self.fig.canvas.mpl_connect("motion_notify_event", self._mouse_move)
 
     def release(self, event):
         self._cancel_action()
@@ -462,9 +448,7 @@ class image_segmenter:
 
         lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
         useblit = False if "ipympl" in get_backend().lower() else True
-        self.lasso = LassoSelector(
-            self.ax, self._onselect, lineprops=lineprops, useblit=useblit
-        )
+        self.lasso = LassoSelector(self.ax, self._onselect, lineprops=lineprops, useblit=useblit)
         self.lasso.set_visible(True)
 
         pix_x = np.arange(self._img.shape[0])
