@@ -57,5 +57,10 @@ setup(
             'sphinx-copybutton',
             'sphinx-autobuild',
         ],
+        'test': [
+            'pytest',
+            'nbval',
+            'PyQt5'
+        ],
     }
 )
