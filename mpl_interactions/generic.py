@@ -15,7 +15,7 @@ __all__ = [
     'panhandler',
     'image_segmenter'
 ]
-def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_cols=None,figsize=(18,9),linecolor='k',labels=('X','Y'),interaction_type='move'):
+def heatmap_slicer(X,Y,heatmaps,slices='horizontal',heatmap_names = None,max_cols=None,cmap=None,vmin=None, vmax=None,figsize=(18,9),linecolor='k',labels=('X','Y'),interaction_type='move'):
     
     """
     Compare horizontal and/or vertical slices accross multiple arrays.
@@ -31,7 +31,11 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     heatmap_names : (String, String, ...)
         An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
     max_cols : int, optional - not working yet :(
-        Maximum number of columns to allo   
+        Maximum number of columns to allow
+    cmap : str or Colormap, optional
+        A Colormap instance or registered colormap name. The colormap maps the C values to colors.
+    vmin, vmax : float, optional
+        The colorbar range. If None, suitable min/max values are automatically chosen by the Normalize instance.
     ax : matplolibt.Axes or None
         axes on which to 
     y_scale : string or tuple of floats, optional
@@ -108,7 +112,7 @@ def heatmap_slicer(X,Y,heatmaps, slices='horizontal',heatmap_names = None,max_co
     x_centered = X[:-1] + (X[1:] - X[:-1])/2
     y_centered = Y[:-1] + (Y[1:] - Y[:-1])/2
     for i,ax in enumerate(axes[:-num_line_axes]):
-        ax.pcolormesh(X,Y,heatmaps[i],shading=shading)
+        ax.pcolormesh(X,Y,heatmaps[i],cmap=cmap,vmin=vmin,vmax=vmax,shading=shading)
         ax.set_xlabel(labels[0])
         ax.set_title(heatmap_names[i])
         hmap_shape = asanyarray(heatmaps[i]).shape
