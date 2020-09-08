@@ -7,11 +7,12 @@ from matplotlib import __version__ as mpl_version
 from packaging import version
 
 if version.parse(mpl_version) >= version.parse("3.3"):
-    mplsuffix = ''
+    mplsuffix = ""
 else:
     mplsuffix = 32
 
-@pytest.mark.mpl_image_compare(style="default", filename=f'test_heatmap_slicer{mplsuffix}.png')
+
+@pytest.mark.mpl_image_compare(style="default", filename=f"test_heatmap_slicer{mplsuffix}.png")
 def test_heatmap_slicer():
     x = np.linspace(0, np.pi, 100)
     y = np.linspace(0, 10, 200)
@@ -26,7 +27,7 @@ def test_heatmap_slicer():
         heatmap_names=("dataset 1", "dataset 2"),
         labels=("Some wild X variable", "Y axis"),
         interaction_type="move",
-        cmap='plasma'
+        cmap="plasma",
     )
     return fig
 

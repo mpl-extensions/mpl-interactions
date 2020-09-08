@@ -10,6 +10,7 @@ np.random.seed(1111111121)
 
 mpl_gr_32 = version.parse(mpl_version) >= version.parse("3.3")
 
+
 def f_hist(loc, scale):
     return np.random.randn(1000) * scale + loc
 
@@ -26,7 +27,7 @@ def test_hist_plot():
 @pytest.mark.mpl_image_compare(style="default")
 def test_hist_controls():
     if not mpl_gr_32:
-        pytest.skip('wonky font differences')
+        pytest.skip("wonky font differences")
     fig, ax, controls = interactive_hist(f_hist, density=True, loc=(5.5, 100), scale=(10, 15))
     return controls[0]
 
@@ -42,7 +43,7 @@ def f2(x, tau, beta):
 @pytest.mark.mpl_image_compare(style="default")
 def test_mixed_types():
     if not mpl_gr_32:
-        pytest.skip('wonky font differences')
+        pytest.skip("wonky font differences")
 
     def foo(x, **kwargs):
         return x
