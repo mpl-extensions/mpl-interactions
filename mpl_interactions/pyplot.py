@@ -15,7 +15,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib import __version__ as mpl_version
 from matplotlib.colors import to_rgba_array
 from packaging import version
-from .helpers import update_datalim_from_bbox, update_datalim
+from .helpers import update_datalim_from_bbox
 
 
 # functions that are methods

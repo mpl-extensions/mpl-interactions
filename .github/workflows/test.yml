@@ -53,5 +53,6 @@ jobs:
           black examples --check
 
       - name: Tests
-          run: pytest --color=yes
+        run: |
+          pytest --color=yes
 
