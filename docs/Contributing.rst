@@ -11,6 +11,19 @@ Code Improvements
 
 All development for this library happens on Github at `mpl_interactions <https://github.com/ianhi/mpl-interactions>`_.
 
+.. code-block:: bash
+   
+   git clone <your fork>
+   cd mpl-interactions
+   pip install -e ".[dev, doc, test]"
+   pre-commit install
+
+.. code-block:: bash
+
+   conda install nodejs=12
+   jupyter labextension install @jupyter-widgets/jupyterlab-manager
+
+
 Seeing your changes
 ^^^^^^^^^^^^^^^^^^^
 
@@ -45,7 +58,7 @@ Following changes to the source files, you can view recent adjustments by buildi
 .. code-block:: bash
 
     cd mpl-interactions
-    pip install -e.[docs]
+    pip install -e ".[docs]"
 
 2. Run the following commands:
 
