@@ -2,7 +2,7 @@ import numpy as np
 
 __all__ = [
     "decompose_bbox",
-    "update_datalim",
+    "update_datalim_from_xy",
     "update_datalim_from_bbox",
 ]
 
@@ -20,7 +20,6 @@ def _update_limits(ax, x0, y0, x1, y1, x0_, y0_, x1_, y1_, stretch_x, stretch_y)
         x1 = x1_
 
     if stretch_y:
-        print("yes?")
         y0 = np.min([y0, y0_])
         y1 = np.max([y1, y1_])
     else:
@@ -35,7 +34,7 @@ def update_datalim_from_bbox(ax, bbox, stretch_x=True, stretch_y=True):
     _update_limits(ax, *decompose_bbox(ax.dataLim), *decompose_bbox(bbox), stretch_x, stretch_y)
 
 
-def update_datalim(ax, x, y, stretch_x=True, stretch_y=True):
+def update_datalim_from_xy(ax, x, y, stretch_x=True, stretch_y=True):
     """
     current : ax.dataLim
     x : array
