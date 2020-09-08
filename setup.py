@@ -45,7 +45,7 @@ setup(
     ],
     url="https://github.com/ianhi/mpl-interactions",
     extras_require={
-        "docs": [
+        "doc": [
             "sphinx>=1.5",
             "mock",
             "numpydoc",
@@ -65,6 +65,9 @@ setup(
             "nbval",
             "PyQt5",
             "black",
+        ],
+        "dev": [
+            "pre-commit",
         ],
     },
 )
