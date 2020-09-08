@@ -5,7 +5,7 @@ import matplotlib.cbook as cbook
 import numpy as np
 
 
-@pytest.mark.mpl_image_compare(style='default')
+@pytest.mark.mpl_image_compare(style="default")
 def test_heatmap_slicer():
     x = np.linspace(0, np.pi, 100)
     y = np.linspace(0, 10, 200)
@@ -24,7 +24,7 @@ def test_heatmap_slicer():
     return fig
 
 
-@pytest.mark.mpl_image_compare(style='default')
+@pytest.mark.mpl_image_compare(style="default")
 def test_image_segmentation():
     with cbook.get_sample_data("ada.png") as image_file:
         image = plt.imread(image_file)
