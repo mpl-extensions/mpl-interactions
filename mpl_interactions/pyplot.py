@@ -15,6 +15,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib import __version__ as mpl_version
 from matplotlib.colors import to_rgba_array
 from packaging import version
+from .helpers import update_datalim_from_bbox, update_datalim
 
 
 # functions that are methods
@@ -689,8 +690,11 @@ def interactive_scatter(
     vmax=None,
     alpha=None,
     edgecolors=None,
+    xlim="stretch",
+    ylim="stretch",
     slider_format_string=None,
     title=None,
+    figsize=None,
     force_ipywidgets=False,
     **kwargs,
 ):
@@ -713,6 +717,15 @@ def interactive_scatter(
     alpha : float, array-like of floats, function or array-like of functions
         Affects all scatter points. This will compound with any alpha introduced by
         the ``c`` argument
+    edgecolors : colorlike
+        passed through to scatter. broadcastable over functions
+    xlim : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_xlim. Other options are:
+        'auto': rescale the x axis for every redraw
+        'stretch': only ever expand the xlims.
+    ylim : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_ylim. Other options are same
+        as xlim
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
@@ -762,6 +775,16 @@ def interactive_scatter(
     for f in funcs:
         point_funcs.append(callable(f))
 
+    if isinstance(xlim, str):
+        stretch_x = xlim == "stretch"
+    else:
+        stretch_x = False
+
+    if isinstance(ylim, str) and ylim.lower() == "stretch":
+        stretch_y = True
+    else:
+        stretch_y = False
+
     def _gogogo(arg, name):
         """
         for transforming c or s into approriate shaped array/list
@@ -798,7 +821,6 @@ def interactive_scatter(
     scats = []
 
     def update(change, key, label):
-        ax.relim()
         if label:
             # continuous
             params[key] = kwargs[key][change["new"]]
@@ -836,8 +858,9 @@ def interactive_scatter(
             if alpha_funcs:
                 scats[i].set_alpha(alphas[i](**params))
 
-            # mega credit to https://stackoverflow.com/a/51327480/835607
-            ax.update_datalim(scats[i].get_datalim(ax.transData))
+            update_datalim_from_bbox(
+                ax, scats[i].get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
+            )
         ax.autoscale_view()
         fig.canvas.draw_idle()
 
