@@ -3,9 +3,15 @@ import matplotlib.pyplot as plt
 from mpl_interactions.generic import *
 import matplotlib.cbook as cbook
 import numpy as np
+from matplotlib import __version__ as mpl_version
+from packaging import version
 
+if version.parse(mpl_version) >= version.parse("3.3"):
+    mplsuffix = ''
+else:
+    mplsuffix = 32
 
-@pytest.mark.mpl_image_compare(style="default")
+@pytest.mark.mpl_image_compare(style="default", filename=f'test_heatmap_slicer{mplsuffix}.png')
 def test_heatmap_slicer():
     x = np.linspace(0, np.pi, 100)
     y = np.linspace(0, 10, 200)
@@ -20,6 +26,7 @@ def test_heatmap_slicer():
         heatmap_names=("dataset 1", "dataset 2"),
         labels=("Some wild X variable", "Y axis"),
         interaction_type="move",
+        cmap='plasma'
     )
     return fig
 
