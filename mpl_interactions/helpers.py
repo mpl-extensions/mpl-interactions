@@ -81,20 +81,12 @@ def is_jagged(seq):
 
 
 def prep_broadcast(arr):
-    if is_jagged(arr):
-        arr = np.atleast_2d(np.asarray(arr, dtype=np.object))
-    else:
-        arr = np.asarray(arr)
-        if np.issubdtype(arr.dtype, np.number) and arr.ndim == 1:
-            arr = arr[None, :]
-    return arr
-
-
-def prep_broadcast(arr):
     if arr is None:
-        return np.array([None])
+        return np.atleast_1d(None)
     if is_jagged(arr):
         arr = np.asarray(arr, dtype=np.object)
+    elif isinstance(arr, Number) or isinstance(arr, Callable):
+        arr = np.atleast_1d(arr)
     else:
         arr = np.atleast_1d(arr)
         if np.issubdtype(arr.dtype, np.number) and arr.ndim == 1:
@@ -112,17 +104,18 @@ def broadcast_to(arr, to_shape, names):
 
     gives 28 and 112. Note 112/28 != 19000
     """
-    if arr.ndim == 2:
+    if arr.shape[0] == to_shape[0]:
+        return arr
+
+    if arr.ndim > 1:
         if arr.shape[0] == 1:
-            return np.broadcast_to(arr, (to_shape[0], arr.shape[1]))
-        elif arr.shape[0] == to_shape[0]:
-            return arr
+            return np.broadcast_to(arr, (to_shape[0], *arr.shape[1:]))
         else:
             raise ValueError(f"can't broadcast {names[0]} {arr.shape} onto {names[1]} {to_shape}")
-    elif arr.ndim > 2:
-        raise ValueError(f"{names[0]} can't have dimension > 2, it has {arr.ndim} dimensions")
+    elif arr.shape[0] == 1:
+        return np.broadcast_to(arr, (to_shape[0],))
     else:
-        return np.broadcast_to(arr, (to_shape[0], arr.shape[0]))
+        raise ValueError(f"can't broadcast {names[0]} {arr.shape} onto {names[1]} {to_shape}")
 
 
 def broadcast_arrays(*args):
@@ -144,5 +137,4 @@ def broadcast_many(*args):
     helper to call prep_broadcast followed by broadcast arrays
     keep as a separate function to keep the idea of broadcast_arrays the same
     """
-    ret = broadcast_arrays(*[(prep_broadcast(arg[0]), arg[1]) for arg in args])
-    return ret
+    return broadcast_arrays(*[(prep_broadcast(arg[0]), arg[1]) for arg in args])

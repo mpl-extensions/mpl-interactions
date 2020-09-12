@@ -771,8 +771,25 @@ def interactive_scatter(
         * The `.plot` function will be faster for scatterplots where markers
         don't vary in size or color.
     """
+
+    def _prep_color(col):
+        if (
+            isinstance(col, np.ndarray)
+            and np.issubdtype(col.dtype, np.number)
+            and col.ndim == 2
+            and col.shape[1] in [3, 4]
+        ):
+            return col[None, :, :]
+        else:
+            return col
+
     X, Y, cols, sizes, edgecolors, alphas = broadcast_many(
-        (x, "x"), (y, "y"), (c, "c"), (s, "s"), (edgecolors, "edgecolors"), (alpha, "alpha")
+        (x, "x"),
+        (y, "y"),
+        (_prep_color(c), "c"),
+        (s, "s"),
+        (_prep_color(edgecolors), "edgecolors"),
+        (alpha, "alpha"),
     )
 
     if isinstance(xlim, str):
@@ -809,17 +826,17 @@ def interactive_scatter(
             s = check_callable_xy(s_, x, y, params)
             ec = check_callable_xy(ec_, x, y, params)
             a = check_callable_alpha(alpha_, params)
-            try:
-                c = to_rgba_array(c)
-            except ValueError as array_err:
-                try:
-                    c = scat.cmap(c)
-                except TypeError as cmap_err:
-                    raise ValueError(
-                        "If c is a function it must return either an RGB(A) array"
-                        "or a 1D array of valid color names or values to be colormapped"
-                    )
             if c is not None:
+                try:
+                    c = to_rgba_array(c)
+                except ValueError as array_err:
+                    try:
+                        c = scat.cmap(c)
+                    except TypeError as cmap_err:
+                        raise ValueError(
+                            "If c is a function it must return either an RGB(A) array"
+                            "or a 1D array of valid color names or values to be colormapped"
+                        )
                 scat.set_facecolor(c)
             if ec is not None:
                 scat.set_edgecolor(ec)
@@ -865,7 +882,6 @@ def interactive_scatter(
         return x, y
 
     for x_, y_, c_, s_, ec_, alpha_ in zip(X, Y, cols, sizes, edgecolors, alphas):
-
         x, y = eval_xy(x_, y_, params)
         c = check_callable_xy(c_, x, y, params)
         s = check_callable_xy(s_, x, y, params)
