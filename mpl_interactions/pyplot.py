@@ -5,6 +5,7 @@ from matplotlib import get_backend
 from functools import partial
 from warnings import warn
 from collections import defaultdict
+from collections.abc import Callable
 from .utils import ioff, figure
 import matplotlib.widgets as mwidgets
 from collections.abc import Iterable
@@ -15,7 +16,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib import __version__ as mpl_version
 from matplotlib.colors import to_rgba_array
 from packaging import version
-from .helpers import update_datalim_from_bbox
+from .helpers import update_datalim_from_bbox, broadcast_many
 
 
 # functions that are methods
@@ -682,7 +683,8 @@ def interactive_hist(
 
 
 def interactive_scatter(
-    f,
+    x,
+    y,
     s=None,
     c=None,
     cmap=None,
@@ -703,22 +705,24 @@ def interactive_scatter(
 
     parameters
     ----------
-    f : function or list(functions) or (x, y) or list of tuples
-        The function(s) to plot. Each function should return either the y values, or
-        a list of both the x and y arrays to plot [x, y]. Alternatively you can fix
-        the positions of the points by passing a tuple of (x, y) where x and y are each
-        1D arrays or lists of numbers
-    c : array-like or list of colors or color, optional
+    x : function or array-like
+        Must be broadcastable with y and any plotting kwargs. Can be a mix
+        of numbers and functions. Any functions in x must return a 1D array
+        or list of the same length as the paired y function or array
+    y : function or array-like
+        see x
+    c : array-like or list of colors or color, broadcastable
+        Must be broadcastable to x,y and any other plotting kwargs.
         valid input to plt.scatter, or an array of valid inputs, or a function
         or an array-like of functions of the same length as f
-    s : float or array-like shape (n,) or (len(f), n) or function(s)
+    s : float or array-like or function, broadcastable
         valid input to plt.scatter, or an array of valid inputs, or a function
         or an array-like of functions of the same length as f
-    alpha : float, array-like of floats, function or array-like of functions
+    alpha : float, None, or function(s), broadcastable
         Affects all scatter points. This will compound with any alpha introduced by
         the ``c`` argument
-    edgecolors : colorlike
-        passed through to scatter. broadcastable over functions
+    edgecolors : colorlike, broadcastable
+        passed through to scatter.
     xlim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_xlim. Other options are:
         'auto': rescale the x axis for every redraw
@@ -767,13 +771,9 @@ def interactive_scatter(
         * The `.plot` function will be faster for scatterplots where markers
         don't vary in size or color.
     """
-    if isinstance(f, tuple):
-        funcs = atleast_1d([f])
-    else:
-        funcs = atleast_1d(f)
-    point_funcs = []
-    for f in funcs:
-        point_funcs.append(callable(f))
+    X, Y, cols, sizes, edgecolors, alphas = broadcast_many(
+        (x, "x"), (y, "y"), (c, "c"), (s, "s"), (edgecolors, "edgecolors"), (alpha, "alpha")
+    )
 
     if isinstance(xlim, str):
         stretch_x = xlim == "stretch"
@@ -785,34 +785,6 @@ def interactive_scatter(
     else:
         stretch_y = False
 
-    def _gogogo(arg, name):
-        """
-        for transforming c or s into approriate shaped array/list
-        """
-        arg_funcs = False
-        args = atleast_1d(arg)
-        if arg is None:
-            args = [None] * len(funcs)
-        elif callable(arg) and len(args) == 1:
-            arg_funcs = True
-            args = [arg] * len(funcs)
-        elif all(map(callable, args)) and len(args) == len(funcs):
-            arg_funcs = True
-            args = arg
-        elif args.shape[0] == len(funcs):
-            pass
-        else:
-            raise ValueError(
-                f"{name} must be a valid argument to plt.scatter or "
-                "an array of valid values with the same number of entries "
-                "as there are functions"
-            )
-        return args, arg_funcs
-
-    cols, color_funcs = _gogogo(c, "c")
-    sizes, size_funcs = _gogogo(s, "s")
-    alphas, alpha_funcs = _gogogo(alpha, "alpha")
-    edgecolors, edgecolor_funcs = _gogogo(edgecolors, "edgecolors")
     params = {}
     ipympl = _notebook_backend()
     fig, ax = _gogogo_figure(ipympl, figsize)
@@ -830,36 +802,34 @@ def interactive_scatter(
             params[key] = change["new"]
         if title is not None:
             ax.set_title(title.format(**params))
-        for i, f in enumerate(funcs):
-            if point_funcs[i]:
-                x, y = f(**params)
-                scats[i].set_offsets(np.column_stack([x, y]))
-            else:
-                x, y = f
-
-            if color_funcs:
-                c = cols[i](x, y, **params)
+        for scat, x_, y_, c_, s_, ec_, alpha_ in zip(scats, X, Y, cols, sizes, edgecolors, alphas):
+            x, y = eval_xy(x_, y_, params)
+            scat.set_offsets(np.column_stack([x, y]))
+            c = check_callable_xy(c_, x, y, params)
+            s = check_callable_xy(s_, x, y, params)
+            ec = check_callable_xy(ec_, x, y, params)
+            a = check_callable_alpha(alpha_, params)
+            try:
+                c = to_rgba_array(c)
+            except ValueError as array_err:
                 try:
-                    c = to_rgba_array(c)
-                except ValueError as array_err:
-                    try:
-                        c = scats[i].cmap(c)
-                    except TypeError as cmap_err:
-                        raise ValueError(
-                            "If c is a function it must return either an RGB(A) array"
-                            "or a 1D array of valid color names or values to be colormapped"
-                        )
-                scats[i].set_facecolor(c)
-
-            if edgecolor_funcs:
-                scats[i].set_edgecolor(edgecolors[i](x, y, **params))
-            if size_funcs:
-                scats[i].set_sizes(sizes[i](x, y, **params))
-            if alpha_funcs:
-                scats[i].set_alpha(alphas[i](**params))
+                    c = scat.cmap(c)
+                except TypeError as cmap_err:
+                    raise ValueError(
+                        "If c is a function it must return either an RGB(A) array"
+                        "or a 1D array of valid color names or values to be colormapped"
+                    )
+            if c is not None:
+                scat.set_facecolor(c)
+            if ec is not None:
+                scat.set_edgecolor(ec)
+            if s is not None:
+                scat.set_sizes(s)
+            if a is not None:
+                scat.set_alpha(a)
 
             update_datalim_from_bbox(
-                ax, scats[i].get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
+                ax, scat.get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
             )
         ax.autoscale_view()
         fig.canvas.draw_idle()
@@ -870,28 +840,37 @@ def interactive_scatter(
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
     if title is not None:
         ax.set_title(title.format(**params))
-    for i, f in enumerate(funcs):
-        if point_funcs[i]:
-            x, y = f(**params)
-        else:
-            x, y = f
-        if color_funcs:
-            c = cols[i](x, y, **params)
-        else:
-            c = cols[i]
 
-        if size_funcs:
-            s = sizes[i](x, y, **params)
+    def check_callable_xy(arg, x, y, params):
+        if isinstance(arg, Callable):
+            return arg(x, y, **params)
         else:
-            s = sizes[i]
-        if alpha_funcs:
-            a = alphas[i](**params)
-        else:
-            a = alphas[i]
-        ec = edgecolors[i]
-        if edgecolor_funcs:
-            ec = ec(x, y, **params)
+            return arg
 
+    def check_callable_alpha(alpha_, params):
+        if isinstance(alpha_, Callable):
+            return alpha_(**params)
+        else:
+            return alpha_
+
+    def eval_xy(x_, y_, params):
+        if isinstance(x_, Callable):
+            x = x_(**params)
+        else:
+            x = x_
+        if isinstance(y_, Callable):
+            y = y_(x, **params)
+        else:
+            y = y_
+        return x, y
+
+    for x_, y_, c_, s_, ec_, alpha_ in zip(X, Y, cols, sizes, edgecolors, alphas):
+
+        x, y = eval_xy(x_, y_, params)
+        c = check_callable_xy(c_, x, y, params)
+        s = check_callable_xy(s_, x, y, params)
+        ec = check_callable_xy(ec_, x, y, params)
+        a = check_callable_alpha(alpha_, params)
         scats.append(
             ax.scatter(x, y, c=c, s=s, vmin=vmin, vmax=vmax, cmap=cmap, alpha=a, edgecolors=ec)
         )
