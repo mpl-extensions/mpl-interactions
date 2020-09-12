@@ -808,6 +808,7 @@ def interactive_scatter(
     use_ipywidgets = ipympl or force_ipywidgets
     slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
     scats = []
+    cache = {}
 
     def update(change, key, label):
         if label:
@@ -848,6 +849,7 @@ def interactive_scatter(
             update_datalim_from_bbox(
                 ax, scat.get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
             )
+        cache.clear()
         ax.autoscale_view()
         fig.canvas.draw_idle()
 
@@ -860,23 +862,31 @@ def interactive_scatter(
 
     def check_callable_xy(arg, x, y, params):
         if isinstance(arg, Callable):
-            return arg(x, y, **params)
+            if arg not in cache:
+                cache[arg] = arg(x, y, **params)
+            return cache[arg]
         else:
             return arg
 
     def check_callable_alpha(alpha_, params):
         if isinstance(alpha_, Callable):
-            return alpha_(**params)
+            if not alpha_ in cache:
+                cache[alpha_] = alpha_(**params)
+            return cache[alpha_]
         else:
             return alpha_
 
     def eval_xy(x_, y_, params):
         if isinstance(x_, Callable):
-            x = x_(**params)
+            if not x_ in cache:
+                cache[x_] = x_(**params)
+            x = cache[x_]
         else:
             x = x_
         if isinstance(y_, Callable):
-            y = y_(x, **params)
+            if not y_ in cache:
+                cache[y_] = y_(x, **params)
+            y = cache[y_]
         else:
             y = y_
         return x, y
@@ -891,5 +901,6 @@ def interactive_scatter(
             ax.scatter(x, y, c=c, s=s, vmin=vmin, vmax=vmax, cmap=cmap, alpha=a, edgecolors=ec)
         )
 
+    cache.clear()
     _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls

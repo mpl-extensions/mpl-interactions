@@ -65,6 +65,7 @@ setup(
             "nbval",
             "PyQt5",
             "black",
+            "pandas",
         ],
         "dev": [
             "pre-commit",
