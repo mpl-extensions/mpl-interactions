@@ -761,19 +761,6 @@ def interactive_scatter(
     fig : matplotlib figure
     ax : matplotlib axis
     controls : list of widgets
-
-    notes
-    -----
-    list:
-        if a list of callables that is the same lengthif they are a list of callables
-    just have to accept a few sharp edges
-
-    should consider checking the c and s values to see if size and color do not vary
-    from scatter doc string:
-    Notes
-        -----
-        * The `.plot` function will be faster for scatterplots where markers
-        don't vary in size or color.
     """
 
     def _prep_color(col):

@@ -20,4 +20,4 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 watch:
-	sphinx-autobuild . _build/html -B
+	sphinx-autobuild . _build/html --open-browser
