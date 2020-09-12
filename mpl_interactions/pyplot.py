@@ -347,7 +347,9 @@ def interactive_plot_factory(
 
     fig = ax.get_figure()
     if use_ipywidgets:
-        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+        sliders, slabels, controls = _kwargs_to_widget(
+            kwargs, params, update, slider_format_strings
+        )
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
         sca(ax)
@@ -667,7 +669,9 @@ def interactive_hist(
 
     # this line implicitly fills the params dict
     if use_ipywidgets:
-        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+        sliders, slabels, controls = _kwargs_to_widget(
+            kwargs, params, update, slider_format_strings
+        )
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
 
@@ -692,6 +696,7 @@ def interactive_scatter(
     vmax=None,
     alpha=None,
     edgecolors=None,
+    label=None,
     xlim="stretch",
     ylim="stretch",
     slider_format_string=None,
@@ -723,6 +728,8 @@ def interactive_scatter(
         the ``c`` argument
     edgecolors : colorlike, broadcastable
         passed through to scatter.
+    label : string(s) broadcastable
+        labels for the functions being plotted.
     xlim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_xlim. Other options are:
         'auto': rescale the x axis for every redraw
@@ -736,9 +743,6 @@ def interactive_scatter(
         format for all values. A dictionary will allow assigning different formats to different sliders.
         note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
-    plot_kwargs : None, dict, or iterable of dicts
-        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
-        None or be iterable.
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
@@ -783,13 +787,14 @@ def interactive_scatter(
         else:
             return col
 
-    X, Y, cols, sizes, edgecolors, alphas = broadcast_many(
+    X, Y, cols, sizes, edgecolors, alphas, labels = broadcast_many(
         (x, "x"),
         (y, "y"),
         (_prep_color(c), "c"),
         (s, "s"),
         (_prep_color(edgecolors), "edgecolors"),
         (alpha, "alpha"),
+        (label, "labels"),
     )
 
     if isinstance(xlim, str):
@@ -854,7 +859,9 @@ def interactive_scatter(
         fig.canvas.draw_idle()
 
     if use_ipywidgets:
-        sliders, labels, controls = _kwargs_to_widget(kwargs, params, update, slider_format_strings)
+        sliders, slabels, controls = _kwargs_to_widget(
+            kwargs, params, update, slider_format_strings
+        )
     else:
         controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
     if title is not None:
@@ -891,15 +898,28 @@ def interactive_scatter(
             y = y_
         return x, y
 
-    for x_, y_, c_, s_, ec_, alpha_ in zip(X, Y, cols, sizes, edgecolors, alphas):
+    for x_, y_, c_, s_, ec_, alpha_, label_ in zip(X, Y, cols, sizes, edgecolors, alphas, labels):
         x, y = eval_xy(x_, y_, params)
         c = check_callable_xy(c_, x, y, params)
         s = check_callable_xy(s_, x, y, params)
         ec = check_callable_xy(ec_, x, y, params)
         a = check_callable_alpha(alpha_, params)
         scats.append(
-            ax.scatter(x, y, c=c, s=s, vmin=vmin, vmax=vmax, cmap=cmap, alpha=a, edgecolors=ec)
+            ax.scatter(
+                x,
+                y,
+                c=c,
+                s=s,
+                vmin=vmin,
+                vmax=vmax,
+                cmap=cmap,
+                alpha=a,
+                edgecolors=ec,
+                label=label_,
+            )
         )
+        if title is not None:
+            ax.set_title(title.format(**params))
 
     cache.clear()
     _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
