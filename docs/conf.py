@@ -12,7 +12,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../mpl_interactions'))
+
+sys.path.insert(0, os.path.abspath("../mpl_interactions"))
 import mpl_interactions as mpl_inter
 
 release = mpl_inter.__version__
@@ -22,9 +23,9 @@ import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
-project = 'mpl-interactions'
-copyright = '2020, Ian Hunt-Isaak'
-author = 'Ian Hunt-Isaak'
+project = "mpl-interactions"
+copyright = "2020, Ian Hunt-Isaak"
+author = "Ian Hunt-Isaak"
 
 # The full version, including alpha/beta/rc tags
 
@@ -37,14 +38,14 @@ author = 'Ian Hunt-Isaak'
 extensions = [
     #'sphinx.ext.autodoc',
     #'sphinx.ext.autosummary',
-    'nbsphinx',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.linkcode',
-    'sphinx.ext.napoleon',
-    'numpydoc',
-    'jupyter_sphinx',
-    'sphinx_copybutton',
-    ]
+    "nbsphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.linkcode",
+    "sphinx.ext.napoleon",
+    "numpydoc",
+    "jupyter_sphinx",
+    "sphinx_copybutton",
+]
 
 
 napoleon_google_docstring = False
@@ -57,14 +58,14 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = False
 napoleon_use_rtype = False
-add_module_names=False
+add_module_names = False
 
 autosummary_generate = True
 autodoc_default_options = {
-   'members':True,
-   'show-inheritance':True,
+    "members": True,
+    "show-inheritance": True,
 }
-nbsphinx_execute = 'always'
+nbsphinx_execute = "always"
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
     "--InlineBackend.rc={'figure.dpi': 96}",
@@ -72,15 +73,15 @@ nbsphinx_execute_arguments = [
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**ipynb_checkpoints']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**ipynb_checkpoints"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -88,18 +89,18 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**ipynb_checkpoints']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_theme_options = {
-        # Toc options
-        'collapse_navigation': False,
-        'sticky_navigation': True,
-        'navigation_depth': 4,
+    # Toc options
+    "collapse_navigation": False,
+    "sticky_navigation": True,
+    "navigation_depth": 4,
 }
 
 
-master_doc = 'index'
+master_doc = "index"
 
 
 def setup(app):

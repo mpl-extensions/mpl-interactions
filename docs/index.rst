@@ -1,5 +1,5 @@
-mpl_interactions: Easy and interactive Matplotlib plots
-=======================================================
+mpl_interactions: Easy interactive Matplotlib plots
+===================================================
 
 mpl_interactions' aims to make it as easy as possible to create responsive `Matplotlib <http://www.matplotlib.org>`_ plots. 
 In particular, you can:
@@ -74,9 +74,18 @@ Further discussion of the behavior as a function of backend can be found on the 
    Backends
    compare-to-ipywidgets
    API
-   Examples
    Gallery
    Contributing
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
+   
+   examples/pyplot-notebook.rst
+   examples/scatter-plots.rst
+   examples/mpl-sliders.rst
+   examples/image-segmentation.rst
+   examples/heatmap-slicer.rst
 
 Indices and Tables
 ------------------

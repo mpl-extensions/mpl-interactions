@@ -34,4 +34,4 @@ First create your own fork of https://github.com/ianhi/mpl-interactions.
    
    git clone <your fork>
    cd mpl-interactions
-   pip install -e.[docs]
+   pip install -e ".[dev, doc, test]"

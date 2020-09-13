@@ -1,6 +1,6 @@
-==========================
-Control Plots with Sliders
-==========================
+==========
+Line plots
+==========
 
 .. note::
     Unfortunately the interactive plots won't work on a website as there is no Python kernel
