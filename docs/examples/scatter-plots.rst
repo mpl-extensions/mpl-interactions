@@ -143,7 +143,7 @@ Using interactive_scatter we can recreate the interactive
 
 The data preprocessing was taken from an
 `example notebook <https://github.com/bqplot/bqplot/blob/55152feb645b523faccb97ea4083ca505f26f6a2/examples/Applications/Wealth%20Of%20Nations/Bubble%20Chart.ipynb>`_
-for the [bqplot](https://github.com/bqplot/bqplot) library. If you are working in jupyter notebooks then you should definitely check out bqplot!
+for the `bqplot <https://github.com/bqplot/bqplot>`_ library. If you are working in jupyter notebooks then you should definitely check out bqplot!
 
 
 
