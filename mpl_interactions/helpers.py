@@ -1,7 +1,9 @@
-import numpy as np
-from numpy.distutils.misc_util import is_sequence
-from numbers import Number
 from collections.abc import Callable
+from numbers import Number
+
+import numpy as np
+from matplotlib import get_backend
+from numpy.distutils.misc_util import is_sequence
 
 __all__ = [
     "decompose_bbox",
@@ -12,6 +14,7 @@ __all__ = [
     "prep_broadcast",
     "broadcast_arrays",
     "broadcast_many",
+    "notebook_backend",
 ]
 
 
@@ -138,3 +141,15 @@ def broadcast_many(*args):
     keep as a separate function to keep the idea of broadcast_arrays the same
     """
     return broadcast_arrays(*[(prep_broadcast(arg[0]), arg[1]) for arg in args])
+
+
+def notebook_backend():
+    """
+    returns True if the backend is ipympl or nbagg, otherwise False
+    """
+    backend = get_backend().lower()
+    if "ipympl" in backend:
+        return True
+    elif backend == "nbAgg".lower():
+        return True
+    return False

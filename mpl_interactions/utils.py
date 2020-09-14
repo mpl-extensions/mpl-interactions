@@ -1,12 +1,9 @@
-from numpy import asarray, abs, argmin
-from matplotlib.pyplot import figure as mpl_figure
-from matplotlib.pyplot import (
-    rcParams,
-    install_repl_displayhook,
-    uninstall_repl_displayhook,
-)
-from matplotlib import is_interactive, interactive
 from collections.abc import Iterable
+
+from matplotlib import interactive, is_interactive
+from matplotlib.pyplot import figure as mpl_figure
+from matplotlib.pyplot import install_repl_displayhook, rcParams, uninstall_repl_displayhook
+from numpy import abs, argmin, asarray
 
 __all__ = [
     "figure",

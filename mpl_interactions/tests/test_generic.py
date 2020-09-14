@@ -1,10 +1,11 @@
-import pytest
-import matplotlib.pyplot as plt
-from mpl_interactions.generic import *
 import matplotlib.cbook as cbook
+import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from matplotlib import __version__ as mpl_version
 from packaging import version
+
+from mpl_interactions.generic import *
 
 if version.parse(mpl_version) >= version.parse("3.3"):
     mplsuffix = ""

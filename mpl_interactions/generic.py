@@ -1,12 +1,13 @@
-from matplotlib.pyplot import subplots, close
-from matplotlib import get_backend
-from matplotlib.widgets import LassoSelector
-from matplotlib.path import Path
-from numpy import swapaxes, asarray, asanyarray, min, max
 import numpy as np
-from .utils import nearest_idx, ioff, figure
 from matplotlib import __version__ as mpl_version
+from matplotlib import get_backend
+from matplotlib.path import Path
+from matplotlib.pyplot import close, subplots
+from matplotlib.widgets import LassoSelector
+from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
+
+from .utils import figure, ioff, nearest_idx
 
 # functions that are methods
 __all__ = [
@@ -364,7 +365,7 @@ class panhandler:
 
 
 import matplotlib.cm as cm
-from matplotlib.colors import to_rgba_array, TABLEAU_COLORS, XKCD_COLORS
+from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 
 
 class image_segmenter:

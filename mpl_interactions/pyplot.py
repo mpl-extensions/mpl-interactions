@@ -1,23 +1,20 @@
-import ipywidgets as widgets
-from IPython.display import display as ipy_display
-from numpy import asarray, atleast_1d, arange, linspace
-from matplotlib import get_backend
-from functools import partial
-from warnings import warn
 from collections import defaultdict
-from collections.abc import Callable
-from .utils import ioff, figure
-import matplotlib.widgets as mwidgets
-from collections.abc import Iterable
-from matplotlib.pyplot import axes, sca
-import numpy as np
-from matplotlib.patches import Rectangle
-from matplotlib.collections import PatchCollection
-from matplotlib import __version__ as mpl_version
-from matplotlib.colors import to_rgba_array
-from packaging import version
-from .helpers import update_datalim_from_bbox, broadcast_many
+from collections.abc import Callable, Iterable
+from functools import partial
 
+import ipywidgets as widgets
+import matplotlib.widgets as mwidgets
+import numpy as np
+from IPython.display import display as ipy_display
+from matplotlib import __version__ as mpl_version
+from matplotlib.collections import PatchCollection
+from matplotlib.colors import to_rgba_array
+from matplotlib.patches import Rectangle
+from matplotlib.pyplot import axes, sca
+from packaging import version
+
+from .helpers import broadcast_many, notebook_backend, update_datalim_from_bbox
+from .utils import figure, ioff
 
 # functions that are methods
 __all__ = [
@@ -26,18 +23,6 @@ __all__ = [
     "interactive_hist",
     "interactive_scatter",
 ]
-
-
-def _notebook_backend():
-    backend = get_backend().lower()
-    if "ipympl" in backend:
-        return True
-    elif backend == "nbAgg".lower():
-        warn(
-            "You are using an outdated backend. You should use `%matplotlib ipympl` instead of `%matplotlib notebook`"
-        )
-        return True
-    return False
 
 
 def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
@@ -86,9 +71,9 @@ def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
                 # treat as an argument to linspace
                 # idk if it's acceptable to overwrite kwargs like this
                 # but I think at this point kwargs is just a dict like any other
-                val = linspace(*val)
+                val = np.linspace(*val)
                 kwargs[key] = val
-            val = atleast_1d(val)
+            val = np.atleast_1d(val)
             if val.ndim > 1:
                 raise ValueError(f"{key} is {val.ndim}D but can only be 1D or a scalar")
             if len(val) == 1:
@@ -296,9 +281,9 @@ def interactive_plot_factory(
         True or False to ensure ipywidgets is or is not used.
     """
     if use_ipywidgets is None:
-        use_ipywidgets = _notebook_backend()
+        use_ipywidgets = notebook_backend()
     params = {}
-    funcs = atleast_1d(f)
+    funcs = np.atleast_1d(f)
 
     slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
 
@@ -356,23 +341,23 @@ def interactive_plot_factory(
 
     indexed_x = False
     if x is not None:
-        x = asarray(x)
+        x = np.asarray(x)
         if x.ndim != 1:
             raise ValueError(f"x must be None or be 1D but is {x.ndim}D")
     else:
         # call f once to determine it returns x
-        out = asarray(f(**params))
+        out = np.asarray(f(**params))
         if len(out.shape) != 2 or (len(out.shape) == 2 and out.shape[0] == 1):
             # probably should use arange to set the x values
             indexed_x = True
-            x = arange(out.size)
+            x = np.arange(out.size)
 
     if plot_kwargs is None:
         plot_kwargs = []
         for i in range(len(funcs)):
             plot_kwargs.append({})
     else:
-        plot_kwargs = atleast_1d(plot_kwargs)
+        plot_kwargs = np.atleast_1d(plot_kwargs)
         if not len(plot_kwargs) == len(funcs):
             raise ValueError(
                 "If using multiple functions"
@@ -518,7 +503,7 @@ def interactive_plot(
 
     """
 
-    ipympl = _notebook_backend()
+    ipympl = notebook_backend()
     fig, ax = _gogogo_figure(ipympl, figsize)
     use_ipywidgets = ipympl or force_ipywidgets
     controls = interactive_plot_factory(
@@ -635,14 +620,14 @@ def interactive_hist(
     """
 
     params = {}
-    funcs = atleast_1d(f)
+    funcs = np.atleast_1d(f)
     # supporting more would require more thought
     if len(funcs) != 1:
         raise ValueError(
             f"Currently only a single function is supported. You passed in {len(funcs)} functions"
         )
 
-    ipympl = _notebook_backend()
+    ipympl = notebook_backend()
     fig, ax = _gogogo_figure(ipympl, figsize=figsize)
     use_ipywidgets = ipympl or force_ipywidgets
 
@@ -795,7 +780,7 @@ def interactive_scatter(
         stretch_y = False
 
     params = {}
-    ipympl = _notebook_backend()
+    ipympl = notebook_backend()
     fig, ax = _gogogo_figure(ipympl, figsize)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
