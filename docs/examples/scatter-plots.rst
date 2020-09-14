@@ -33,8 +33,7 @@ Basic example
         return np.sin(x*tau)**2 + np.random.randn(N)*.01
     fig, ax, controls = interactive_scatter(x,f_y, tau = (1, 2*np.pi, 100)) 
 
-.. todo::
-    gif here
+.. image:: ../images/scatter1.png
 
 Multiple functions and broadcasting
 -----------------------------------
@@ -50,10 +49,11 @@ to fit the ``y`` inputs. Similarly ``y`` inputs can be broadcast to fit ``x``. Y
         return np.sin(x*tau)**2 + np.random.randn(N)*.01
     def f_y2(x, tau):
         return np.cos(x*tau)**2 + np.random.randn(N)*.1
-    fig, ax, controls = interactive_scatter(x,[f_y1, f_y2], tau = (1, 2*np.pi, 100), c = ['blue', 'red'])  
+    fig, ax, controls = interactive_scatter(x, [f_y1, f_y2],
+                                            tau = (1, 2*np.pi, 100),
+                                            c = ['blue', 'red'])  
 
-.. todo::
-    gif here
+.. image:: ../images/scatter2.png
 
 Functions for both x and y
 --------------------------
@@ -68,10 +68,12 @@ will be varying. The function for ``x`` should accept only the parameters.
         return np.random.rand(N) + mean
     def f_y(x, mean):
         return np.random.rand(N) - mean
-    fig, ax, controls = interactive_scatter(f_x,f_y, mean = (0, 1, 100), s = None, c = np.random.randn(N))
+    fig, ax, controls = interactive_scatter(f_x, f_y,
+                                            mean = (0, 1, 100),
+                                            s = None,
+                                            c = np.random.randn(N))
 
-.. todo::
-    gif here
+.. image:: ../images/scatter3.png
 
 Using functions for other attributes
 ------------------------------------
@@ -105,8 +107,7 @@ The functions for ``size``, ``color`` and ``edgecolor`` all should accept ``x, y
                                         alpha=.5,
                                         )
 
-.. todo::
-    gif here
+.. image:: ../images/scatter4.png
 
 
 Modifying the colors of individual points
@@ -132,9 +133,7 @@ Modifying the colors of individual points
 
     fig, ax, sliders = interactive_scatter(x, y, mean = (0, 1, 100), alpha = None, c= threshold)
 
-.. todo::
-    gif here
-
+.. image:: ../images/scatter5.png
 
 Putting it together - Wealth of Nations
 ---------------------------------------
@@ -192,10 +191,14 @@ for the [bqplot](https://github.com/bqplot/bqplot) library. If you are working i
 .. code-block:: python
 
     fig, ax, controls = interactive_scatter(x, y, s=s, year = np.arange(1800,2009),c=[c],
-                                            edgecolors='k', slider_format_string='{:d}', figsize=(10,4.8))
+                                            edgecolors='k',
+                                            slider_format_string='{:d}',
+                                            figsize=(10,4.8))
     fs = 15
     ax.set_xscale('log')
     ax.set_ylim([0,100])
     ax.set_xlim([200,income_max*1.05])
     ax.set_xlabel('Income', fontsize=fs)
     _ = ax.set_ylabel('Life Expectancy', fontsize=fs)
+
+.. image:: ../images/scatter6.png
