@@ -1,6 +1,7 @@
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from functools import partial
+from numbers import Number
 
 import ipywidgets as widgets
 import matplotlib.widgets as mwidgets
@@ -759,11 +760,16 @@ def interactive_scatter(
         else:
             return col
 
+    def _prep_size(s):
+        if (isinstance(s, tuple) or isinstance(s, list)) and all([isinstance(es, Number) for es in s]):
+            return np.asarray(s, dtype=np.object)
+        return s
+
     X, Y, cols, sizes, edgecolors, alphas, labels = broadcast_many(
         (x, "x"),
         (y, "y"),
         (_prep_color(c), "c"),
-        (s, "s"),
+        (_prep_size(s), "s"),
         (_prep_color(edgecolors), "edgecolors"),
         (alpha, "alpha"),
         (label, "labels"),
@@ -818,7 +824,7 @@ def interactive_scatter(
                 scat.set_facecolor(c)
             if ec is not None:
                 scat.set_edgecolor(ec)
-            if s is not None:
+            if s is not None and not isinstance(s, Number):
                 scat.set_sizes(s)
             if a is not None:
                 scat.set_alpha(a)
