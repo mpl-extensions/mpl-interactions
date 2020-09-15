@@ -562,6 +562,7 @@ def interactive_hist(
     bins="auto",
     weights=None,
     figsize=None,
+    ax=None,
     slider_format_string=None,
     display=True,
     force_ipywidgets=False,
@@ -587,6 +588,8 @@ def interactive_hist(
     figsize : tuple or scalar
         If tuple it will be used as the matplotlib figsize. If a number
         then it will be used to scale the current rcParams figsize
+    ax : matplotlib axis, optional
+        if None a new figure and axis will be created
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
@@ -633,7 +636,7 @@ def interactive_hist(
         )
 
     ipympl = notebook_backend()
-    fig, ax = _gogogo_figure(ipympl, figsize=figsize)
+    fig, ax = _gogogo_figure(ipympl, figsize=figsize, ax=ax)
     use_ipywidgets = ipympl or force_ipywidgets
 
     pc = PatchCollection([])
@@ -689,6 +692,7 @@ def interactive_scatter(
     label=None,
     xlim="stretch",
     ylim="stretch",
+    ax=None,
     slider_format_string=None,
     title=None,
     figsize=None,
@@ -728,6 +732,8 @@ def interactive_scatter(
     ylim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_ylim. Other options are same
         as xlim
+    ax : matplotlib axis, optional
+        if None a new figure and axis will be created
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
@@ -794,7 +800,7 @@ def interactive_scatter(
 
     params = {}
     ipympl = notebook_backend()
-    fig, ax = _gogogo_figure(ipympl, figsize)
+    fig, ax = _gogogo_figure(ipympl, figsize, ax)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
     scats = []
