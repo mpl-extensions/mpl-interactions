@@ -14,7 +14,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.pyplot import axes, sca
 from packaging import version
 
-from .helpers import broadcast_many, notebook_backend, update_datalim_from_bbox
+from .helpers import broadcast_many, notebook_backend, update_datalim_from_bbox, callable_else_value
 from .utils import figure, ioff
 
 # functions that are methods
@@ -23,6 +23,7 @@ __all__ = [
     "interactive_plot",
     "interactive_hist",
     "interactive_scatter",
+    "interactive_imshow",
 ]
 
 
@@ -393,18 +394,21 @@ def interactive_plot_factory(
     return controls
 
 
-def _gogogo_figure(ipympl, figsize):
+def _gogogo_figure(ipympl, figsize, ax=None):
     """
     gogogo the greatest function name of all
     """
-    if ipympl:
-        with ioff:
+    if ax is None:
+        if ipympl:
+            with ioff:
+                fig = figure(figsize=figsize)
+                ax = fig.gca()
+        else:
             fig = figure(figsize=figsize)
             ax = fig.gca()
+        return fig, ax
     else:
-        fig = figure(figsize=figsize)
-        ax = fig.gca()
-    return fig, ax
+        return ax.get_figure(), ax
 
 
 def _gogogo_display(ipympl, use_ipywidgets, display, controls, fig):
@@ -688,6 +692,7 @@ def interactive_scatter(
     slider_format_string=None,
     title=None,
     figsize=None,
+    display=True,
     force_ipywidgets=False,
     **kwargs,
 ):
@@ -761,7 +766,9 @@ def interactive_scatter(
             return col
 
     def _prep_size(s):
-        if (isinstance(s, tuple) or isinstance(s, list)) and all([isinstance(es, Number) for es in s]):
+        if (isinstance(s, tuple) or isinstance(s, list)) and all(
+            [isinstance(es, Number) for es in s]
+        ):
             return np.asarray(s, dtype=np.object)
         return s
 
@@ -901,4 +908,145 @@ def interactive_scatter(
 
     cache.clear()
     _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    return fig, ax, controls
+
+
+def interactive_imshow(
+    X,
+    cmap=None,
+    norm=None,
+    aspect=None,
+    interpolation=None,
+    alpha=None,
+    vmin=None,
+    vmax=None,
+    origin=None,
+    extent=None,
+    autoscale_cmap=True,
+    filternorm=True,
+    filterrad=4.0,
+    resample=None,
+    url=None,
+    ax=None,
+    slider_format_string=None,
+    title=None,
+    figsize=None,
+    display=True,
+    force_ipywidgets=False,
+    **kwargs,
+):
+    """
+    Control an image using widgets.
+
+    parameters
+    ----------
+    X : function or image like
+        If a function it must return an image-like object. See matplotlib.pyplot.imshow for the
+        full set of valid options.
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        The Colormap instance or registered colormap name used to map
+        scalar data to colors. This parameter is ignored for RGB(A) data.
+        forwarded to matplotlib
+    norm : `~matplotlib.colors.Normalize`, optional
+        The `.Normalize` instance used to scale scalar data to the [0, 1]
+        range before mapping to colors using *cmap*. By default, a linear
+        scaling mapping the lowest value to 0 and the highest to 1 is used.
+        This parameter is ignored for RGB(A) data.
+        forwarded to matplotlib
+    autoscale_cmap : bool
+        If True rescale the colormap for every function update. Will not update
+        if vmin and vmax are provided or if the returned image is RGB(A) like.
+        forwarded to matplotlib
+    aspect : {'equal', 'auto'} or float, default: :rc:`image.aspect`
+        forwarded to matplotlib
+    interpolation : str
+        forwarded to matplotlib
+    ax : matplotlib axis, optional
+        if None a new figure and axis will be created
+    slider_format_string : None, string, or dict
+        If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
+        For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
+        format for all values. A dictionary will allow assigning different formats to different sliders.
+        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        object for matplotlib slider values.
+    title : None or string
+        If a string then you can have it update automatically using string formatting of the names
+        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
+    figsize : tuple or scalar
+        If tuple it will be used as the matplotlib figsize. If a number
+        then it will be used to scale the current rcParams figsize
+    display : boolean
+        If True then the output and controls will be automatically displayed
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+
+    returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axis
+    controls : list of widgets
+    """
+
+    params = {}
+    ipympl = notebook_backend()
+    fig, ax = _gogogo_figure(ipympl, figsize, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
+
+    def update(change, label, key):
+        if label:
+            # continuous
+            params[key] = kwargs[key][change["new"]]
+            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
+        else:
+            # categorical
+            params[key] = change["new"]
+        if title is not None:
+            ax.set_title(title.format(**params))
+
+        if isinstance(X, Callable):
+            new_data = np.asarray(X(**params))
+            im.set_data(new_data)
+            if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
+                im.norm.autoscale(new_data)
+        if isinstance(vmin, Callable):
+            im.norm.vmin = vmin(**params)
+        if isinstance(vmax, Callable):
+            im.norm.vmax = vmax(**params)
+        fig.canvas.draw_idle()
+
+    if use_ipywidgets:
+        sliders, slabels, controls = _kwargs_to_widget(
+            kwargs, params, update, slider_format_strings
+        )
+    else:
+        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+
+    # make it once here so we can use the dims in update
+    new_data = callable_else_value(X, params)
+    im = ax.imshow(
+        new_data,
+        cmap=cmap,
+        norm=norm,
+        aspect=aspect,
+        interpolation=interpolation,
+        alpha=alpha,
+        vmin=callable_else_value(vmin, params),
+        vmax=callable_else_value(vmax, params),
+        origin=origin,
+        extent=extent,
+        filternorm=filternorm,
+        filterrad=filterrad,
+        resample=resample,
+        url=url,
+    )
+    # this is necessary to make calls to plt.colorbar behave as expected
+    ax._sci(im)
+    if title is not None:
+        ax.set_title(title.format(**params))
+
+    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+
     return fig, ax, controls
