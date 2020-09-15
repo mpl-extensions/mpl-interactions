@@ -32,6 +32,7 @@ def heatmap_slicer(
     linecolor="k",
     labels=("X", "Y"),
     interaction_type="move",
+    fig=None,
 ):
 
     """
@@ -69,6 +70,10 @@ def heatmap_slicer(
     labels : (string, string), optional
     interaction_type : str
         Update on mouse movement or mouse click. Options are {'move','click'}
+    fig : matplotlib figure, optional
+        figure to use for the heatmap_slicer. Useful when embedding into a gui.
+        If you are embedding into a gui make sure you set up the gui canvas first
+        and then pass the figure to this function
 
     Returns
     -------
@@ -108,7 +113,11 @@ def heatmap_slicer(
     else:
         raise ValueError(f"heatmaps must be 2D or 3D but is {heatmaps.ndim}D")
 
-    fig, axes = subplots(1, num_axes, figsize=figsize)
+    if fig is None:
+        fig, axes = subplots(1, num_axes, figsize=figsize)
+    else:
+        axes = fig.subplots(1, num_axes)
+
     hlines = []
     vlines = []
     init_idx = 0
