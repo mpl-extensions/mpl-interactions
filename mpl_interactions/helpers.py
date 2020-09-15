@@ -15,6 +15,7 @@ __all__ = [
     "broadcast_arrays",
     "broadcast_many",
     "notebook_backend",
+    "callable_else_value",
 ]
 
 
@@ -153,3 +154,9 @@ def notebook_backend():
     elif backend == "nbAgg".lower():
         return True
     return False
+
+
+def callable_else_value(arg, params):
+    if isinstance(arg, Callable):
+        return arg(**params)
+    return arg
