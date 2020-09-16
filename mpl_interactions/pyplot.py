@@ -427,6 +427,7 @@ def _gogogo_display(ipympl, use_ipywidgets, display, controls, fig):
         if display:
             fig.show()
             controls[0].show()
+    return controls
 
 
 def interactive_plot(
@@ -523,7 +524,7 @@ def interactive_plot(
         use_ipywidgets=use_ipywidgets,
         **kwargs,
     )
-    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
 
@@ -675,7 +676,7 @@ def interactive_hist(
     ax.set_xlim(new_x)
     ax.set_ylim(new_y)
 
-    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
 
@@ -913,10 +914,12 @@ def interactive_scatter(
             ax.set_title(title.format(**params))
 
     cache.clear()
-    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
 
+# portions of this docstring were copied directly from the docsting
+# of `matplotlib.pyplot.imshow`
 def interactive_imshow(
     X,
     cmap=None,
@@ -949,7 +952,7 @@ def interactive_imshow(
     X : function or image like
         If a function it must return an image-like object. See matplotlib.pyplot.imshow for the
         full set of valid options.
-    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    cmap : str or `~matplotlib.colors.Colormap`
         The Colormap instance or registered colormap name used to map
         scalar data to colors. This parameter is ignored for RGB(A) data.
         forwarded to matplotlib
@@ -963,7 +966,7 @@ def interactive_imshow(
         If True rescale the colormap for every function update. Will not update
         if vmin and vmax are provided or if the returned image is RGB(A) like.
         forwarded to matplotlib
-    aspect : {'equal', 'auto'} or float, default: :rc:`image.aspect`
+    aspect : {'equal', 'auto'} or float
         forwarded to matplotlib
     interpolation : str
         forwarded to matplotlib
@@ -1053,6 +1056,6 @@ def interactive_imshow(
     if title is not None:
         ax.set_title(title.format(**params))
 
-    _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
 
     return fig, ax, controls
