@@ -1,21 +1,24 @@
-from collections import defaultdict
 from collections.abc import Callable, Iterable
 from functools import partial
 from numbers import Number
 
-import ipywidgets as widgets
-import matplotlib.widgets as mwidgets
 import numpy as np
-from IPython.display import display as ipy_display
-from matplotlib import __version__ as mpl_version
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
-from matplotlib.pyplot import axes, sca
-from packaging import version
+from matplotlib.pyplot import sca
 
-from .helpers import broadcast_many, notebook_backend, update_datalim_from_bbox, callable_else_value
-from .utils import figure, ioff
+from .helpers import (
+    broadcast_many,
+    callable_else_value,
+    create_slider_format_dict,
+    gogogo_display,
+    gogogo_figure,
+    kwargs_to_ipywidgets,
+    kwargs_to_mpl_widgets,
+    notebook_backend,
+    update_datalim_from_bbox,
+)
 
 # functions that are methods
 __all__ = [
@@ -25,238 +28,6 @@ __all__ = [
     "interactive_scatter",
     "interactive_imshow",
 ]
-
-
-def _kwargs_to_widget(kwargs, params, update, slider_format_strings):
-    """
-    this will break if you pass a matplotlib slider. I suppose it could support mixed types of sliders
-    but that doesn't really seem worthwhile?
-    """
-    labels = []
-    sliders = []
-    controls = []
-    for key, val in kwargs.items():
-        if isinstance(val, set):
-            if len(val) == 1:
-                val = val.pop()
-                if isinstance(val, tuple):
-                    # want the categories to be ordered
-                    pass
-                else:
-                    # fixed parameter
-                    params[key] = val
-            else:
-                val = list(val)
-
-            # categorical
-            if len(val) <= 3:
-                selector = widgets.RadioButtons(options=val)
-            else:
-                selector = widgets.Select(options=val)
-            params[key] = val[0]
-            controls.append(selector)
-            selector.observe(partial(update, key=key, label=None), names=["value"])
-        elif isinstance(val, widgets.Widget) or isinstance(val, widgets.fixed):
-            if not hasattr(val, "value"):
-                raise TypeError(
-                    "widgets passed as parameters must have the `value` trait."
-                    "But the widget passed for {key} does not have a `.value` attribute"
-                )
-            if isinstance(val, widgets.fixed):
-                params[key] = val.value
-            else:
-                params[key] = val.value
-                controls.append(val)
-                val.observe(partial(update, key=key, label=None), names=["value"])
-        else:
-            if isinstance(val, tuple) and len(val) in [2, 3]:
-                # treat as an argument to linspace
-                # idk if it's acceptable to overwrite kwargs like this
-                # but I think at this point kwargs is just a dict like any other
-                val = np.linspace(*val)
-                kwargs[key] = val
-            val = np.atleast_1d(val)
-            if val.ndim > 1:
-                raise ValueError(f"{key} is {val.ndim}D but can only be 1D or a scalar")
-            if len(val) == 1:
-                # don't need to create a slider
-                params[key] = val
-            else:
-                params[key] = val[0]
-                labels.append(widgets.Label(value=slider_format_strings[key].format(val[0])))
-                sliders.append(
-                    widgets.IntSlider(min=0, max=val.size - 1, readout=False, description=key)
-                )
-                controls.append(widgets.HBox([sliders[-1], labels[-1]]))
-                sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=["value"])
-    return sliders, labels, controls
-
-
-def _extract_num_options(val):
-    """
-    convert a categorical to a number of options
-    """
-    if len(val) == 1:
-        for v in val:
-            if isinstance(v, tuple):
-                # this looks nightmarish...
-                # but i think it should always work
-                # should also check if the tuple has length one here.
-                # that will only be an issue if a trailing comma was used to make the tuple ('beep',)
-                # but not ('beep') - the latter is not actually a tuple
-                return len(v)
-            else:
-                return 0
-    else:
-        return len(val)
-
-
-def _changeify(val, key, update):
-    """
-    make matplotlib update functions return a dict with key 'new'.
-    Do this for compatibility with ipywidgets
-    """
-    update({"new": val}, key, None)
-
-
-# this is a bunch of hacky nonsense
-# making it involved me holding a ruler up to my monitor
-# if you have a better solution I would love to hear about it :)
-# - Ian 2020-08-22
-def _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
-    n_opts = 0
-    n_radio = 0
-    n_sliders = 0
-    for key, val in kwargs.items():
-        if isinstance(val, set):
-            new_opts = _extract_num_options(val)
-            if new_opts > 0:
-                n_radio += 1
-                n_opts += new_opts
-        elif (
-            not isinstance(val, mwidgets.AxesWidget)
-            and not isinstance(val, widgets.fixed)
-            and isinstance(val, Iterable)
-            and len(val) > 1
-        ):
-            n_sliders += 1
-
-    # These are roughly the sizes used in the matplotlib widget tutorial
-    # https://matplotlib.org/3.2.2/gallery/widgets/slider_demo.html#sphx-glr-gallery-widgets-slider-demo-py
-    slider_in = 0.15
-    radio_in = 0.6 / 3
-    widget_gap_in = 0.1
-
-    widget_inches = (
-        n_sliders * slider_in + n_opts * radio_in + widget_gap_in * (n_sliders + n_radio + 1) + 0.5
-    )  # half an inch for margin
-    fig = None
-    if not all(map(lambda x: isinstance(x, mwidgets.AxesWidget), kwargs.values())):
-        # if the only kwargs are existing matplotlib widgets don't make a new figure
-        with ioff:
-            fig = figure()
-        size = fig.get_size_inches()
-        fig_h = widget_inches
-        fig.set_size_inches(size[0], widget_inches)
-        slider_height = slider_in / fig_h
-        radio_height = radio_in / fig_h
-        # radio
-        gap_height = widget_gap_in / fig_h
-    widget_y = 0.05
-    slider_ax = []
-    sliders = []
-    radio_ax = []
-    radio_buttons = []
-    cbs = []
-    for key, val in kwargs.items():
-        if isinstance(val, set):
-            if len(val) == 1:
-                val = val.pop()
-                if isinstance(val, tuple):
-                    pass
-                else:
-                    params[key] = val
-                    continue
-            else:
-                val = list(val)
-
-            n = len(val)
-            longest_len = max(list(map(lambda x: len(list(x)), map(str, val))))
-            # should probably use something based on fontsize rather that .015
-            width = max(0.15, 0.015 * longest_len)
-            radio_ax.append(axes([0.2, 0.9 - widget_y - radio_height * n, width, radio_height * n]))
-            widget_y += radio_height * n + gap_height
-            radio_buttons.append(mwidgets.RadioButtons(radio_ax[-1], val, active=0))
-            cbs.append(radio_buttons[-1].on_clicked(partial(_changeify, key=key, update=update)))
-            params[key] = val[0]
-        elif isinstance(val, mwidgets.RadioButtons):
-            val.on_clicked(partial(_changeify, key=key, update=update))
-            params[key] = val.val
-        elif isinstance(val, mwidgets.Slider):
-            val.on_changed(partial(_changeify, key=key, update=update))
-            params[key] = val.val
-        else:
-            if isinstance(val, tuple):
-                if len(val) == 2:
-                    min_ = val[0]
-                    max_ = val[1]
-                elif len(val) == 3:
-                    # should warn that that doesn't make sense with matplotlib sliders
-                    min_ = val[0]
-                    max_ = val[1]
-            else:
-                val = np.atleast_1d(val)
-                if val.ndim > 1:
-                    raise ValueError(f"{key} is {val.ndim}D but can only be 1D or a scalar")
-                if len(val) == 1:
-                    # don't need to create a slider
-                    params[key] = val[0]
-                    continue
-                else:
-                    # list or numpy array
-                    # should warn here as well
-                    min_ = np.min(val)
-                    max_ = np.max(val)
-
-            slider_ax.append(axes([0.2, 0.9 - widget_y - gap_height, 0.65, slider_height]))
-            sliders.append(
-                mwidgets.Slider(
-                    slider_ax[-1],
-                    key,
-                    min_,
-                    max_,
-                    valinit=min_,
-                    valfmt=slider_format_strings[key],
-                )
-            )
-            cbs.append(sliders[-1].on_changed(partial(_changeify, key=key, update=update)))
-            widget_y += slider_height + gap_height
-            params[key] = min_
-    controls = [fig, radio_ax, radio_buttons, slider_ax, sliders]
-    return controls
-
-
-def _create_slider_format_dict(slider_format_string, use_ipywidgets):
-    # mpl sliders for verison 3.3 and onwards support None as an argument for valfmt
-    mpl_gr_33 = version.parse(mpl_version) >= version.parse("3.3")
-    if isinstance(slider_format_string, str):
-        slider_format_strings = defaultdict(lambda: slider_format_string)
-    elif isinstance(slider_format_string, dict) or slider_format_string is None:
-        if use_ipywidgets:
-            slider_format_strings = defaultdict(lambda: "{:.2f}")
-        elif mpl_gr_33:
-            slider_format_strings = defaultdict(lambda: None)
-        else:
-            slider_format_strings = defaultdict(lambda: "%1.2f")
-
-        if slider_format_string is not None:
-            for key, val in slider_format_string.items():
-                slider_format_strings[key] = val
-    else:
-        raise ValueError(
-            f"slider_format_string must be a dict or a string but it is a {type(slider_format_string)}"
-        )
-    return slider_format_strings
 
 
 def interactive_plot_factory(
@@ -287,7 +58,7 @@ def interactive_plot_factory(
     params = {}
     funcs = np.atleast_1d(f)
 
-    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
 
     def update(change, key, label):
         if label:
@@ -334,11 +105,11 @@ def interactive_plot_factory(
 
     fig = ax.get_figure()
     if use_ipywidgets:
-        sliders, slabels, controls = _kwargs_to_widget(
+        sliders, slabels, controls = kwargs_to_ipywidgets(
             kwargs, params, update, slider_format_strings
         )
     else:
-        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
         sca(ax)
 
     indexed_x = False
@@ -391,42 +162,6 @@ def interactive_plot_factory(
     # make sure the home button will work
     if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
         fig.canvas.toolbar.push_current()
-    return controls
-
-
-def _gogogo_figure(ipympl, figsize, ax=None):
-    """
-    gogogo the greatest function name of all
-    """
-    if ax is None:
-        if ipympl:
-            with ioff:
-                fig = figure(figsize=figsize)
-                ax = fig.gca()
-        else:
-            fig = figure(figsize=figsize)
-            ax = fig.gca()
-        return fig, ax
-    else:
-        return ax.get_figure(), ax
-
-
-def _gogogo_display(ipympl, use_ipywidgets, display, controls, fig):
-    if use_ipywidgets:
-        controls = widgets.VBox(controls)
-        if display:
-            if ipympl:
-                ipy_display(widgets.VBox([controls, fig.canvas]))
-            else:
-                # for the case of using %matplotlib qt
-                # but also want ipywidgets sliders
-                # ie with force_ipywidgets = True
-                ipy_display(controls)
-                fig.show()
-    else:
-        if display:
-            fig.show()
-            controls[0].show()
     return controls
 
 
@@ -510,7 +245,7 @@ def interactive_plot(
     """
 
     ipympl = notebook_backend()
-    fig, ax = _gogogo_figure(ipympl, figsize)
+    fig, ax = gogogo_figure(ipympl, figsize)
     use_ipywidgets = ipympl or force_ipywidgets
     controls = interactive_plot_factory(
         ax,
@@ -524,7 +259,7 @@ def interactive_plot(
         use_ipywidgets=use_ipywidgets,
         **kwargs,
     )
-    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
 
@@ -637,13 +372,13 @@ def interactive_hist(
         )
 
     ipympl = notebook_backend()
-    fig, ax = _gogogo_figure(ipympl, figsize=figsize, ax=ax)
+    fig, ax = gogogo_figure(ipympl, figsize=figsize, ax=ax)
     use_ipywidgets = ipympl or force_ipywidgets
 
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
-    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
 
     # update plot
     def update(change, key, label):
@@ -663,11 +398,11 @@ def interactive_hist(
 
     # this line implicitly fills the params dict
     if use_ipywidgets:
-        sliders, slabels, controls = _kwargs_to_widget(
+        sliders, slabels, controls = kwargs_to_ipywidgets(
             kwargs, params, update, slider_format_strings
         )
     else:
-        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
 
     new_x, new_y, new_patches = simple_hist(
         funcs[0](**params), density=density, bins=bins, weights=weights
@@ -676,7 +411,7 @@ def interactive_hist(
     ax.set_xlim(new_x)
     ax.set_ylim(new_y)
 
-    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
 
@@ -801,9 +536,9 @@ def interactive_scatter(
 
     params = {}
     ipympl = notebook_backend()
-    fig, ax = _gogogo_figure(ipympl, figsize, ax)
+    fig, ax = gogogo_figure(ipympl, figsize, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
     scats = []
     cache = {}
 
@@ -851,11 +586,11 @@ def interactive_scatter(
         fig.canvas.draw_idle()
 
     if use_ipywidgets:
-        sliders, slabels, controls = _kwargs_to_widget(
+        sliders, slabels, controls = kwargs_to_ipywidgets(
             kwargs, params, update, slider_format_strings
         )
     else:
-        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
     if title is not None:
         ax.set_title(title.format(**params))
 
@@ -914,7 +649,7 @@ def interactive_scatter(
             ax.set_title(title.format(**params))
 
     cache.clear()
-    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
 
@@ -1000,9 +735,9 @@ def interactive_imshow(
 
     params = {}
     ipympl = notebook_backend()
-    fig, ax = _gogogo_figure(ipympl, figsize, ax)
+    fig, ax = gogogo_figure(ipympl, figsize, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = _create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
 
     def update(change, label, key):
         if label:
@@ -1027,11 +762,11 @@ def interactive_imshow(
         fig.canvas.draw_idle()
 
     if use_ipywidgets:
-        sliders, slabels, controls = _kwargs_to_widget(
+        sliders, slabels, controls = kwargs_to_ipywidgets(
             kwargs, params, update, slider_format_strings
         )
     else:
-        controls = _kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
 
     # make it once here so we can use the dims in update
     new_data = callable_else_value(X, params)
@@ -1056,6 +791,6 @@ def interactive_imshow(
     if title is not None:
         ax.set_title(title.format(**params))
 
-    controls = _gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
 
     return fig, ax, controls
