@@ -58,7 +58,7 @@ Following changes to the source files, you can view recent adjustments by buildi
 .. code-block:: bash
 
     cd mpl-interactions
-    pip install -e ".[docs]"
+    pip install -e ".[doc]"
 
 2. Run the following commands:
 
