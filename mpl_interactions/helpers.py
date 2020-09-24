@@ -179,7 +179,9 @@ def callable_else_value(arg, params):
     return arg
 
 
-def kwargs_to_ipywidgets(kwargs, params, update, slider_format_strings, play_buttons=False):
+def kwargs_to_ipywidgets(
+    kwargs, params, update, slider_format_strings, play_buttons=False, play_button_pos="right"
+):
     """
     this will break if you pass a matplotlib slider. I suppose it could support mixed types of sliders
     but that doesn't really seem worthwhile?
@@ -262,7 +264,10 @@ def kwargs_to_ipywidgets(kwargs, params, update, slider_format_strings, play_but
                 if has_play_button[key]:
                     players.append(widgets.Play(min=0, max=val.size - 1, step=1))
                     widgets.jslink((players[-1], "value"), (sliders[-1], "value"))
-                    controls.append(widgets.HBox([players[-1], sliders[-1], labels[-1]]))
+                    if play_button_pos == "left":
+                        controls.append(widgets.HBox([players[-1], sliders[-1], labels[-1]]))
+                    else:
+                        controls.append(widgets.HBox([sliders[-1], labels[-1], players[-1]]))
                 else:
                     controls.append(widgets.HBox([sliders[-1], labels[-1]]))
                 sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=["value"])
