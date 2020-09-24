@@ -6,26 +6,23 @@ Using Matplotlib Widgets
     When using Matplotlib widgets you need to make sure you always keep a reference to the control sliders, otherwise the callbacks
     will be garbage collected and cease to work.
 
-This page is dedicated to showing how to use the ``interactive_*`` functions such as ``interactive_plot`` with Matplotlib widgets. For
-a more general discussion of how to use the ``pyplot`` submodule see the :doc:`pyplot-notebook` page.
+This page is dedicated to showing how to use the ``interactive_*`` functions---such as ``interactive_plot``---with Matplotlib widgets. For
+a more general discussion of how to use the ``pyplot`` submodule see the :doc:`pyplot-notebooks` page.
+
 
 Differences from ipywidgets sliders
 -----------------------------------
-**1.**
-
-mpl-sliders are different form ipywidgets sliders in that they will only take a min and and max with
-an optional step. Whereas for ipywidgets sliders you need to specify all the values (at least until version 8).
+**1.** mpl-sliders are different from ipywidgets sliders in that they will only take a min and and max with
+an optional step, while for ipywidgets sliders you need to specify all values (at least until version 8).
 A consequence of this is that the various ``interactive_*`` methods will only use the first two values of any tuples
 passed as a parameter (i.e. they will ignore the ``num`` argument to linspace).
 
-**2.**
-
-Laying out Matplotlib widgets is signifcantly more difficult than laying out elements in a webbrowser. So if you
-pass an existing matplotlib widget a parameter it will update the plot as expected. However the ``interactive_*``
-methods will not display it for you. In contrast when using ipywidgets widgets if you give a widget as a parameter
+**2.** Laying out Matplotlib widgets is signifcantly more difficult than laying out elements in a web browser. If you
+pass an existing Matplotlib widget a parameter then the plot will update as expected; however, the ``interactive_*``
+methods will *not* display it for you. Alternatively, when using ipywidgets widgets, if you give a widget as a parameter
 it will be included in the display of the controls created by the function.
 
-Basic Example
+Basic example
 -------------
 
 If you are not using the ``ipympl`` backend then ``mpl_interactions`` will automatically create a new figure to hold all the controls.
@@ -47,12 +44,14 @@ If you are not using the ``ipympl`` backend then ``mpl_interactions`` will autom
 
 .. image:: interactive-plot-images/mpl-sliders.gif
 
-Custom Positioning of Matplotlib Widgets
+Custom positioning of Matplotlib widgets
 ----------------------------------------
 
-There does not seem to be a consistent and simple way to layout Matplotlib widgets in the same figure as the plot that is to be controlled.
-So current mpl_interactions will open a new figure to place all the controls in. If you would like the sliders and the plot to live in the same
-figure then you will need to create your own Slider widget and use the :meth:`~mpl_interactions.interactive_plot_factory` function:
+There does not seem to be a consistent and simple way to layout Matplotlib widgets in the same figure as the controlled plot.
+To address this, mpl_interactions will open a new figure to place all the controls. 
+
+If you would like the sliders and the plot to live in the same figure, you will need to create your own Slider widget and use 
+the :meth:`~mpl_interactions.interactive_plot_factory` function:
 
 .. code-block:: python
 
