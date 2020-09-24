@@ -5,7 +5,7 @@ python:
       - method: pip
         path: .
         extra_requirements:
-          - docs
+          - doc
       # - requirements: docs/requirements.txt
 
 # Build documentation in the docs/ directory with Sphinx

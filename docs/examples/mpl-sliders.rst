@@ -9,6 +9,7 @@ Using Matplotlib Widgets
 This page is dedicated to showing how to use the ``interactive_*`` functions---such as ``interactive_plot``---with Matplotlib widgets. For
 a more general discussion of how to use the ``pyplot`` submodule see the :doc:`pyplot-notebooks` page.
 
+
 Differences from ipywidgets sliders
 -----------------------------------
 **1.** mpl-sliders are different from ipywidgets sliders in that they will only take a min and and max with
