@@ -179,14 +179,34 @@ def callable_else_value(arg, params):
     return arg
 
 
-def kwargs_to_ipywidgets(kwargs, params, update, slider_format_strings):
+def kwargs_to_ipywidgets(kwargs, params, update, slider_format_strings, play_buttons=False):
     """
     this will break if you pass a matplotlib slider. I suppose it could support mixed types of sliders
     but that doesn't really seem worthwhile?
+
+    parameters
+    ----------
+    play_button: boolean or dict
+        if boolean it will be applied to all sliders. If a dict it should have the same keys
+        as kwargs and the values should be True or False. Or an iterable of strings of parameter names
     """
     labels = []
     sliders = []
     controls = []
+    players = []
+    if isinstance(play_buttons, bool):
+        has_play_button = defaultdict(lambda: play_buttons)
+    elif isinstance(play_buttons, defaultdict):
+        pass
+    elif isinstance(play_buttons, dict):
+        has_play_button = defaultdict(lambda: False, play_buttons)
+    elif isinstance(play_buttons, Iterable) and all([isinstance(p, str) for p in play_buttons]):
+        has_play_button = defaultdict(
+            lambda: False, dict(zip(play_buttons, [True] * len(play_buttons)))
+        )
+    else:
+        has_play_button = play_buttons
+
     for key, val in kwargs.items():
         if isinstance(val, set):
             if len(val) == 1:
@@ -239,9 +259,14 @@ def kwargs_to_ipywidgets(kwargs, params, update, slider_format_strings):
                 sliders.append(
                     widgets.IntSlider(min=0, max=val.size - 1, readout=False, description=key)
                 )
-                controls.append(widgets.HBox([sliders[-1], labels[-1]]))
+                if has_play_button[key]:
+                    players.append(widgets.Play())
+                    widgets.jslink((players[-1], "value"), (sliders[-1], "value"))
+                    controls.append(widgets.HBox([players[-1], sliders[-1], labels[-1]]))
+                else:
+                    controls.append(widgets.HBox([sliders[-1], labels[-1]]))
                 sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=["value"])
-    return sliders, labels, controls
+    return sliders, labels, controls, players
 
 
 def extract_num_options(val):
