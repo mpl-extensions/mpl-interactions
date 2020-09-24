@@ -260,7 +260,7 @@ def kwargs_to_ipywidgets(kwargs, params, update, slider_format_strings, play_but
                     widgets.IntSlider(min=0, max=val.size - 1, readout=False, description=key)
                 )
                 if has_play_button[key]:
-                    players.append(widgets.Play())
+                    players.append(widgets.Play(min=0, max=val.size - 1, step=1))
                     widgets.jslink((players[-1], "value"), (sliders[-1], "value"))
                     controls.append(widgets.HBox([players[-1], sliders[-1], labels[-1]]))
                 else:
