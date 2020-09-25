@@ -7,7 +7,7 @@ from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
 from collections.abc import Callable, Iterable
-import warnings
+
 from .utils import figure, ioff, nearest_idx
 from .helpers import *
 
@@ -487,8 +487,6 @@ class image_segmenter:
 
 def hyperslicer(
     arr,
-    is_rgb = False,
-    is_rbga = False,
     cmap=None,
     norm=None,
     aspect=None,
@@ -511,13 +509,15 @@ def hyperslicer(
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos='right',
+    is_rgb = False,
+    is_rgba = False,
     **kwargs,
 ):
     
     arr = np.asarray(np.squeeze(arr))
-    if not np.atleast_2d(arr):
-        warnings.warn('Invalid number of dimensions for imshow')
-        break
+    if arr.ndim <3:
+        raise ValueError(f'arr must be at least 3D but it is {arr.ndim}D. mpl_interactions.imshow for 2D images.')
+         
 
     if is_rgb: im_dims=3
     elif is_rgba: im_dims=4
