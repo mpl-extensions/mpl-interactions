@@ -6,8 +6,10 @@ from matplotlib.pyplot import close, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
+from collections.abc import Callable, Iterable
 
 from .utils import figure, ioff, nearest_idx
+from .helpers import *
 
 # functions that are methods
 __all__ = [
@@ -15,6 +17,7 @@ __all__ = [
     "zoom_factory",
     "panhandler",
     "image_segmenter",
+    "hyperslicer"
 ]
 
 
@@ -480,3 +483,103 @@ class image_segmenter:
 
     def _ipython_display_(self):
         display(self.fig.canvas)
+
+
+def hyperslicer(
+    arr,
+    cmap=None,
+    norm=None,
+    aspect=None,
+    interpolation=None,
+    alpha=None,
+    vmin=None,
+    vmax=None,
+    origin=None,
+    extent=None,
+    autoscale_cmap=True,
+    filternorm=True,
+    filterrad=4.0,
+    resample=None,
+    url=None,
+    ax=None,
+    slider_format_string=None,
+    title=None,
+    figsize=None,
+    display=True,
+    force_ipywidgets=False,
+    **kwargs,
+):
+
+    params = {}
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, figsize, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
+                            
+    name_to_dim = {}
+    slices = [0 for i in range(arr.ndim-2)]
+    #Just pass in an array - no kwargs
+    for i in range(arr.ndim - 2):
+        kwargs[f'axis{i}'] = np.arange(arr.shape[i]) 
+        slider_format_strings[f'axis{i}'] = '{:d}'
+        name_to_dim[f'axis{i}'] = i
+        
+    def update(change, label, key):
+        if label:
+        # continuous
+            params[key] = kwargs[key][change["new"]]
+            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
+        else:
+        # categorical
+            params[key] = change["new"]
+        if title is not None:
+            ax.set_title(title.format(**params))
+            
+        if arr.ndim>=2:
+            slices[name_to_dim[key]] = change['new']
+            new_data = np.asarray(arr[tuple(slices)])
+            im.set_data(new_data)
+        
+        if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
+            im.norm.autoscale(new_data)
+     
+        if isinstance(vmin, Callable):
+            im.norm.vmin = vmin(**params)
+        if isinstance(vmax, Callable):
+            im.norm.vmax = vmax(**params)
+        fig.canvas.draw_idle()
+
+    if use_ipywidgets:
+        #print("here")
+        sliders, slabels, controls, players = kwargs_to_ipywidgets(
+            kwargs, params, update, slider_format_strings
+        )
+    else:
+        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+
+    # make it once here so we can use the dims in update
+    new_data = arr[tuple(0 for i in range(arr.ndim-2))]
+    im = ax.imshow(
+        new_data,
+        cmap=cmap,
+        norm=norm,
+        aspect=aspect,
+        interpolation=interpolation,
+        alpha=alpha,
+        vmin=callable_else_value(vmin, params),
+        vmax=callable_else_value(vmax, params),
+        origin=origin,
+        extent=extent,
+        filternorm=filternorm,
+        filterrad=filterrad,
+        resample=resample,
+        url=url,
+    )
+    # this is necessary to make calls to plt.colorbar behave as expected
+    ax._sci(im)
+    if title is not None:
+        ax.set_title(title.format(**params))
+
+    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+
+    return fig, ax, controls
