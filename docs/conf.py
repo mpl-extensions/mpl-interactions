@@ -6,6 +6,8 @@
 
 # -- Path setup --------------------------------------------------------------
 
+import inspect
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -13,14 +15,14 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../mpl_interactions"))
+import sphinx_rtd_theme
+
 import mpl_interactions as mpl_inter
 
-release = mpl_inter.__version__
-import inspect
-import sys
+sys.path.insert(0, os.path.abspath("../mpl_interactions"))
 
-import sphinx_rtd_theme
+release = mpl_inter.__version__
+
 
 # -- Project information -----------------------------------------------------
 

@@ -1,24 +1,21 @@
+from collections.abc import Callable, Iterable
+
+import matplotlib.cm as cm
 import numpy as np
 from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
+from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
 from matplotlib.pyplot import close, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
-from collections.abc import Callable, Iterable
 
-from .utils import figure, ioff, nearest_idx
 from .helpers import *
+from .utils import figure, ioff, nearest_idx
 
 # functions that are methods
-__all__ = [
-    "heatmap_slicer",
-    "zoom_factory",
-    "panhandler",
-    "image_segmenter",
-    "hyperslicer"
-]
+__all__ = ["heatmap_slicer", "zoom_factory", "panhandler", "image_segmenter", "hyperslicer"]
 
 
 def heatmap_slicer(
@@ -376,10 +373,6 @@ class panhandler:
         self.fig.canvas.draw_idle()
 
 
-import matplotlib.cm as cm
-from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
-
-
 class image_segmenter:
     """
     Manually segment an image with the lasso selector.
@@ -508,53 +501,57 @@ def hyperslicer(
     display=True,
     force_ipywidgets=False,
     play_buttons=False,
-    play_button_pos='right',
-    is_rgb = False,
-    is_rgba = False,
+    play_button_pos="right",
+    is_rgb=False,
+    is_rgba=False,
     **kwargs,
 ):
-    
-    arr = np.asarray(np.squeeze(arr))
-    if arr.ndim <3:
-        raise ValueError(f'arr must be at least 3D but it is {arr.ndim}D. mpl_interactions.imshow for 2D images.')
-         
 
-    if is_rgb: im_dims=3
-    elif is_rgba: im_dims=4
-    else: im_dims=2
+    arr = np.asarray(np.squeeze(arr))
+    if arr.ndim < 3:
+        raise ValueError(
+            f"arr must be at least 3D but it is {arr.ndim}D. mpl_interactions.imshow for 2D images."
+        )
+
+    if is_rgb:
+        im_dims = 3
+    elif is_rgba:
+        im_dims = 4
+    else:
+        im_dims = 2
 
     params = {}
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, figsize, ax)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
-                            
+
     name_to_dim = {}
-    slices = [0 for i in range(arr.ndim-im_dims)]
-    #Just pass in an array - no kwargs
+    slices = [0 for i in range(arr.ndim - im_dims)]
+    # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
-        kwargs[f'axis{i}'] = np.arange(arr.shape[i]) 
-        slider_format_strings[f'axis{i}'] = '{:d}'
-        name_to_dim[f'axis{i}'] = i
-        
+        kwargs[f"axis{i}"] = np.arange(arr.shape[i])
+        slider_format_strings[f"axis{i}"] = "{:d}"
+        name_to_dim[f"axis{i}"] = i
+
     def update(change, label, key):
         if label:
-        # continuous
+            # continuous
             params[key] = kwargs[key][change["new"]]
             label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
         else:
-        # categorical
+            # categorical
             params[key] = change["new"]
         if title is not None:
             ax.set_title(title.format(**params))
-            
-        slices[name_to_dim[key]] = change['new']
+
+        slices[name_to_dim[key]] = change["new"]
         new_data = arr[tuple(slices)]
         im.set_data(new_data)
-        
+
         if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
             im.norm.autoscale(new_data)
-     
+
         if isinstance(vmin, Callable):
             im.norm.vmin = vmin(**params)
         if isinstance(vmax, Callable):
@@ -569,7 +566,7 @@ def hyperslicer(
         controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
 
     # make it once here so we can use the dims in update
-    new_data = arr[tuple(0 for i in range(arr.ndim-2))]
+    new_data = arr[tuple(0 for i in range(arr.ndim - 2))]
     im = ax.imshow(
         new_data,
         cmap=cmap,
