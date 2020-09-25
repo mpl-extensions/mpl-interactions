@@ -20,7 +20,7 @@ For examples that that explicitly use Matplotlib widgets instead of ipywidgets s
     # rest of imports
     import matplotlib.pyplot as plt
     import numpy as np
-    from mpl_interactions import interactive_plot, interactive_plot_factory
+    from mpl_interactions import interactive_plot
 
 
 Simple example

@@ -3,6 +3,7 @@ from functools import partial
 from numbers import Number
 
 import numpy as np
+from matplotlib.cbook.deprecation import deprecated
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
@@ -30,6 +31,9 @@ __all__ = [
 ]
 
 
+@deprecated(
+    "0.6.1", alternative="interactive_plot with the ax argument", name="heck", removal="0.7.0"
+)
 def interactive_plot_factory(
     ax,
     f,
@@ -61,8 +65,116 @@ def interactive_plot_factory(
     play_button_pos : str, or dict, or list(str)
         'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
     """
-    if use_ipywidgets is None:
-        use_ipywidgets = notebook_backend()
+    return interactive_plot(
+        f,
+        x=x,
+        xlim=xlim,
+        ylim=ylim,
+        slider_format_string=slider_format_string,
+        plot_kwargs=plot_kwargs,
+        title=title,
+        ax=ax,
+        display=False,
+        force_ipywidgets=use_ipywidgets,
+        play_buttons=play_buttons,
+        play_button_pos=play_button_pos,
+        **kwargs,
+    )[-1].children
+
+
+def interactive_plot(
+    f,
+    x=None,
+    xlim="stretch",
+    ylim="stretch",
+    slider_format_string=None,
+    plot_kwargs=None,
+    title=None,
+    figsize=None,
+    ax=None,
+    display=True,
+    force_ipywidgets=False,
+    play_buttons=False,
+    play_button_pos="right",
+    **kwargs,
+):
+    """
+    Control a plot using widgets
+
+    parameters
+    ----------
+    f : function or list(functions)
+        The function(s) to plot. Each function should return either the y values, or
+        a list of both the x and y arrays to plot [x, y]
+    x : arraylike or None
+        x values a which to evaluate the function. If None the function(s) f should
+        return a list of [x, y]
+    xlim : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_xlim. Other options are:
+        'auto': rescale the x axis for every redraw
+        'stretch': only ever expand the xlims.
+    ylim : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_ylim. Other options are same
+        as xlim
+    slider_format_string : None, string, or dict
+        If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
+        For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
+        format for all values. A dictionary will allow assigning different formats to different sliders.
+        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        object for matplotlib slider values.
+    plot_kwargs : None, dict, or iterable of dicts
+        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
+        None or be iterable.
+    title : None or string
+        If a string then you can have it update automatically using string formatting of the names
+        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
+    figsize : tuple or scalar
+        If tuple it will be used as the matplotlib figsize. If a number
+        then it will be used to scale the current rcParams figsize
+    ax : matplotlib axis, optional
+        If None a new figure and axis will be created
+    display : boolean
+        If True then the output and controls will be automatically displayed
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+    play_buttons : bool or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+    play_button_pos : str, or dict, or list(str)
+        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+
+    returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axis
+    controls : list of widgets
+
+    Examples
+    --------
+
+    With numpy arrays::
+
+        x = np.linspace(0,2*np.pi)
+        tau = np.linspace(0, np.pi)
+        def f(x, tau):
+            return np.sin(x+tau)
+        interactive_plot(f, x=x, tau=tau)
+
+    with tuples::
+
+        x = np.linspace(0,2*np.pi)
+        def f(x, tau):
+            return np.sin(x+tau)
+        interactive_plot(f, x=x, tau=(0, np.pi, 1000))
+
+    """
+
+    ipympl = notebook_backend()
+    use_ipywidgets = ipympl or force_ipywidgets
+    fig, ax = gogogo_figure(ipympl, figsize=figsize, ax=ax)
     params = {}
     funcs = np.atleast_1d(f)
 
@@ -170,113 +282,7 @@ def interactive_plot_factory(
     # make sure the home button will work
     if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
         fig.canvas.toolbar.push_current()
-    return controls
 
-
-def interactive_plot(
-    f,
-    x=None,
-    xlim="stretch",
-    ylim="stretch",
-    slider_format_string=None,
-    plot_kwargs=None,
-    title=None,
-    figsize=None,
-    display=True,
-    force_ipywidgets=False,
-    play_buttons=False,
-    play_button_pos="right",
-    **kwargs,
-):
-    """
-    Control a plot using widgets
-
-    parameters
-    ----------
-    f : function or list(functions)
-        The function(s) to plot. Each function should return either the y values, or
-        a list of both the x and y arrays to plot [x, y]
-    x : arraylike or None
-        x values a which to evaluate the function. If None the function(s) f should
-        return a list of [x, y]
-    xlim : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_xlim. Other options are:
-        'auto': rescale the x axis for every redraw
-        'stretch': only ever expand the xlims.
-    ylim : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_ylim. Other options are same
-        as xlim
-    slider_format_string : None, string, or dict
-        If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
-        For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
-        format for all values. A dictionary will allow assigning different formats to different sliders.
-        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
-        object for matplotlib slider values.
-    plot_kwargs : None, dict, or iterable of dicts
-        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
-        None or be iterable.
-    title : None or string
-        If a string then you can have it update automatically using string formatting of the names
-        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
-    display : boolean
-        If True then the output and controls will be automatically displayed
-    force_ipywidgets : boolean
-        If True ipywidgets will always be used, even if not using the ipympl backend.
-        If False the function will try to detect if it is ok to use ipywidgets
-        If ipywidgets are not used the function will fall back on matplotlib widgets
-    play_buttons : bool or dict, optional
-        Whether to attach an ipywidgets.Play widget to any sliders that get created.
-        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
-        want to attach play buttons too.
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
-
-    returns
-    -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
-
-    Examples
-    --------
-
-    With numpy arrays::
-
-        x = np.linspace(0,2*np.pi)
-        tau = np.linspace(0, np.pi)
-        def f(x, tau):
-            return np.sin(x+tau)
-        interactive_plot(f, x=x, tau=tau)
-
-    with tuples::
-
-        x = np.linspace(0,2*np.pi)
-        def f(x, tau):
-            return np.sin(x+tau)
-        interactive_plot(f, x=x, tau=(0, np.pi, 1000))
-
-    """
-
-    ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize)
-    use_ipywidgets = ipympl or force_ipywidgets
-    controls = interactive_plot_factory(
-        ax,
-        f,
-        x,
-        xlim,
-        ylim,
-        slider_format_string,
-        plot_kwargs,
-        title,
-        use_ipywidgets=use_ipywidgets,
-        play_buttons=play_buttons,
-        play_button_pos=play_button_pos,
-        **kwargs,
-    )
     controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
     return fig, ax, controls
 
@@ -345,7 +351,7 @@ def interactive_hist(
         If tuple it will be used as the matplotlib figsize. If a number
         then it will be used to scale the current rcParams figsize
     ax : matplotlib axis, optional
-        if None a new figure and axis will be created
+        If None a new figure and axis will be created
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
@@ -497,7 +503,7 @@ def interactive_scatter(
         If a tuple it will be passed to ax.set_ylim. Other options are same
         as xlim
     ax : matplotlib axis, optional
-        if None a new figure and axis will be created
+        If None a new figure and axis will be created
     slider_format_string : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
