@@ -15,7 +15,13 @@ from .helpers import *
 from .utils import figure, ioff, nearest_idx
 
 # functions that are methods
-__all__ = ["heatmap_slicer", "zoom_factory", "panhandler", "image_segmenter", "hyperslicer"]
+__all__ = [
+    "heatmap_slicer",
+    "zoom_factory",
+    "panhandler",
+    "image_segmenter",
+    "hyperslicer",
+]
 
 
 def heatmap_slicer(
@@ -502,21 +508,18 @@ def hyperslicer(
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
-    is_rgb=False,
-    is_rgba=False,
+    is_color_image=False,
     **kwargs,
 ):
 
     arr = np.asarray(np.squeeze(arr))
-    if arr.ndim < 3:
+    if arr.ndim < 3 + is_color_image:
         raise ValueError(
-            f"arr must be at least 3D but it is {arr.ndim}D. mpl_interactions.imshow for 2D images."
+            f"arr must be at least {3+is_color_image}D but it is {arr.ndim}D. mpl_interactions.imshow for 2D images."
         )
 
-    if is_rgb:
+    if is_color_image:
         im_dims = 3
-    elif is_rgba:
-        im_dims = 4
     else:
         im_dims = 2
 
@@ -566,7 +569,7 @@ def hyperslicer(
         controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
 
     # make it once here so we can use the dims in update
-    new_data = arr[tuple(0 for i in range(arr.ndim - 2))]
+    new_data = arr[tuple(0 for i in range(arr.ndim - im_dims))]
     im = ax.imshow(
         new_data,
         cmap=cmap,
