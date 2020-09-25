@@ -199,7 +199,7 @@ def kwargs_to_ipywidgets(
     if isinstance(play_buttons, bool):
         has_play_button = defaultdict(lambda: play_buttons)
     elif isinstance(play_buttons, defaultdict):
-        pass
+        has_play_button = play_buttons
     elif isinstance(play_buttons, dict):
         has_play_button = defaultdict(lambda: False, play_buttons)
     elif isinstance(play_buttons, Iterable) and all([isinstance(p, str) for p in play_buttons]):
