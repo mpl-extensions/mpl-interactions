@@ -23,7 +23,6 @@ a.icon.icon-home {
 
 a.reference.internal {
     font-size: 13px;
-    color: #43464b;
 }
 
 .wy-nav-content {
@@ -32,4 +31,12 @@ a.reference.internal {
 
 .wy-content-wrap {
     background: #fafafa;
+}
+
+.wy-menu-vertical a {
+    color: #43464b;
+}
+
+a:hover {
+    color: lightgrey;
 }
