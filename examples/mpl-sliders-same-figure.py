@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Slider
+
 from mpl_interactions import interactive_plot_factory
 
 fig, ax = plt.subplots()

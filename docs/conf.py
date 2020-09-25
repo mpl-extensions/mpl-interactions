@@ -19,6 +19,7 @@ import mpl_interactions as mpl_inter
 release = mpl_inter.__version__
 import inspect
 import sys
+
 import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
