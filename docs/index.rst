@@ -86,6 +86,7 @@ Further discussion of the behavior as a function of backend can be found on the 
    examples/mpl-sliders.rst
    examples/image-segmentation.rst
    examples/heatmap-slicer.rst
+   examples/tidbits.rst
 
 Indices and Tables
 ------------------
