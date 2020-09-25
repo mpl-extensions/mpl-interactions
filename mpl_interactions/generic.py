@@ -487,6 +487,8 @@ class image_segmenter:
 
 def hyperslicer(
     arr,
+    is_rgb = False,
+    is_rbga = False,
     cmap=None,
     norm=None,
     aspect=None,
@@ -507,8 +509,19 @@ def hyperslicer(
     figsize=None,
     display=True,
     force_ipywidgets=False,
+    play_buttons=False,
+    play_button_pos='right',
     **kwargs,
 ):
+    
+    arr = np.asarray(np.squeeze(arr))
+    if not np.atleast_2d(arr):
+        warnings.warn('Invalid number of dimensions for imshow')
+        break
+
+    if is_rgb: im_dims=3
+    elif is_rgba: im_dims=4
+    else: im_dims=2
 
     params = {}
     ipympl = notebook_backend()
@@ -517,9 +530,9 @@ def hyperslicer(
     slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
                             
     name_to_dim = {}
-    slices = [0 for i in range(arr.ndim-2)]
+    slices = [0 for i in range(arr.ndim-im_dims)]
     #Just pass in an array - no kwargs
-    for i in range(arr.ndim - 2):
+    for i in range(arr.ndim - im_dims):
         kwargs[f'axis{i}'] = np.arange(arr.shape[i]) 
         slider_format_strings[f'axis{i}'] = '{:d}'
         name_to_dim[f'axis{i}'] = i
@@ -535,10 +548,9 @@ def hyperslicer(
         if title is not None:
             ax.set_title(title.format(**params))
             
-        if arr.ndim>=2:
-            slices[name_to_dim[key]] = change['new']
-            new_data = np.asarray(arr[tuple(slices)])
-            im.set_data(new_data)
+        slices[name_to_dim[key]] = change['new']
+        new_data = arr[tuple(slices)]
+        im.set_data(new_data)
         
         if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
             im.norm.autoscale(new_data)
@@ -550,9 +562,8 @@ def hyperslicer(
         fig.canvas.draw_idle()
 
     if use_ipywidgets:
-        #print("here")
         sliders, slabels, controls, players = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings
+            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
         )
     else:
         controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
