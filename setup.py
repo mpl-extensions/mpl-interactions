@@ -60,7 +60,15 @@ setup(
             "sphinx-copybutton",
             "sphinx-autobuild",
         ],
-        "test": ["pytest", "pytest-mpl", "nbval", "PyQt5", "black", "pandas", "requests"],
+        "test": [
+            "pytest",
+            "pytest-mpl",
+            "nbval",
+            "PyQt5",
+            "black",
+            "pandas",
+            "requests",
+        ],
         "dev": [
             "pre-commit",
         ],
