@@ -7,7 +7,7 @@ from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
 from collections.abc import Callable, Iterable
-
+import warnings
 from .utils import figure, ioff, nearest_idx
 from .helpers import *
 
