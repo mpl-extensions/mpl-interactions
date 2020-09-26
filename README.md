@@ -1,6 +1,6 @@
 # mpl_interactions
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 [![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: The interactions will be laggy when on binder)
 
@@ -112,6 +112,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://darlingdocs.wordpress.com/"><img src="https://avatars1.githubusercontent.com/u/67113216?v=4" width="100px;" alt=""/><br /><sub><b>Sam</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=samanthahamilton" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/jcoulter12"><img src="https://avatars1.githubusercontent.com/u/14036348?v=4" width="100px;" alt=""/><br /><sub><b>Jenny Coulter</b></sub></a><br /><a href="#userTesting-jcoulter12" title="User Testing">📓</a></td>
     <td align="center"><a href="https://sjhaque14.wixsite.com/sjhaque"><img src="https://avatars3.githubusercontent.com/u/61242473?v=4" width="100px;" alt=""/><br /><sub><b>Sabina Haque</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=sjhaque14" title="Documentation">📖</a> <a href="#userTesting-sjhaque14" title="User Testing">📓</a> <a href="https://github.com/ianhi/mpl-interactions/commits?author=sjhaque14" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jrussell25"><img src="https://avatars2.githubusercontent.com/u/35578729?v=4" width="100px;" alt=""/><br /><sub><b>John Russell</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=jrussell25" title="Code">💻</a> <a href="#userTesting-jrussell25" title="User Testing">📓</a></td>
   </tr>
 </table>
 
