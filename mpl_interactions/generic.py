@@ -533,6 +533,9 @@ def hyperslicer(
     slices = [0 for i in range(arr.ndim - im_dims)]
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
+        #if f"axis{i}" in kwargs:
+            
+        #else:
         kwargs[f"axis{i}"] = np.arange(arr.shape[i])
         slider_format_strings[f"axis{i}"] = "{:d}"
         name_to_dim[f"axis{i}"] = i
