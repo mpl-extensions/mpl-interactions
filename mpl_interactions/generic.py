@@ -10,6 +10,7 @@ from matplotlib.pyplot import close, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
+import warnings
 
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
@@ -614,29 +615,57 @@ def hyperslicer(
                 slider_arr_passed = True
                 slider_arr = kwargs.pop(name)
 
-        if names is not None and names[i] is not None:
+        if axes is not None and axes[i] is not None:
+            # no we assume the axes[i] has one of the following forms
+            # ('mu', (0,1))
+            # ('mu', np.array)
+            # ('mu', 0, 1)
+            # (0, 1)
+            # 'mu'
+            # np.array or a list
+            a = axes[i]
+            if isinstance(a, str):
+                # axes = ['mu', ]
+                name = a
+            elif isinstance(a, tuple):
+                if len(a) == 3:
+                    # axes = [('mu', 0, 1)]
+                    name = a[0]
+                    start, stop = a[1:]
+                elif len(a) == 2:
+                    if isinstance(a[0], str):
+                        # axes = [('mu', (0,1))]
+                        # axes = [('mu', np.linspace())]
+                        name = a[0]
+                        if isinstance(a[1], tuple) or (isinstance(a[1], list) and len(a[1]) == 2):
+                            start, stop = a[1]
+                        elif isinstance(a[1], np.ndarray) or isinstance(a[1], list):
+                            slider_arr_passed = True
+                            slider_arr = a[1]
+                    elif np.isscalar(a[0]) and np.isscalar(a[1]):
+                        # axes = [(0,1)]
+                        start, stop = a
+            elif isinstance(a, list) or isinstance(np.ndarray):
+                # no name only values
+                slider_arr_passed = True
+                slider_arr = a
+        elif names is not None and names[i] is not None:
             name = names[i]
-
-        elif axes is not None and axes[i] is not None:
-            name = axes[i][0]
-
-            if len(axes[i]) == 2 and axes[i][1] is not None:
-                if len(axes[i][1]) == 2:
-                    start, stop = axes[i][1]
-                else:
-                    slider_arr_passed = True
-                    slider_arr = axes[i][1]
-
         name_to_dim[name] = i
 
-        if slider_arr_passed:
+        if slider_arr_passed and use_ipywidgets:
             kwargs[name] = slider_arr
-
         else:
-
-            if start is None or stop is None:
+            if slider_arr_passed:
+                warnings.warn(
+                    "Displaying mapped values for an axis is not yet supported for matplotlib sliders"
+                )
+            if start is None or stop is None or not use_ipywidgets:
                 kwargs[name] = np.arange(arr.shape[i])
-                slider_format_strings[name] = "{:d}"
+                if use_ipywidgets:
+                    slider_format_strings[name] = "{:d}"
+                else:
+                    slider_format_strings[name] = "%d"
             else:
                 kwargs[name] = np.linspace(start, stop, arr.shape[i])
 
