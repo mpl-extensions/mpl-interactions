@@ -531,14 +531,23 @@ def hyperslicer(
 
     name_to_dim = {}
     slices = [0 for i in range(arr.ndim - im_dims)]
+    if "names" in kwargs:
+        names = kwargs.pop("names")
+
+    else:
+        names = None
+
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
-        #if f"axis{i}" in kwargs:
-            
-        #else:
-        kwargs[f"axis{i}"] = np.arange(arr.shape[i])
-        slider_format_strings[f"axis{i}"] = "{:d}"
-        name_to_dim[f"axis{i}"] = i
+        if names is not None and names[i] is not None:
+            name = names[i]
+
+        else:
+            name = f"axis{i}"
+
+        kwargs[name] = np.arange(arr.shape[i])
+        slider_format_strings[name] = "{:d}"
+        name_to_dim[name] = i
 
     def update(change, label, key):
         if label:
