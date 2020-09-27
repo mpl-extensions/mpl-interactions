@@ -531,23 +531,57 @@ def hyperslicer(
 
     name_to_dim = {}
     slices = [0 for i in range(arr.ndim - im_dims)]
+    
+    names = None
+    axes = None
     if "names" in kwargs:
         names = kwargs.pop("names")
+    
+    elif 'axes' in kwargs:
+        axes = kwargs.pop('axes')
 
-    else:
-        names = None
-
+        
+        
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
+
+        slider_arr_passed = False
+        start, stop = None, None
+        name = f"axis{i}"
+        if name in kwargs:
+            if len(kwargs[name])==2:
+                start, stop = kwargs.pop(name)
+            else:
+                slider_arr_passed=True
+                slider_arr = kwargs.pop(name)
+            
+
         if names is not None and names[i] is not None:
             name = names[i]
+             
+
+        elif axes is not None and axes[i] is not None:
+            name = axes[i][0]
+                
+            if len(axes[i])==2 and axes[i][1] is not None:
+                if len(axes[i][1])==2:
+                    start, stop = axes[i][1]
+                else:
+                    slider_arr_passed= True
+                    slider_arr = axes[i][1]
+            
+        name_to_dim[name] = i
+
+        if slider_arr_passed:
+            kwargs[name] = slider_arr
 
         else:
-            name = f"axis{i}"
 
-        kwargs[name] = np.arange(arr.shape[i])
-        slider_format_strings[name] = "{:d}"
-        name_to_dim[name] = i
+            if start is None or stop is None:
+                kwargs[name] = np.arange(arr.shape[i])
+                slider_format_strings[name] = "{:d}"
+            else:
+                kwargs[name] = np.linspace(start, stop, arr.shape[i])
 
     def update(change, label, key):
         if label:
@@ -560,7 +594,9 @@ def hyperslicer(
         if title is not None:
             ax.set_title(title.format(**params))
 
-        slices[name_to_dim[key]] = change["new"]
+        if key in name_to_dim:
+            slices[name_to_dim[key]] = change["new"]
+        
         new_data = arr[tuple(slices)]
         im.set_data(new_data)
 
