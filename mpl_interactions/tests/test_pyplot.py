@@ -2,9 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib import __version__ as mpl_version
-from packaging import version
-
 from mpl_interactions.pyplot import interactive_hist, interactive_plot
+from packaging import version
 
 np.random.seed(1111111121)
 
