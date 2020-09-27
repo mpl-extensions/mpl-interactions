@@ -7,7 +7,9 @@ from matplotlib.cbook.deprecation import deprecated
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
-from matplotlib.pyplot import sca
+from matplotlib.pyplot import sca, sci
+
+from .controller import Controls, gogogo_controls
 
 from .helpers import (
     broadcast_many,
@@ -19,6 +21,7 @@ from .helpers import (
     kwargs_to_mpl_widgets,
     notebook_backend,
     update_datalim_from_bbox,
+    kwarg_to_ipywidget,
 )
 
 # functions that are methods
@@ -31,69 +34,20 @@ __all__ = [
 ]
 
 
-@deprecated("0.6.1", alternative="interactive_plot with the ax argument", name="", removal="0.8.0")
-def interactive_plot_factory(
-    ax,
-    f,
-    x=None,
-    xlim="stretch",
-    ylim="stretch",
-    slider_format_string=None,
-    plot_kwargs=None,
-    title=None,
-    use_ipywidgets=None,
-    play_buttons=False,
-    play_button_pos="right",
-    **kwargs,
-):
-    """
-    Use this function for maximum control over layout of the widgets.
-
-    parameters
-    ----------
-    ax : matplotlib axes
-    f : function or iterable of functions
-    use_ipywidgets : None or boolean, optional
-        If None will attempt to infer whether to use ipywidgets based on the backend. Use
-        True or False to ensure ipywidgets is or is not used.
-    play_buttons : bool or dict, optional
-        Whether to attach an ipywidgets.Play widget to any sliders that get created.
-        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
-        want to attach play buttons too.
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
-    """
-    return interactive_plot(
-        f,
-        x=x,
-        xlim=xlim,
-        ylim=ylim,
-        slider_format_string=slider_format_string,
-        plot_kwargs=plot_kwargs,
-        title=title,
-        ax=ax,
-        display=False,
-        force_ipywidgets=use_ipywidgets,
-        play_buttons=play_buttons,
-        play_button_pos=play_button_pos,
-        **kwargs,
-    )[-1].children
-
-
 def interactive_plot(
     f,
     x=None,
     xlim="stretch",
     ylim="stretch",
-    slider_format_string=None,
+    slider_formats=None,
     plot_kwargs=None,
     title=None,
-    figsize=None,
     ax=None,
-    display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
@@ -126,9 +80,6 @@ def interactive_plot(
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
     ax : matplotlib axis, optional
         If None a new figure and axis will be created
     display : boolean
@@ -143,12 +94,15 @@ def interactive_plot(
         want to attach play buttons too.
     play_button_pos : str, or dict, or list(str)
         'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
 
     Examples
     --------
@@ -172,22 +126,14 @@ def interactive_plot(
 
     ipympl = notebook_backend()
     use_ipywidgets = ipympl or force_ipywidgets
-    fig, ax = gogogo_figure(ipympl, figsize=figsize, ax=ax)
-    params = {}
+    fig, ax = gogogo_figure(ipympl, ax=ax)
     funcs = np.atleast_1d(f)
+    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
 
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
-
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
-
-        # update plot
+    def update(params, indices):
         for i, f in enumerate(funcs):
             if x is not None and not indexed_x:
                 lines[i].set_data(x, f(x, **params))
@@ -219,16 +165,8 @@ def interactive_plot(
             ax.set_xlim(new_lims)
         if title is not None:
             ax.set_title(title.format(**params))
-        fig.canvas.draw_idle()
 
-    fig = ax.get_figure()
-    if use_ipywidgets:
-        sliders, slabels, controls, play_buttons = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
-        sca(ax)
+    controls.register_function(update, fig, params.keys())
 
     indexed_x = False
     if x is not None:
@@ -281,8 +219,58 @@ def interactive_plot(
     if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
         fig.canvas.toolbar.push_current()
 
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-    return fig, ax, controls
+    return controls
+
+
+@deprecated(
+    "0.6.1", alternative="interactive_plot with the ax argument", name="heck", removal="0.7.0"
+)
+def interactive_plot_factory(
+    ax,
+    f,
+    x=None,
+    xlim="stretch",
+    ylim="stretch",
+    slider_format_string=None,
+    plot_kwargs=None,
+    title=None,
+    use_ipywidgets=None,
+    play_buttons=False,
+    play_button_pos="right",
+    **kwargs,
+):
+    """
+    Use this function for maximum control over layout of the widgets.
+
+    parameters
+    ----------
+    ax : matplotlib axes
+    f : function or iterable of functions
+    use_ipywidgets : None or boolean, optional
+        If None will attempt to infer whether to use ipywidgets based on the backend. Use
+        True or False to ensure ipywidgets is or is not used.
+    play_buttons : bool or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+    play_button_pos : str, or dict, or list(str)
+        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    """
+    return interactive_plot(
+        f,
+        x=x,
+        xlim=xlim,
+        ylim=ylim,
+        slider_format_string=slider_format_string,
+        plot_kwargs=plot_kwargs,
+        title=title,
+        ax=ax,
+        display=False,
+        force_ipywidgets=use_ipywidgets,
+        play_buttons=play_buttons,
+        play_button_pos=play_button_pos,
+        **kwargs,
+    )[-1].children
 
 
 def simple_hist(arr, bins="auto", density=None, weights=None):
@@ -319,13 +307,14 @@ def interactive_hist(
     density=False,
     bins="auto",
     weights=None,
-    figsize=None,
     ax=None,
-    slider_format_string=None,
+    slider_formats=None,
     display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
@@ -345,9 +334,6 @@ def interactive_hist(
         bins argument to np.histogram
     weights : array_like, optional
         passed to np.histogram
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
     ax : matplotlib axis, optional
         If None a new figure and axis will be created
     slider_format_string : None, string, or dict
@@ -368,12 +354,15 @@ def interactive_hist(
         want to attach play buttons too.
     play_button_pos : str, or dict, or list(str)
         'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
 
     Examples
     --------
@@ -393,7 +382,6 @@ def interactive_hist(
         interactive_hist(f, loc=(-5, 5, 500), scale=(1, 10, 100))
     """
 
-    params = {}
     funcs = np.atleast_1d(f)
     # supporting more would require more thought
     if len(funcs) != 1:
@@ -402,37 +390,24 @@ def interactive_hist(
         )
 
     ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize=figsize, ax=ax)
+    fig, ax = gogogo_figure(ipympl, ax=ax)
     use_ipywidgets = ipympl or force_ipywidgets
-
+    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
-
     # update plot
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
+    def update(params, indices):
         arr = funcs[0](**params)
         new_x, new_y, new_patches = simple_hist(arr, density=density, bins=bins, weights=weights)
         stretch(ax, new_x, new_y)
         pc.set_paths(new_patches)
         ax.autoscale_view()
-        fig.canvas.draw_idle()
 
-    # this line implicitly fills the params dict
-    if use_ipywidgets:
-        (sliders, slabels, controls, play_buttons,) = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+    controls.register_function(update, fig, params.keys())
 
     new_x, new_y, new_patches = simple_hist(
         funcs[0](**params), density=density, bins=bins, weights=weights
@@ -441,8 +416,7 @@ def interactive_hist(
     ax.set_xlim(new_x)
     ax.set_ylim(new_y)
 
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-    return fig, ax, controls
+    return controls
 
 
 def interactive_scatter(
@@ -459,13 +433,14 @@ def interactive_scatter(
     xlim="stretch",
     ylim="stretch",
     ax=None,
-    slider_format_string=None,
+    slider_formats=None,
     title=None,
-    figsize=None,
     display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
@@ -502,18 +477,15 @@ def interactive_scatter(
         as xlim
     ax : matplotlib axis, optional
         If None a new figure and axis will be created
-    slider_format_string : None, string, or dict
+    slider_formats : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
         format for all values. A dictionary will allow assigning different formats to different sliders.
-        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        note: For matplotlib >= 3.3 a value of None for slider_formats will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
     display : boolean
         If True then the output and controls will be automatically displayed
     force_ipywidgets : boolean
@@ -527,12 +499,15 @@ def interactive_scatter(
         you want to have sliders
     play_button_pos : str, or dict, or list(str)
         'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
     """
 
     def _prep_color(col):
@@ -573,22 +548,17 @@ def interactive_scatter(
     else:
         stretch_y = False
 
-    params = {}
     ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize, ax)
+    fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
     scats = []
     cache = {}
 
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
+    def update(params, indices):
         if title is not None:
             ax.set_title(title.format(**params))
         for scat, x_, y_, c_, s_, ec_, alpha_ in zip(scats, X, Y, cols, sizes, edgecolors, alphas):
@@ -622,14 +592,8 @@ def interactive_scatter(
             )
         cache.clear()
         ax.autoscale_view()
-        fig.canvas.draw_idle()
 
-    if use_ipywidgets:
-        sliders, slabels, controls, play_buttons = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+    controls.register_function(update, fig, params.keys())
     if title is not None:
         ax.set_title(title.format(**params))
 
@@ -688,8 +652,7 @@ def interactive_scatter(
             ax.set_title(title.format(**params))
 
     cache.clear()
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-    return fig, ax, controls
+    return controls
 
 
 # portions of this docstring were copied directly from the docsting
@@ -711,13 +674,14 @@ def interactive_imshow(
     resample=None,
     url=None,
     ax=None,
-    slider_format_string=None,
+    slider_formats=None,
     title=None,
-    figsize=None,
     display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
@@ -748,18 +712,15 @@ def interactive_imshow(
         forwarded to matplotlib
     ax : matplotlib axis, optional
         if None a new figure and axis will be created
-    slider_format_string : None, string, or dict
+    slider_formats : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
         format for all values. A dictionary will allow assigning different formats to different sliders.
-        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        note: For matplotlib >= 3.3 a value of None for slider_formats will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
     display : boolean
         If True then the output and controls will be automatically displayed
     force_ipywidgets : boolean
@@ -780,21 +741,16 @@ def interactive_imshow(
     ax : matplotlib axis
     controls : list of widgets
     """
-
-    params = {}
     ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize, ax)
+    fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
 
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
+
+    def update(params, indices):
         if title is not None:
             ax.set_title(title.format(**params))
 
@@ -807,17 +763,11 @@ def interactive_imshow(
             im.norm.vmin = vmin(**params)
         if isinstance(vmax, Callable):
             im.norm.vmax = vmax(**params)
-        fig.canvas.draw_idle()
 
-    if use_ipywidgets:
-        sliders, slabels, controls, play_buttons = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+    controls.register_function(update, fig, params.keys())
 
     # make it once here so we can use the dims in update
-    new_data = callable_else_value(X, params)
+    new_data = callable_else_value(X, {k: controls.params[k] for k in kwargs})
     im = ax.imshow(
         new_data,
         cmap=cmap,
@@ -835,10 +785,7 @@ def interactive_imshow(
         url=url,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
-    ax._sci(im)
+    sci(im)
     if title is not None:
         ax.set_title(title.format(**params))
-
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-
-    return fig, ax, controls
+    return controls

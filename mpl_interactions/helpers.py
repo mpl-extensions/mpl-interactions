@@ -9,7 +9,7 @@ import numpy as np
 from IPython.display import display as ipy_display
 from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
-from matplotlib.pyplot import axes
+from matplotlib.pyplot import axes, gca
 from numpy.distutils.misc_util import is_sequence
 from packaging import version
 
@@ -26,6 +26,7 @@ __all__ = [
     "broadcast_many",
     "notebook_backend",
     "callable_else_value",
+    "kwarg_to_ipywidget",
     "kwargs_to_ipywidgets",
     "extract_num_options",
     "changeify",
@@ -179,8 +180,100 @@ def callable_else_value(arg, params):
     return arg
 
 
+def kwarg_to_ipywidget(
+    key, val, update, slider_format_string, play_button=False, play_button_pos="right"
+):
+    """
+    parameters
+    ----------
+    slider_returns_index : bool
+        If True then the slider will return it's index rather
+    returns
+    -------
+    init_val, control
+    control is None is fixed, else it is something that is ready to have display called on it
+    to check if its fixed you can do `if control:`
+    """
+
+    init_val = 0
+    control = None
+    if isinstance(val, set):
+        if len(val) == 1:
+            val = val.pop()
+            if isinstance(val, tuple):
+                # want the categories to be ordered
+                pass
+            else:
+                # fixed parameter
+                return val, None
+        else:
+            val = list(val)
+
+        # categorical
+        if len(val) <= 3:
+            selector = widgets.RadioButtons(options=val)
+        else:
+            selector = widgets.Select(options=val)
+        selector.observe(partial(update, values=val), names="index")
+        return val[0], selector
+    elif isinstance(val, widgets.Widget) or isinstance(val, widgets.fixed):
+        if not hasattr(val, "value"):
+            raise TypeError(
+                "widgets passed as parameters must have the `value` trait."
+                "But the widget passed for {key} does not have a `.value` attribute"
+            )
+        if isinstance(val, widgets.fixed):
+            return val, None
+        elif (
+            isinstance(val, widgets.Select)
+            or isinstance(val, widgets.SelectionSlider)
+            or isinstance(val, widgets.RadioButtons)
+        ):
+            # all the selection widget inherit a private _Selection :(
+            # it looks unlikely to change but still would be nice to just check
+            # if its a subclass
+            val.observe(partial(update, values=val.options), names="index")
+        else:
+            # set values to None and hope for the best
+            val.observe(partial(update, values=None), names="value")
+            return val.value, val
+            # val.observe(partial(update, key=key, label=None), names=["value"])
+    else:
+        if isinstance(val, tuple) and len(val) in [2, 3]:
+            # treat as an argument to linspace
+            # idk if it's acceptable to overwrite kwargs like this
+            # but I think at this point kwargs is just a dict like any other
+            val = np.linspace(*val)
+        val = np.atleast_1d(val)
+        if val.ndim > 1:
+            raise ValueError(f"{key} is {val.ndim}D but can only be 1D or a scalar")
+        if len(val) == 1:
+            # don't need to create a slider
+            return val, None
+        else:
+            # params[key] = val[0]
+            label = widgets.Label(value=slider_format_string.format(val[0]))
+            slider = widgets.IntSlider(min=0, max=val.size - 1, readout=False, description=key)
+            widgets.dlink(
+                (slider, "value"),
+                (label, "value"),
+                transform=lambda x: slider_format_string.format(val[x]),
+            )
+            slider.observe(partial(update, values=val), names="value")
+            if play_button:
+                play = widgets.Play(min=0, max=val.size - 1, step=1)
+                widgets.jslink((play, "value"), (slider, "value"))
+                if play_button_pos == "left":
+                    control = widgets.HBox([play, slider, label])
+                else:
+                    control = widgets.HBox([slider, label, play])
+            else:
+                control = widgets.HBox([slider, label])
+            return val[0], control
+
+
 def kwargs_to_ipywidgets(
-    kwargs, params, update, slider_format_strings, play_buttons=False, play_button_pos="right"
+    kwargs, params, slider_format_strings, play_buttons=False, play_button_pos="right"
 ):
     """
     this will break if you pass a matplotlib slider. I suppose it could support mixed types of sliders
@@ -229,7 +322,7 @@ def kwargs_to_ipywidgets(
                 selector = widgets.Select(options=val)
             params[key] = val[0]
             controls.append(selector)
-            selector.observe(partial(update, key=key, label=None), names=["value"])
+            # selector.observe(partial(update, key=key, label=None), names=["value"])
         elif isinstance(val, widgets.Widget) or isinstance(val, widgets.fixed):
             if not hasattr(val, "value"):
                 raise TypeError(
@@ -241,7 +334,7 @@ def kwargs_to_ipywidgets(
             else:
                 params[key] = val.value
                 controls.append(val)
-                val.observe(partial(update, key=key, label=None), names=["value"])
+                # val.observe(partial(update, key=key, label=None), names=["value"])
         else:
             if isinstance(val, tuple) and len(val) in [2, 3]:
                 # treat as an argument to linspace
@@ -270,7 +363,7 @@ def kwargs_to_ipywidgets(
                         controls.append(widgets.HBox([sliders[-1], labels[-1], players[-1]]))
                 else:
                     controls.append(widgets.HBox([sliders[-1], labels[-1]]))
-                sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=["value"])
+                # sliders[-1].observe(partial(update, key=key, label=labels[-1]), names=["value"])
     return sliders, labels, controls, players
 
 
@@ -442,18 +535,18 @@ def create_slider_format_dict(slider_format_string, use_ipywidgets):
     return slider_format_strings
 
 
-def gogogo_figure(ipympl, figsize, ax=None):
+def gogogo_figure(ipympl, ax=None):
     """
     gogogo the greatest function name of all
     """
     if ax is None:
         if ipympl:
             with ioff:
-                fig = figure(figsize=figsize)
-                ax = fig.gca()
+                ax = gca()
+                fig = ax.get_figure()
         else:
-            fig = figure(figsize=figsize)
-            ax = fig.gca()
+            ax = gca()
+            fig, ax.get_figure()
         return fig, ax
     else:
         return ax.get_figure(), ax
