@@ -512,6 +512,67 @@ def hyperslicer(
     **kwargs,
 ):
 
+    """
+    View slices from a hyperstack of images selected by sliders.
+
+    parameters
+    ----------
+    arr : array like
+        Hyperstack of images. The last 2 or 3 dimensions will be treated as individiual images.
+    cmap : str or `~matplotlib.colors.Colormap`
+        The Colormap instance or registered colormap name used to map
+        scalar data to colors. This parameter is ignored for RGB(A) data.
+        forwarded to matplotlib
+    norm: `~matplotlib.colors.Normalize`, optional
+           The `.Normalize` instance used to scale scalar data to the [0, 1]
+           range before mapping to colors using *cmap*. By default, a linear
+           scaling mapping the lowest value to 0 and the highest to 1 is used.
+           This parameter is ignored for RGB(A) data.
+           forwarded to matplotlib
+    autoscale_cmap : bool
+           If True rescale the colormap for every function update. Will not update
+           if vmin and vmax are provided or if the returned image is RGB(A) like.
+           forwarded to matplotlib
+    aspect : {'equal', 'auto'} or float
+           forwarded to matplotlib
+           interpolation : str
+           forwarded to matplotlib
+    ax : matplotlib axis, optional
+           if None a new figure and axis will be created
+    slider_format_string : None, string, or dict
+           If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
+           For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
+           format for all values. A dictionary will allow assigning different formats to different sliders.
+           note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+           object for matplotlib slider values.
+     title : None or string
+         If a string then you can have it update automatically using string formatting of the names
+         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
+     figsize : tuple or scalar
+         If tuple it will be used as the matplotlib figsize. If a number
+         then it will be used to scale the current rcParams figsize
+     display : boolean
+         If True then the output and controls will be automatically displayed
+     force_ipywidgets : boolean
+         If True ipywidgets will always be used, even if not using the ipympl backend.
+         If False the function will try to detect if it is ok to use ipywidgets
+         If ipywidgets are not used the function will fall back on matplotlib widgets
+     play_buttons : bool or dict or list(str), optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too. If a list of strings use the names of the parameters that
+        you want to have sliders
+        left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    is_color_image : boolean
+        If True, will treat the last 3 dimensions as comprising a color images and will only set up sliders for the first arr.ndim - 3 dimensions.
+
+    returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axis
+    controls : list of widgets
+    """
+
     arr = np.asarray(np.squeeze(arr))
     if arr.ndim < 3 + is_color_image:
         raise ValueError(
