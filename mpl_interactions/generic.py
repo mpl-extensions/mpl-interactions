@@ -640,8 +640,9 @@ def hyperslicer(
             else:
                 kwargs[name] = np.linspace(start, stop, arr.shape[i])
 
-    def update(change, label, key):
+    def update(change, key, label):
         if label:
+            print(label)
             # continuous
             params[key] = kwargs[key][change["new"]]
             label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
@@ -671,7 +672,7 @@ def hyperslicer(
             kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
         )
     else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings, valstep=1)
 
     # make it once here so we can use the dims in update
     new_data = arr[tuple(0 for i in range(arr.ndim - im_dims))]

@@ -789,7 +789,7 @@ def interactive_imshow(
     use_ipywidgets = ipympl or force_ipywidgets
     slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
 
-    def update(change, label, key):
+    def update(change, key, label):
         if label:
             # continuous
             params[key] = kwargs[key][change["new"]]
