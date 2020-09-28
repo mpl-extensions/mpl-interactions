@@ -31,9 +31,7 @@ __all__ = [
 ]
 
 
-@deprecated(
-    "0.6.1", alternative="interactive_plot with the ax argument", name="heck", removal="0.7.0"
-)
+@deprecated("0.6.1", alternative="interactive_plot with the ax argument", name="", removal="0.8.0")
 def interactive_plot_factory(
     ax,
     f,
