@@ -1,6 +1,12 @@
 from IPython.display import display as ipy_display
 from collections import defaultdict
-from .helpers import create_slider_format_dict, kwarg_to_ipywidget
+from .helpers import (
+    create_slider_format_dict,
+    kwarg_to_ipywidget,
+    kwarg_to_mpl_widget,
+    create_mpl_controls_fig,
+    notebook_backend,
+)
 from functools import partial
 from ipywidgets import widgets
 from collections import Iterable
@@ -8,7 +14,13 @@ from collections import Iterable
 
 class Controls:
     def __init__(
-        self, out=None, slider_formats=None, play_buttons=False, play_button_pos="right", **kwargs
+        self,
+        slider_formats=None,
+        play_buttons=False,
+        play_button_pos="right",
+        use_ipywidgets=None,
+        out=None,
+        **kwargs
     ):
         # it might make sense to also accept kwargs as a straight up arg
         # to allow for passing the dictionary, but then it would need a different name
@@ -18,8 +30,12 @@ class Controls:
             self.out = out
         else:
             self.out = widgets.Output()
+        if use_ipywidgets is None:
+            self.use_ipywidgets = notebook_backend()
+        else:
+            self.use_ipywidgets = use_ipywidgets
         self.kwargs = kwargs
-        self.slider_format_strings = create_slider_format_dict(slider_formats, True)
+        self.slider_format_strings = create_slider_format_dict(slider_formats, self.use_ipywidgets)
         self.controls = {}
         self.params = {}
         self.figs = defaultdict(list)  # maybe should only store weakrefs?
@@ -27,6 +43,7 @@ class Controls:
         self._update_funcs = defaultdict(list)
         self.controller_list = []
         self.vbox = widgets.VBox([])
+        self.control_figures = []  # storage for figures made of matplotlib sliders
         self.add_kwargs(kwargs, slider_formats, play_buttons, play_button_pos)
 
     def add_kwargs(self, kwargs, slider_formats=None, play_buttons=False, play_button_pos="right"):
@@ -53,22 +70,38 @@ class Controls:
             slider_formats = create_slider_format_dict(slider_formats, True)
             for k, v in slider_formats.items():
                 self.slider_format_strings[k] = v
-        for k, v in kwargs.items():
-            if k in self.params:
-                raise ValueError("can't overwrite an existing param in the controller")
-            # create slider
-            self.params[k], control = kwarg_to_ipywidget(
-                k,
-                v,
-                partial(self.slider_updated, key=k),
-                self.slider_format_strings[k],
-                play_button=has_play_button[k],
-                play_button_pos=play_button_pos,
-            )
-            if control:
-                self.controls[k] = control
-                self.indices
-                self.vbox.children = list(self.vbox.children) + [control]
+        if self.use_ipywidgets:
+            for k, v in kwargs.items():
+                if k in self.params:
+                    raise ValueError("can't overwrite an existing param in the controller")
+                # create slider
+                self.params[k], control = kwarg_to_ipywidget(
+                    k,
+                    v,
+                    partial(self.slider_updated, key=k),
+                    self.slider_format_strings[k],
+                    play_button=has_play_button[k],
+                    play_button_pos=play_button_pos,
+                )
+                if control:
+                    self.controls[k] = control
+                    self.vbox.children = list(self.vbox.children) + [control]
+        else:
+            mpl_layout = create_mpl_controls_fig(kwargs)
+            self.control_figures.append(mpl_layout[0])
+            widget_y = 0.05
+            for k, v in kwargs.items():
+                self.params[k], control, cb, widget_y = kwarg_to_mpl_widget(
+                    mpl_layout[0],
+                    mpl_layout[1:],
+                    widget_y,
+                    k,
+                    v,
+                    partial(self.slider_updated, key=k),
+                    self.slider_format_strings[k],
+                )
+                if control:
+                    self.controls[k] = control
 
     def slider_updated(self, change, key, values):
         """
@@ -139,9 +172,7 @@ def gogogo_controls(
             controls.add_kwargs(kwargs, slider_formats, play_buttons, play_button_pos)
             params = controls.params
     else:
-        out = widgets.Output()
         controls = Controls(
-            out,
             slider_formats=slider_formats,
             play_buttons=play_buttons,
             play_button_pos=play_button_pos,
@@ -149,5 +180,8 @@ def gogogo_controls(
         )
         params = controls.params
         if display_controls:
-            display(controls)
+            if notebook_backend():
+                display(controls)
+            else:
+                pass
     return controls, params

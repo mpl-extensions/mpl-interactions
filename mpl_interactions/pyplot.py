@@ -17,11 +17,10 @@ from .helpers import (
     create_slider_format_dict,
     gogogo_display,
     gogogo_figure,
-    kwargs_to_ipywidgets,
-    kwargs_to_mpl_widgets,
+    kwarg_to_ipywidget,
+    kwarg_to_mpl_widget,
     notebook_backend,
     update_datalim_from_bbox,
-    kwarg_to_ipywidget,
 )
 
 # functions that are methods
