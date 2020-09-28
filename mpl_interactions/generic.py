@@ -671,7 +671,6 @@ def hyperslicer(
 
     def update(change, key, label):
         if label:
-            print(label)
             # continuous
             params[key] = kwargs[key][change["new"]]
             label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
