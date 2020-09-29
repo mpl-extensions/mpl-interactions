@@ -36,7 +36,7 @@ Functions that will be useful irrespective of backend.
    ~mpl_interactions.zoom_factory
    ~mpl_interactions.panhandler
    ~mpl_interactions.image_segmenter
-
+   ~mpl_interactions.hyperslicer
 
 utilities
 ---------
