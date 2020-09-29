@@ -459,12 +459,8 @@ def interactive_scatter(
 
     parameters
     ----------
-    x : function or array-like
-        Must be broadcastable with y and any plotting kwargs. Can be a mix
-        of numbers and functions. Any functions in x must return a 1D array
-        or list of the same length as the paired y function or array
-    y : function or array-like
-        see x
+    x, y : function or float or array-like
+        shape (n, ) for array-like. Functions must return the correct shape as well
     c : array-like or list of colors or color, broadcastable
         Must be broadcastable to x,y and any other plotting kwargs.
         valid input to plt.scatter, or an array of valid inputs, or a function
@@ -521,34 +517,6 @@ def interactive_scatter(
     controls
     """
 
-    def _prep_color(col):
-        if (
-            isinstance(col, np.ndarray)
-            and np.issubdtype(col.dtype, np.number)
-            and col.ndim == 2
-            and col.shape[1] in [3, 4]
-        ):
-            return col[None, :, :]
-        else:
-            return col
-
-    def _prep_size(s):
-        if (isinstance(s, tuple) or isinstance(s, list)) and all(
-            [isinstance(es, Number) for es in s]
-        ):
-            return np.asarray(s, dtype=np.object)
-        return s
-
-    X, Y, cols, sizes, edgecolors, alphas, labels = broadcast_many(
-        (x, "x"),
-        (y, "y"),
-        (_prep_color(c), "c"),
-        (_prep_size(s), "s"),
-        (_prep_color(edgecolors), "edgecolors"),
-        (alpha, "alpha"),
-        (label, "labels"),
-    )
-
     if isinstance(xlim, str):
         stretch_x = xlim == "stretch"
     else:
@@ -566,41 +534,39 @@ def interactive_scatter(
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
-    scats = []
     cache = {}
 
     def update(params, indices):
         if title is not None:
             ax.set_title(title.format(**params))
-        for scat, x_, y_, c_, s_, ec_, alpha_ in zip(scats, X, Y, cols, sizes, edgecolors, alphas):
-            x, y = eval_xy(x_, y_, params, cache)
-            scat.set_offsets(np.column_stack([x, y]))
-            c = check_callable_xy(c_, x, y, params)
-            s = check_callable_xy(s_, x, y, params)
-            ec = check_callable_xy(ec_, x, y, params)
-            a = check_callable_alpha(alpha_, params)
-            if c is not None:
+        x_, y_ = eval_xy(x, y, params, cache)
+        scatter.set_offsets(np.column_stack([x_, y_]))
+        c_ = check_callable_xy(c, x_, y_, params)
+        s_ = check_callable_xy(s, x_, y_, params)
+        ec_ = check_callable_xy(edgecolors, x_, y_, params)
+        a_ = check_callable_alpha(alpha, params)
+        if c_ is not None:
+            try:
+                c_ = to_rgba_array(c_)
+            except ValueError as array_err:
                 try:
-                    c = to_rgba_array(c)
-                except ValueError as array_err:
-                    try:
-                        c = scat.cmap(c)
-                    except TypeError as cmap_err:
-                        raise ValueError(
-                            "If c is a function it must return either an RGB(A) array"
-                            "or a 1D array of valid color names or values to be colormapped"
-                        )
-                scat.set_facecolor(c)
-            if ec is not None:
-                scat.set_edgecolor(ec)
-            if s is not None and not isinstance(s, Number):
-                scat.set_sizes(s)
-            if a is not None:
-                scat.set_alpha(a)
+                    c_ = scatter.cmap(c_)
+                except TypeError as cmap_err:
+                    raise ValueError(
+                        "If c is a function it must return either an RGB(A) array"
+                        "or a 1D array of valid color names or values to be colormapped"
+                    )
+            scatter.set_facecolor(c_)
+        if ec_ is not None:
+            scatter.set_edgecolor(ec_)
+        if s_ is not None and not isinstance(s_, Number):
+            scatter.set_sizes(s_)
+        if a_ is not None:
+            scatter.set_alpha(a_)
 
-            update_datalim_from_bbox(
-                ax, scat.get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
-            )
+        update_datalim_from_bbox(
+            ax, scatter.get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
+        )
         cache.clear()
         ax.autoscale_view()
 
@@ -624,28 +590,25 @@ def interactive_scatter(
         else:
             return alpha_
 
-    for x_, y_, c_, s_, ec_, alpha_, label_ in zip(X, Y, cols, sizes, edgecolors, alphas, labels):
-        x, y = eval_xy(x_, y_, params)
-        c = check_callable_xy(c_, x, y, params)
-        s = check_callable_xy(s_, x, y, params)
-        ec = check_callable_xy(ec_, x, y, params)
-        a = check_callable_alpha(alpha_, params)
-        scats.append(
-            ax.scatter(
-                x,
-                y,
-                c=c,
-                s=s,
-                vmin=vmin,
-                vmax=vmax,
-                cmap=cmap,
-                alpha=a,
-                edgecolors=ec,
-                label=label_,
-            )
-        )
-        if title is not None:
-            ax.set_title(title.format(**params))
+    x_, y_ = eval_xy(x, y, params)
+    c_ = check_callable_xy(c, x_, y_, params)
+    s_ = check_callable_xy(s, x_, y_, params)
+    ec_ = check_callable_xy(edgecolors, x_, y_, params)
+    a_ = check_callable_alpha(alpha, params)
+    scatter = ax.scatter(
+        x_,
+        y_,
+        c=c_,
+        s=s_,
+        vmin=vmin,
+        vmax=vmax,
+        cmap=cmap,
+        alpha=a_,
+        edgecolors=ec_,
+        label=label,
+    )
+    if title is not None:
+        ax.set_title(title.format(**params))
 
     cache.clear()
     return controls

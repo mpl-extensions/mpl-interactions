@@ -218,11 +218,11 @@ def eval_xy(x_, y_, params, cache=None):
             if y_ in cache:
                 y = cache[y_]
             else:
-                y = y_(**params)
+                y = y_(x, **params)
         else:
             y = y_(x, **params)
     else:
-        y = y
+        y = y_
     return np.asanyarray(x), np.asanyarray(y)
 
 
