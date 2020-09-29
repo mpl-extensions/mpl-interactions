@@ -305,7 +305,7 @@ def changeify(val, key, update):
 # making it involved me holding a ruler up to my monitor
 # if you have a better solution I would love to hear about it :)
 # - Ian 2020-08-22
-def kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
+def kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings, valstep=None):
     n_opts = 0
     n_radio = 0
     n_sliders = 0
@@ -409,6 +409,7 @@ def kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings):
                     max_,
                     valinit=min_,
                     valfmt=slider_format_strings[key],
+                    valstep=valstep,
                 )
             )
             cbs.append(sliders[-1].on_changed(partial(changeify, key=key, update=update)))

@@ -67,6 +67,7 @@ setup(
             "PyQt5",
             "black",
             "pandas",
+            "requests",
         ],
         "dev": [
             "pre-commit",

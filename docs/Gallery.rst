@@ -21,3 +21,7 @@ Gallery
 :class:`~mpl_interactions.image_segmenter`
 
 .. image:: _static/segment.gif
+
+:meth:`~mpl_interactions.hyperslicer`
+
+.. image:: _static/hyperslicer3.gif

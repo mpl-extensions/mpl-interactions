@@ -1,12 +1,18 @@
+import warnings
+from collections.abc import Callable, Iterable
+
+import matplotlib.cm as cm
 import numpy as np
 from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
+from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
 from matplotlib.pyplot import close, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
 
+from .helpers import *
 from .utils import figure, ioff, nearest_idx
 
 # functions that are methods
@@ -15,6 +21,7 @@ __all__ = [
     "zoom_factory",
     "panhandler",
     "image_segmenter",
+    "hyperslicer",
 ]
 
 
@@ -373,10 +380,6 @@ class panhandler:
         self.fig.canvas.draw_idle()
 
 
-import matplotlib.cm as cm
-from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
-
-
 class image_segmenter:
     """
     Manually segment an image with the lasso selector.
@@ -480,3 +483,248 @@ class image_segmenter:
 
     def _ipython_display_(self):
         display(self.fig.canvas)
+
+
+def hyperslicer(
+    arr,
+    cmap=None,
+    norm=None,
+    aspect=None,
+    interpolation=None,
+    alpha=None,
+    vmin=None,
+    vmax=None,
+    origin=None,
+    extent=None,
+    autoscale_cmap=True,
+    filternorm=True,
+    filterrad=4.0,
+    resample=None,
+    url=None,
+    ax=None,
+    slider_format_string=None,
+    title=None,
+    figsize=None,
+    display=True,
+    force_ipywidgets=False,
+    play_buttons=False,
+    play_button_pos="right",
+    is_color_image=False,
+    **kwargs,
+):
+
+    """
+    View slices from a hyperstack of images selected by sliders.
+
+    parameters
+    ----------
+    arr : array like
+        Hyperstack of images. The last 2 or 3 dimensions will be treated as individiual images.
+    cmap : str or `~matplotlib.colors.Colormap`
+        The Colormap instance or registered colormap name used to map
+        scalar data to colors. This parameter is ignored for RGB(A) data.
+        forwarded to matplotlib
+    norm: `~matplotlib.colors.Normalize`, optional
+           The `.Normalize` instance used to scale scalar data to the [0, 1]
+           range before mapping to colors using *cmap*. By default, a linear
+           scaling mapping the lowest value to 0 and the highest to 1 is used.
+           This parameter is ignored for RGB(A) data.
+           forwarded to matplotlib
+    autoscale_cmap : bool
+           If True rescale the colormap for every function update. Will not update
+           if vmin and vmax are provided or if the returned image is RGB(A) like.
+           forwarded to matplotlib
+    aspect : {'equal', 'auto'} or float
+           forwarded to matplotlib
+           interpolation : str
+           forwarded to matplotlib
+    ax : matplotlib axis, optional
+           if None a new figure and axis will be created
+    slider_format_string : None, string, or dict
+           If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
+           For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
+           format for all values. A dictionary will allow assigning different formats to different sliders.
+           note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+           object for matplotlib slider values.
+     title : None or string
+         If a string then you can have it update automatically using string formatting of the names
+         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
+     figsize : tuple or scalar
+         If tuple it will be used as the matplotlib figsize. If a number
+         then it will be used to scale the current rcParams figsize
+     display : boolean
+         If True then the output and controls will be automatically displayed
+     force_ipywidgets : boolean
+         If True ipywidgets will always be used, even if not using the ipympl backend.
+         If False the function will try to detect if it is ok to use ipywidgets
+         If ipywidgets are not used the function will fall back on matplotlib widgets
+     play_buttons : bool or dict or list(str), optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too. If a list of strings use the names of the parameters that
+        you want to have sliders
+        left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    is_color_image : boolean
+        If True, will treat the last 3 dimensions as comprising a color images and will only set up sliders for the first arr.ndim - 3 dimensions.
+
+    returns
+    -------
+    fig : matplotlib figure
+    ax : matplotlib axis
+    controls : list of widgets
+    """
+
+    arr = np.asarray(np.squeeze(arr))
+    if arr.ndim < 3 + is_color_image:
+        raise ValueError(
+            f"arr must be at least {3+is_color_image}D but it is {arr.ndim}D. mpl_interactions.imshow for 2D images."
+        )
+
+    if is_color_image:
+        im_dims = 3
+    else:
+        im_dims = 2
+
+    params = {}
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, figsize, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
+
+    name_to_dim = {}
+    slices = [0 for i in range(arr.ndim - im_dims)]
+
+    names = None
+    axes = None
+    if "names" in kwargs:
+        names = kwargs.pop("names")
+
+    elif "axes" in kwargs:
+        axes = kwargs.pop("axes")
+
+    # Just pass in an array - no kwargs
+    for i in range(arr.ndim - im_dims):
+
+        slider_arr_passed = False
+        start, stop = None, None
+        name = f"axis{i}"
+        if name in kwargs:
+            if len(kwargs[name]) == 2:
+                start, stop = kwargs.pop(name)
+            else:
+                slider_arr_passed = True
+                slider_arr = kwargs.pop(name)
+
+        if axes is not None and axes[i] is not None:
+            # no we assume the axes[i] has one of the following forms
+            # ('mu', (0,1))
+            # ('mu', np.array)
+            # ('mu', 0, 1)
+            # (0, 1)
+            # 'mu'
+            # np.array or a list
+            a = axes[i]
+            if isinstance(a, str):
+                # axes = ['mu', ]
+                name = a
+            elif isinstance(a, tuple):
+                if len(a) == 3:
+                    # axes = [('mu', 0, 1)]
+                    name = a[0]
+                    start, stop = a[1:]
+                elif len(a) == 2:
+                    if isinstance(a[0], str):
+                        # axes = [('mu', (0,1))]
+                        # axes = [('mu', np.linspace())]
+                        name = a[0]
+                        if isinstance(a[1], tuple) or (isinstance(a[1], list) and len(a[1]) == 2):
+                            start, stop = a[1]
+                        elif isinstance(a[1], np.ndarray) or isinstance(a[1], list):
+                            slider_arr_passed = True
+                            slider_arr = a[1]
+                    elif np.isscalar(a[0]) and np.isscalar(a[1]):
+                        # axes = [(0,1)]
+                        start, stop = a
+            elif isinstance(a, list) or isinstance(np.ndarray):
+                # no name only values
+                slider_arr_passed = True
+                slider_arr = a
+        elif names is not None and names[i] is not None:
+            name = names[i]
+        name_to_dim[name] = i
+
+        if slider_arr_passed and use_ipywidgets:
+            kwargs[name] = slider_arr
+        else:
+            if slider_arr_passed:
+                warnings.warn(
+                    "Displaying mapped values for an axis is not yet supported for matplotlib sliders"
+                )
+            if start is None or stop is None or not use_ipywidgets:
+                kwargs[name] = np.arange(arr.shape[i])
+                if use_ipywidgets:
+                    slider_format_strings[name] = "{:d}"
+                else:
+                    slider_format_strings[name] = "%d"
+            else:
+                kwargs[name] = np.linspace(start, stop, arr.shape[i])
+
+    def update(change, key, label):
+        if label:
+            # continuous
+            params[key] = kwargs[key][change["new"]]
+            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
+        else:
+            # categorical
+            params[key] = change["new"]
+        if title is not None:
+            ax.set_title(title.format(**params))
+
+        if key in name_to_dim:
+            slices[name_to_dim[key]] = change["new"]
+
+        new_data = arr[tuple(slices)]
+        im.set_data(new_data)
+
+        if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
+            im.norm.autoscale(new_data)
+
+        if isinstance(vmin, Callable):
+            im.norm.vmin = vmin(**params)
+        if isinstance(vmax, Callable):
+            im.norm.vmax = vmax(**params)
+        fig.canvas.draw_idle()
+
+    if use_ipywidgets:
+        sliders, slabels, controls, players = kwargs_to_ipywidgets(
+            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
+        )
+    else:
+        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings, valstep=1)
+
+    # make it once here so we can use the dims in update
+    new_data = arr[tuple(0 for i in range(arr.ndim - im_dims))]
+    im = ax.imshow(
+        new_data,
+        cmap=cmap,
+        norm=norm,
+        aspect=aspect,
+        interpolation=interpolation,
+        alpha=alpha,
+        vmin=callable_else_value(vmin, params),
+        vmax=callable_else_value(vmax, params),
+        origin=origin,
+        extent=extent,
+        filternorm=filternorm,
+        filterrad=filterrad,
+        resample=resample,
+        url=url,
+    )
+    # this is necessary to make calls to plt.colorbar behave as expected
+    ax._sci(im)
+    if title is not None:
+        ax.set_title(title.format(**params))
+
+    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
+
+    return fig, ax, controls
