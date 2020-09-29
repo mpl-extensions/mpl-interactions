@@ -27,7 +27,6 @@ from .helpers import (
 
 # functions that are methods
 __all__ = [
-    "interactive_plot_factory",
     "interactive_plot",
     "interactive_hist",
     "interactive_scatter",
@@ -283,57 +282,6 @@ def interactive_plot(
         fig.canvas.toolbar.push_current()
 
     return controls
-
-
-@deprecated(
-    "0.6.1", alternative="interactive_plot with the ax argument", name="heck", removal="0.7.0"
-)
-def interactive_plot_factory(
-    ax,
-    f,
-    x=None,
-    xlim="stretch",
-    ylim="stretch",
-    slider_format_string=None,
-    plot_kwargs=None,
-    title=None,
-    use_ipywidgets=None,
-    play_buttons=False,
-    play_button_pos="right",
-    **kwargs,
-):
-    """
-    Use this function for maximum control over layout of the widgets.
-
-    parameters
-    ----------
-    ax : matplotlib axes
-    f : function or iterable of functions
-    use_ipywidgets : None or boolean, optional
-        If None will attempt to infer whether to use ipywidgets based on the backend. Use
-        True or False to ensure ipywidgets is or is not used.
-    play_buttons : bool or dict, optional
-        Whether to attach an ipywidgets.Play widget to any sliders that get created.
-        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
-        want to attach play buttons too.
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
-    """
-    return interactive_plot(
-        f,
-        x=x,
-        xlim=xlim,
-        ylim=ylim,
-        slider_format_string=slider_format_string,
-        plot_kwargs=plot_kwargs,
-        title=title,
-        ax=ax,
-        display=False,
-        force_ipywidgets=use_ipywidgets,
-        play_buttons=play_buttons,
-        play_button_pos=play_button_pos,
-        **kwargs,
-    )[-1].children
 
 
 def simple_hist(arr, bins="auto", density=None, weights=None):
