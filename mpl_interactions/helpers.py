@@ -34,6 +34,7 @@ __all__ = [
     "gogogo_figure",
     "gogogo_display",
     "create_mpl_controls_fig",
+    "eval_xy",
 ]
 
 
@@ -178,6 +179,43 @@ def callable_else_value(arg, params):
     if isinstance(arg, Callable):
         return arg(**params)
     return arg
+
+
+def callable_else_value_wrapper(arg, params):
+    def f(params):
+        if isinstance(arg, Callable):
+            return arg(**params)
+        return arg
+
+    return f
+
+
+def eval_xy(x_, y_, params, cache=None):
+    """
+    for when y requires x as an argument and either, neither or both
+    of x and y may be a function
+    """
+    if isinstance(x_, Callable):
+        if cache is not None:
+            if x_ in cache:
+                x = cache[x_]
+            else:
+                x = x_(**params)
+        else:
+            x = x_(**params)
+    else:
+        x = x_
+    if isinstance(y_, Callable):
+        if cache is not None:
+            if y_ in cache:
+                y = cache[y_]
+            else:
+                y = y_(**params)
+        else:
+            y = y_(x, **params)
+    else:
+        y = y
+    return x, y
 
 
 def kwarg_to_ipywidget(
