@@ -176,16 +176,19 @@ def notebook_backend():
 
 
 def callable_else_value(arg, params):
+    """
+    returns as a numpy array
+    """
     if isinstance(arg, Callable):
         return arg(**params)
-    return arg
+    return np.asanyarray(arg)
 
 
 def callable_else_value_wrapper(arg, params):
     def f(params):
         if isinstance(arg, Callable):
             return arg(**params)
-        return arg
+        return np.asanyarray(arg)
 
     return f
 
@@ -193,7 +196,12 @@ def callable_else_value_wrapper(arg, params):
 def eval_xy(x_, y_, params, cache=None):
     """
     for when y requires x as an argument and either, neither or both
-    of x and y may be a function
+    of x and y may be a function.
+
+    returns
+    -------
+    x, y
+        as numpy arrays
     """
     if isinstance(x_, Callable):
         if cache is not None:
@@ -215,7 +223,7 @@ def eval_xy(x_, y_, params, cache=None):
             y = y_(x, **params)
     else:
         y = y
-    return x, y
+    return np.asanyarray(x), np.asanyarray(y)
 
 
 def kwarg_to_ipywidget(
