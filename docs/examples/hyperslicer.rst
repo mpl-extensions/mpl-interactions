@@ -43,7 +43,8 @@ In the minimal case, you can just pass the data array. You can pass all the fami
 
 .. code-block:: python
 
-    fig1, ax1, control1 = hyperslicer(beads, vmin=0, vmax=255)
+    fig1, ax1 = plt.subplots()
+    control1 = hyperslicer(beads, vmin=0, vmax=255)
 
 .. image:: ../_static/hyperslicer1.gif
 
@@ -55,7 +56,8 @@ generalizes to higher dimensional stacks.
 
     beads4d = np.linspace(0,1,25)[:,None,None,None]*np.stack([beads for i in range(25)])
     print(beads4d.shape) # (25, 126, 512, 512)
-    fig2, ax2, controls2 = hyperslicer(beads4d, vmin=0, vmax=255)
+    fig2, ax2 = plt.subplots()
+    controls2 = hyperslicer(beads4d, vmin=0, vmax=255)
 
 .. image:: ../_static/hyperslicer2.gif
 
@@ -79,7 +81,8 @@ replace the ``axis0`` style labels used by default.
 
     wns = np.linspace(2798.6521739130435, 3064.95652173913, beads4d.shape[1])
 
-    fig3, ax3, controls3 = hyperslicer(beads4d, vmin=0, vmax=255, 
+    fig3, ax3 = plt.subplots()
+    controls3 = hyperslicer(beads4d, vmin=0, vmax=255, 
                                        axis0=(0,1), axis1=wns,
                                        names=('linear', 'wavenums')
                                       )
@@ -95,9 +98,10 @@ Instead of specifying the values for each axis and the names separately, one can
 
 .. code-block:: python
     
-    fig4, ax4, controls4 = hyperslicer(beads4d, vmin=0, vmax=255, 
-                                       axes=(('linear', (0,1)),('wavenums', wns))
-                                      )
+    fig4, ax4 = plt.subplots()
+    controls4 = hyperslicer(
+        beads4d, vmin=0, vmax=255, axes=(("linear", (0, 1)), ("wavenums", wns))
+    )
 
 Play Buttons
 ============
@@ -107,11 +111,16 @@ you might miss the ability to loop through your stacks. With ``hyperslicer`` jus
 
 .. code-block:: python
 
-    fig5, ax5, controls5 = hyperslicer(beads4d, vmin=0, vmax=255, 
-                                       axes=(('linear', (0,1)),('wavenums', wns)),
-                                       play_buttons=True, play_button_pos='left'
-                                      )
-
+    fig5, ax5 = plt.subplots()
+    controls5 = hyperslicer(
+        beads4d,
+        vmin=0,
+        vmax=255,
+        axes=(("linear", (0, 1)), ("wavenums", wns)),
+        play_buttons=True,
+        play_button_pos="left",
+    )
+    
 
 .. image:: ../_static/hyperslicer4.gif 
 
@@ -123,14 +132,17 @@ All of the below are valid calls to hyperslicer, which generally supports omitti
 
 .. code-block:: python
     
-    fig6, ax6, controls6 = hyperslicer(beads4d, vmin=0, vmax=255, 
+    fig6, ax6 = plt.subplots()
+    controls6 = hyperslicer(beads4d, vmin=0, vmax=255, 
                                        axes=(('linear', (0,1)),'wavenums')
                                       )
 
-    fig7, ax7, controls7 = hyperslicer(beads4d, vmin=0, vmax=255, 
+    fig7, ax7 = plt.subplots()
+    controls7 = hyperslicer(beads4d, vmin=0, vmax=255, 
                                        axes=(('linear', 0,1),'wavenums')
                                       )
 
-    fig8, ax8, controls8 = hyperslicer(beads4d, vmin=0, vmax=255, 
+    fig8, ax8 = plt.subplots()
+    controls8 = hyperslicer(beads4d, vmin=0, vmax=255, 
                                        axes=((0,1),'wavenums')
                                       )
