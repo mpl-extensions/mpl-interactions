@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Callable, Iterable
 
 import matplotlib.cm as cm
@@ -10,7 +11,6 @@ from matplotlib.pyplot import close, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
-import warnings
 
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
