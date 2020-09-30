@@ -68,6 +68,7 @@ setup(
             "black",
             "pandas",
             "requests",
+            "scipy",
         ],
         "dev": [
             "pre-commit",

@@ -9,7 +9,7 @@ from .helpers import (
 )
 from functools import partial
 from ipywidgets import widgets
-from collections import Iterable
+from collections.abc import Iterable
 
 
 class Controls:
@@ -35,7 +35,7 @@ class Controls:
         else:
             self.use_ipywidgets = use_ipywidgets
         self.kwargs = kwargs
-        self.slider_format_strings = create_slider_format_dict(slider_formats, self.use_ipywidgets)
+        self.slider_format_strings = create_slider_format_dict(slider_formats)
         self.controls = {}
         self.params = {}
         self.figs = defaultdict(list)  # maybe should only store weakrefs?
@@ -67,7 +67,7 @@ class Controls:
         else:
             has_play_button = play_buttons
         if slider_formats is not None:
-            slider_formats = create_slider_format_dict(slider_formats, True)
+            slider_formats = create_slider_format_dict(slider_formats)
             for k, v in slider_formats.items():
                 self.slider_format_strings[k] = v
         if self.use_ipywidgets:
@@ -87,21 +87,22 @@ class Controls:
                     self.controls[k] = control
                     self.vbox.children = list(self.vbox.children) + [control]
         else:
-            mpl_layout = create_mpl_controls_fig(kwargs)
-            self.control_figures.append(mpl_layout[0])
-            widget_y = 0.05
-            for k, v in kwargs.items():
-                self.params[k], control, cb, widget_y = kwarg_to_mpl_widget(
-                    mpl_layout[0],
-                    mpl_layout[1:],
-                    widget_y,
-                    k,
-                    v,
-                    partial(self.slider_updated, key=k),
-                    self.slider_format_strings[k],
-                )
-                if control:
-                    self.controls[k] = control
+            if len(kwargs) > 0:
+                mpl_layout = create_mpl_controls_fig(kwargs)
+                self.control_figures.append(mpl_layout[0])
+                widget_y = 0.05
+                for k, v in kwargs.items():
+                    self.params[k], control, cb, widget_y = kwarg_to_mpl_widget(
+                        mpl_layout[0],
+                        mpl_layout[1:],
+                        widget_y,
+                        k,
+                        v,
+                        partial(self.slider_updated, key=k),
+                        self.slider_format_strings[k],
+                    )
+                    if control:
+                        self.controls[k] = control
 
     def slider_updated(self, change, key, values):
         """

@@ -585,7 +585,7 @@ def hyperslicer(
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = create_slider_format_dict(slider_formats, use_ipywidgets)
+    slider_format_strings = create_slider_format_dict(slider_formats)
 
     name_to_dim = {}
     slices = [0 for i in range(arr.ndim - im_dims)]

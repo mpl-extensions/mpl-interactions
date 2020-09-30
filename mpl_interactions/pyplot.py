@@ -180,7 +180,7 @@ def interactive_plot(
     ipympl = notebook_backend()
     use_ipywidgets = ipympl or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax=ax)
-    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
+    slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
@@ -403,7 +403,7 @@ def interactive_hist(
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax=ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
+    slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
@@ -530,7 +530,7 @@ def interactive_scatter(
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
+    slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
@@ -703,7 +703,7 @@ def interactive_imshow(
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_formats = create_slider_format_dict(slider_formats, use_ipywidgets)
+    slider_formats = create_slider_format_dict(slider_formats)
 
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos

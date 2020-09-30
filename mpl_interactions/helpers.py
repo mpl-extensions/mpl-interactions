@@ -433,6 +433,8 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
     def update_text(val):
         slider.valtext.set_text(slider_format_string.format(values[val]))
 
+    # make sure the initial value also gets formatted
+    update_text(0)
     slider.on_changed(update_text)
     return slider
 
@@ -506,10 +508,17 @@ def kwarg_to_mpl_widget(
         update_fxn = None
         if isinstance(val, tuple):
             if len(val) == 2:
-                min_ = val[0]
-                max_ = val[1]
+                min_ = float(val[0])
+                max_ = float(val[1])
                 slider_ax = fig.add_axes([0.2, 0.9 - widget_y - gap_height, 0.65, slider_height])
-                slider = create_mpl_selection_slider(slider_ax, key, val, slider_format_string)
+                slider = mwidgets.Slider(slider_ax, key, min_, max_)
+
+                def update_text(val):
+                    slider.valtext.set_text(slider_format_string.format(val))
+
+                # make sure the initial value also gets formatted
+                update_text(slider.valinit)
+                slider.on_changed(update_text)
                 cb = slider.on_changed(partial(changeify, update=partial(update, values=None)))
                 widget_y += slider_height + gap_height
                 return min_, slider, cb, widget_y
@@ -532,14 +541,20 @@ def kwarg_to_mpl_widget(
             return val[0], slider, None, widget_y
 
 
-def create_slider_format_dict(slider_format_string, use_ipywidgets):
-    if isinstance(slider_format_string, str):
-        slider_format_strings = defaultdict(lambda: slider_format_string)
+def create_slider_format_dict(slider_format_string):
+    if isinstance(slider_format_string, defaultdict):
+        return slider_format_string
     elif isinstance(slider_format_string, dict) or slider_format_string is None:
         slider_format_strings = defaultdict(lambda: "{:.2f}")
         if slider_format_string is not None:
             for key, val in slider_format_string.items():
                 slider_format_strings[key] = val
+    elif isinstance(slider_format_string, str):
+
+        def f():
+            return slider_format_string
+
+        slider_format_strings = defaultdict(f)
     else:
         raise ValueError(
             f"slider_format_string must be a dict or a string but it is a {type(slider_format_string)}"
