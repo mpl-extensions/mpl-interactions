@@ -185,9 +185,9 @@ def interactive_plot(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
 
-    def update(params, indices):
+    def update(params, indices, cache):
         if x_and_y:
-            x_, y_ = eval_xy(x, y, params)
+            x_, y_ = eval_xy(x, y, params, cache)
             # broadcast so that we can always index
             if x_.ndim == 1:
                 x_ = np.broadcast_to(x_[:, None], (x_.shape[0], len(lines)))
@@ -200,9 +200,9 @@ def interactive_plot(
             # the datasets
             # I don't think it's possible to have multiple lines here
             assert len(lines) == 1
-            lines[0].set_data(*callable_else_value(y, params).T)
+            lines[0].set_data(*callable_else_value(y, params, cache).T)
         else:
-            y_ = callable_else_value(y, params)
+            y_ = callable_else_value(y, params, cache)
             if y_.ndim == 1:
                 y_ = np.broadcast_to(y_, (y_.shape[0], len(lines)))
             for i, line in enumerate(lines):
@@ -411,7 +411,8 @@ def interactive_hist(
     ax.add_collection(pc, autolim=True)
 
     # update plot
-    def update(params, indices):
+    def update(params, indices, cache):
+        # todo - use the cache
         arr = funcs[0](**params)
         new_x, new_y, new_patches = simple_hist(arr, density=density, bins=bins, weights=weights)
         stretch(ax, new_x, new_y)
@@ -536,15 +537,15 @@ def interactive_scatter(
     )
     cache = {}
 
-    def update(params, indices):
+    def update(params, indices, cache):
         if title is not None:
             ax.set_title(title.format(**params))
         x_, y_ = eval_xy(x, y, params, cache)
         scatter.set_offsets(np.column_stack([x_, y_]))
-        c_ = check_callable_xy(c, x_, y_, params)
-        s_ = check_callable_xy(s, x_, y_, params)
-        ec_ = check_callable_xy(edgecolors, x_, y_, params)
-        a_ = check_callable_alpha(alpha, params)
+        c_ = check_callable_xy(c, x_, y_, params, cache)
+        s_ = check_callable_xy(s, x_, y_, params, cache)
+        ec_ = check_callable_xy(edgecolors, x_, y_, params, cache)
+        a_ = check_callable_alpha(alpha, params, cache)
         if c_ is not None:
             try:
                 c_ = to_rgba_array(c_)
@@ -574,7 +575,7 @@ def interactive_scatter(
     if title is not None:
         ax.set_title(title.format(**params))
 
-    def check_callable_xy(arg, x, y, params):
+    def check_callable_xy(arg, x, y, params, cache):
         if isinstance(arg, Callable):
             if arg not in cache:
                 cache[arg] = arg(x, y, **params)
@@ -582,7 +583,7 @@ def interactive_scatter(
         else:
             return arg
 
-    def check_callable_alpha(alpha_, params):
+    def check_callable_alpha(alpha_, params, cache):
         if isinstance(alpha_, Callable):
             if not alpha_ in cache:
                 cache[alpha_] = alpha_(**params)
@@ -590,11 +591,11 @@ def interactive_scatter(
         else:
             return alpha_
 
-    x_, y_ = eval_xy(x, y, params)
-    c_ = check_callable_xy(c, x_, y_, params)
-    s_ = check_callable_xy(s, x_, y_, params)
-    ec_ = check_callable_xy(edgecolors, x_, y_, params)
-    a_ = check_callable_alpha(alpha, params)
+    x_, y_ = eval_xy(x, y, params, {})
+    c_ = check_callable_xy(c, x_, y_, params, {})
+    s_ = check_callable_xy(s, x_, y_, params, {})
+    ec_ = check_callable_xy(edgecolors, x_, y_, params, {})
+    a_ = check_callable_alpha(alpha, params, {})
     scatter = ax.scatter(
         x_,
         y_,
@@ -709,15 +710,18 @@ def interactive_imshow(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
 
-    def update(params, indices):
+    def update(params, indices, cache):
         if title is not None:
             ax.set_title(title.format(**params))
 
         if isinstance(X, Callable):
-            new_data = np.asarray(X(**params))
+            # check this here to avoid setting the data if we don't need to
+            # use the callable_else_value fxn to make use of easy caching
+            new_data = callable_else_value(X, params, cache)
             im.set_data(new_data)
             if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
                 im.norm.autoscale(new_data)
+        # caching for these?
         if isinstance(vmin, Callable):
             im.norm.vmin = vmin(**params)
         if isinstance(vmax, Callable):
@@ -726,7 +730,7 @@ def interactive_imshow(
     controls.register_function(update, fig, params.keys())
 
     # make it once here so we can use the dims in update
-    new_data = callable_else_value(X, {k: controls.params[k] for k in kwargs})
+    new_data = callable_else_value(X, params)
     im = ax.imshow(
         new_data,
         cmap=cmap,

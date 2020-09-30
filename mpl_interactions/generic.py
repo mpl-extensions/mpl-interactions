@@ -669,7 +669,7 @@ def hyperslicer(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
 
-    def update(params, indices):
+    def update(params, indices, cache):
         if title is not None:
             ax.set_title(title.format(**params))
 

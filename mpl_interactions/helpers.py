@@ -175,19 +175,29 @@ def notebook_backend():
     return False
 
 
-def callable_else_value(arg, params):
+def callable_else_value(arg, params, cache=None):
     """
     returns as a numpy array
     """
     if isinstance(arg, Callable):
-        return arg(**params)
+        if cache:
+            if not arg in cache:
+                cache[arg] = np.asanyarray(arg(**params))
+            return cache[arg]
+        else:
+            return np.asanyarray(arg(**params))
     return np.asanyarray(arg)
 
 
-def callable_else_value_wrapper(arg, params):
+def callable_else_value_wrapper(arg, params, cache=None):
     def f(params):
         if isinstance(arg, Callable):
-            return arg(**params)
+            if cache:
+                if not arg in cache:
+                    cache[arg] = np.asanyarray(arg(**params))
+                return cache[arg]
+            else:
+                return np.asanyarray(arg(**params))
         return np.asanyarray(arg)
 
     return f

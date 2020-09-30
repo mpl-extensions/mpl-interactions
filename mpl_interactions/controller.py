@@ -19,17 +19,12 @@ class Controls:
         play_buttons=False,
         play_button_pos="right",
         use_ipywidgets=None,
-        out=None,
         **kwargs
     ):
         # it might make sense to also accept kwargs as a straight up arg
         # to allow for passing the dictionary, but then it would need a different name
         # and we'd have to combine dicitonarys whihc looks like a hassle
 
-        if out is not None:
-            self.out = out
-        else:
-            self.out = widgets.Output()
         if use_ipywidgets is None:
             self.use_ipywidgets = notebook_backend()
         else:
@@ -108,21 +103,24 @@ class Controls:
         """
         gotta also give the indices in order to support hyperslicer without horrifying contortions
         """
-        with self.out:
-            if values is None:
-                self.params[key] = change["new"]
-            else:
-                self.params[key] = values[change["new"]]
-            self.indices[key] = change["new"]
-            for f, params in self._update_funcs[key]:
-                ps = {}
-                idxs = {}
-                for k in params:
-                    ps[k] = self.params[k]
-                    idxs[k] = self.indices[k]
-                f(params=ps, indices=idxs)
-            for f in self.figs[key]:
-                f.canvas.draw_idle()
+        if values is None:
+            self.params[key] = change["new"]
+        else:
+            self.params[key] = values[change["new"]]
+        self.indices[key] = change["new"]
+        if self.use_cache:
+            cache = {}
+        else:
+            cache = None
+        for f, params in self._update_funcs[key]:
+            ps = {}
+            idxs = {}
+            for k in params:
+                ps[k] = self.params[k]
+                idxs[k] = self.indices[k]
+            f(params=ps, indices=idxs, cache=cache)
+        for f in self.figs[key]:
+            f.canvas.draw_idle()
 
     def register_function(self, f, fig, params=None):
         """
