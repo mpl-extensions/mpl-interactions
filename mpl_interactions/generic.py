@@ -566,9 +566,7 @@ def hyperslicer(
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
     """
 
     arr = np.asarray(np.squeeze(arr))
@@ -711,4 +709,4 @@ def hyperslicer(
     if title is not None:
         ax.set_title(title.format(**params))
 
-    return fig, ax, controls
+    return controls

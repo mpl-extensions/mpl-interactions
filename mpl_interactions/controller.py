@@ -201,6 +201,7 @@ def gogogo_controls(
         else:
             controls.add_kwargs(kwargs, slider_formats, play_buttons, play_button_pos)
             params = controls.params
+        return controls, params
     else:
         controls = Controls(
             slider_formats=slider_formats,
@@ -210,8 +211,5 @@ def gogogo_controls(
         )
         params = controls.params
         if display_controls:
-            if notebook_backend():
-                display(controls)
-            else:
-                pass
-    return controls, params
+            controls.display()
+        return controls, params

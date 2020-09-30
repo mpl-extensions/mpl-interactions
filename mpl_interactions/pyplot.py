@@ -204,7 +204,7 @@ def interactive_plot(
         else:
             y_ = callable_else_value(y, params, cache)
             if y_.ndim == 1:
-                y_ = np.broadcast_to(y_, (y_.shape[0], len(lines)))
+                y_ = np.broadcast_to(y_[:, None], (y_.shape[0], len(lines)))
             for i, line in enumerate(lines):
                 line.set_ydata(y_[:, i])
 
@@ -523,7 +523,6 @@ def interactive_scatter(
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
     )
-    cache = {}
 
     def update(params, indices, cache):
         if title is not None:
@@ -556,7 +555,6 @@ def interactive_scatter(
         update_datalim_from_bbox(
             ax, scatter.get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
         )
-        cache.clear()
         ax.autoscale_view()
 
     controls.register_function(update, fig, params.keys())
@@ -599,7 +597,6 @@ def interactive_scatter(
     if title is not None:
         ax.set_title(title.format(**params))
 
-    cache.clear()
     return controls
 
 
@@ -685,9 +682,7 @@ def interactive_imshow(
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
     """
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
