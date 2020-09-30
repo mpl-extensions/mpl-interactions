@@ -153,6 +153,22 @@ class Controls:
             key = []
         return self, key
 
+    def display(self):
+        """
+        Display the display the ipywidgets controls or show the control figures
+        """
+        if self.use_ipywidgets:
+            ipy_display(self.vbox)
+        else:
+            for fig in self.control_figures:
+                fig.show()
+
+    def show(self):
+        """
+        Show the control figures or display the ipywidgets controls
+        """
+        self.display()
+
     def _ipython_display_(self):
         ipy_display(self.vbox)
 
