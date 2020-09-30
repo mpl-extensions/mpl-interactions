@@ -16,7 +16,6 @@ will use the built-in Matplotlib widgets.
    :nosignatures:
 
    ~mpl_interactions.interactive_plot
-   ~mpl_interactions.interactive_plot_factory
    ~mpl_interactions.interactive_hist
    ~mpl_interactions.interactive_scatter
    ~mpl_interactions.interactive_imshow

@@ -38,7 +38,7 @@ If you want to use a non-ipympl backend in a Jupyter Notebook but still want ``i
 
 This will result in sliders in the notebook, but the plot will be in a ``qt`` window:
 
-.. image:: _static/force-ipywidgets.png
+.. image:: _static/images/force-ipywidgets.png
 
 
 * You can also explicitly set whether to use Matplotlib sliders or not with the ``use_ipywidgets`` 
@@ -61,4 +61,4 @@ to use ipywidgets or not. By setting the argument to ``False`` then you will be 
     slider = Slider(axfreq,label='freq', valmin=.05, valmax = 10)
     controls = interactive_plot_factory(ax,f,x=x,freq=slider,use_ipywidgets=False)
 
-.. image:: _static/mpl-slider-in-notebook.gif
+.. image:: _static/images/mpl-slider-in-notebook.gif

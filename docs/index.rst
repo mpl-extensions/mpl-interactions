@@ -33,17 +33,24 @@ To control a plot with a slider:
 
 .. code-block:: python
 
-   from mpl_interactions import interactive_plot
-   import numpy as np
+   import mpl_interactions.ipyplot as iplt
    import matplotlib.pyplot as plt
-   x = np.linspace(0,np.pi,100)
-   tau = np.linspace(.5, 10, 100)
+   import numpy as np
+
+   x = np.linspace(0, np.pi, 100)
+   tau = np.linspace(0.5, 10, 100)
+
    def f1(x, tau, beta):
-       return np.sin(x*tau)*x*beta
+      return np.sin(x * tau) * x * beta
    def f2(x, tau, beta):
-       return np.sin(x*beta)*x*tau
-   fig, ax, sliders = interactive_plot([f1, f2], x=x, tau = tau, beta = (1, 10, 100))
+      return np.sin(x * beta) * x * tau
+
+
+   fig, ax = plt.subplots()
+   controls = iplt.plot(x, f1, tau=tau, beta=(1, 10, 100), label="f1")
+   iplt.plot(x, f2, controls=controls, label="f2")
    _ = plt.legend()
+   plt.show()
 
 
 **If you are in a Jupyter Notebook the output will look like this:**
@@ -81,12 +88,14 @@ Further discussion of the behavior as a function of backend can be found on the 
    :maxdepth: 1
    :caption: Tutorials
    
-   examples/pyplot-notebook.rst
-   examples/scatter-plots.rst
+   examples/plot.ipynb
+   examples/scatter.ipynb
+   examples/imshow.ipynb
    examples/mpl-sliders.rst
-   examples/image-segmentation.rst
-   examples/heatmap-slicer.rst
-   examples/hyperslicer.rst 
+   examples/image-segmentation.ipynb
+   examples/heatmap-slicer.ipynb
+   examples/hyperslicer.ipynb
+   examples/Lotka-Volterra.ipynb
    examples/tidbits.rst
 
 Indices and Tables

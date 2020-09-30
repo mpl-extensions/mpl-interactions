@@ -52,7 +52,7 @@ setup(
             "numpydoc",
             "recommonmark",
             "sphinx_rtd_theme",
-            "nbsphinx>=0.2.13,<0.4.0",
+            "nbsphinx",
             "jupyter_sphinx",
             "pytest_check_links",
             "pypandoc",
