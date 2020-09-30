@@ -314,7 +314,7 @@ def stretch(ax, xlims, ylims):
 
 
 def interactive_hist(
-    f,
+    arr,
     density=False,
     bins="auto",
     weights=None,
@@ -336,8 +336,8 @@ def interactive_hist(
 
     parameters
     ----------
-    f : function
-        A function that will return a 1d array of which to take the histogram
+    arr : arraylike or function
+        The array or the funciton that returns an array that is to be histogrammed
     density : bool, optional
         whether to plot as a probability density. Passed to np.histogram
     bins : int or sequence of scalars or str, optional
@@ -390,13 +390,6 @@ def interactive_hist(
         interactive_hist(f, loc=(-5, 5, 500), scale=(1, 10, 100))
     """
 
-    funcs = np.atleast_1d(f)
-    # supporting more would require more thought
-    if len(funcs) != 1:
-        raise ValueError(
-            f"Currently only a single function is supported. You passed in {len(funcs)} functions"
-        )
-
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax=ax)
     use_ipywidgets = ipympl or force_ipywidgets
@@ -407,11 +400,9 @@ def interactive_hist(
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
-    # update plot
     def update(params, indices, cache):
-        # todo - use the cache
-        arr = funcs[0](**params)
-        new_x, new_y, new_patches = simple_hist(arr, density=density, bins=bins, weights=weights)
+        arr_ = callable_else_value(arr, params, cache)
+        new_x, new_y, new_patches = simple_hist(arr_, density=density, bins=bins, weights=weights)
         stretch(ax, new_x, new_y)
         pc.set_paths(new_patches)
         ax.autoscale_view()
@@ -419,7 +410,7 @@ def interactive_hist(
     controls.register_function(update, fig, params.keys())
 
     new_x, new_y, new_patches = simple_hist(
-        funcs[0](**params), density=density, bins=bins, weights=weights
+        callable_else_value(arr, params), density=density, bins=bins, weights=weights
     )
     pc.set_paths(new_patches)
     ax.set_xlim(new_x)
