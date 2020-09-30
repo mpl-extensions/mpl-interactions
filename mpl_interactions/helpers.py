@@ -3,10 +3,14 @@ from collections.abc import Callable, Iterable
 from functools import partial
 from numbers import Number
 
-import ipywidgets as widgets
 import matplotlib.widgets as mwidgets
 import numpy as np
-from IPython.display import display as ipy_display
+
+try:
+    import ipywidgets as widgets
+    from IPython.display import display as ipy_display
+except ImportError:
+    pass
 from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
 from matplotlib.pyplot import axes, gca, gcf, figure
@@ -401,7 +405,7 @@ def create_mpl_controls_fig(kwargs):
                 n_opts += new_opts
         elif (
             not isinstance(val, mwidgets.AxesWidget)
-            and not isinstance(val, widgets.fixed)
+            and not "ipywidgets" in str(val.__class__)  # do this to avoid depending on ipywidgets
             and isinstance(val, Iterable)
             and len(val) > 1
         ):

@@ -20,9 +20,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[
-        "ipywidgets>=7.5.0,<8",
         "matplotlib",
-        "ipympl>=0.5.7",
         "packaging",
     ],
     author="Ian Hunt-Isaak",
@@ -46,6 +44,10 @@ setup(
     ],
     url="https://github.com/ianhi/mpl-interactions",
     extras_require={
+        "jupyter": [
+            "ipywidgets>=7.5.0,<8",
+            "ipympl>=0.5.8",
+        ],
         "doc": [
             "sphinx>=1.5",
             "mock",

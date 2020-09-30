@@ -18,6 +18,9 @@ Installation
 
 To install, simply run: ``pip install mpl_interactions``
 
+To also install version of ``ipympl`` and ``ipywidgets`` that are known to work install the optional
+jupyter dependencies by running ``pip install mpl_interactions[jupyter]``
+
 Further instructions for installation from JupyterLab can be found on the :doc:`Installation` page. 
 
 

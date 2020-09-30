@@ -1,4 +1,11 @@
-from IPython.display import display as ipy_display
+try:
+    from ipywidgets import widgets
+    from IPython.display import display as ipy_display
+
+    _not_ipython = False
+except ImportError:
+    _not_ipython = True
+    pass
 from collections import defaultdict
 from .helpers import (
     create_slider_format_dict,
@@ -8,7 +15,6 @@ from .helpers import (
     notebook_backend,
 )
 from functools import partial
-from ipywidgets import widgets
 from collections.abc import Iterable
 
 
@@ -19,6 +25,7 @@ class Controls:
         play_buttons=False,
         play_button_pos="right",
         use_ipywidgets=None,
+        use_cache=True,
         **kwargs
     ):
         # it might make sense to also accept kwargs as a straight up arg
@@ -26,9 +33,20 @@ class Controls:
         # and we'd have to combine dicitonarys whihc looks like a hassle
 
         if use_ipywidgets is None:
+            # if this ends up being true we are garunteed
             self.use_ipywidgets = notebook_backend()
         else:
             self.use_ipywidgets = use_ipywidgets
+        if self.use_ipywidgets:
+            if _not_ipython:
+                raise ValueError(
+                    "You need to be in an Environment with IPython.display available to use ipywidgets"
+                )
+            self.vbox = widgets.VBox([])
+        else:
+            self.control_figures = []  # storage for figures made of matplotlib sliders
+
+        self.use_cache = use_cache
         self.kwargs = kwargs
         self.slider_format_strings = create_slider_format_dict(slider_formats)
         self.controls = {}
@@ -36,9 +54,6 @@ class Controls:
         self.figs = defaultdict(list)  # maybe should only store weakrefs?
         self.indices = defaultdict(lambda: 0)
         self._update_funcs = defaultdict(list)
-        self.controller_list = []
-        self.vbox = widgets.VBox([])
-        self.control_figures = []  # storage for figures made of matplotlib sliders
         self.add_kwargs(kwargs, slider_formats, play_buttons, play_button_pos)
 
     def add_kwargs(self, kwargs, slider_formats=None, play_buttons=False, play_button_pos="right"):

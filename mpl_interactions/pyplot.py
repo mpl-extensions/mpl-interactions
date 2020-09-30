@@ -320,7 +320,6 @@ def interactive_hist(
     weights=None,
     ax=None,
     slider_formats=None,
-    display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
@@ -353,8 +352,6 @@ def interactive_hist(
         format for all values. A dictionary will allow assigning different formats to different sliders.
         note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
-    display : boolean
-        If True then the output and controls will be automatically displayed
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets

@@ -45,7 +45,7 @@ jobs:
         run: |
           pip install wheel
           pip install matplotlib==${{ matrix.matplotlib-version}}.*
-          pip install .[test]
+          pip install ".[jupyter, test]"
 
       - name: Check Formatting
         run: |
