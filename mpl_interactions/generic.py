@@ -625,46 +625,36 @@ def hyperslicer(
                 if len(a) == 3:
                     # axes = [('mu', 0, 1)]
                     name = a[0]
-                    start, stop = a[1:]
+                    kwargs[name] = (*a[1:], arr.shape[i])
                 elif len(a) == 2:
                     if isinstance(a[0], str):
                         # axes = [('mu', (0,1))]
                         # axes = [('mu', np.linspace())]
+                        # axes = [('mu', {('type1', 'type2', 'type3')}]
                         name = a[0]
                         if isinstance(a[1], tuple) or (isinstance(a[1], list) and len(a[1]) == 2):
-                            start, stop = a[1]
+                            kwargs[name] = (*a[1], arr.shape[i])
                         elif isinstance(a[1], np.ndarray) or isinstance(a[1], list):
-                            slider_arr_passed = True
-                            slider_arr = a[1]
+                            kwargs[name] = a[1]
+                        elif isinstance(a[1], set):
+                            kwargs[name] = a[1]
                     elif np.isscalar(a[0]) and np.isscalar(a[1]):
                         # axes = [(0,1)]
-                        start, stop = a
+                        kwargs[name] = (a[0], a[1], arr.shape[i])
+                        slider_format_strings[name] = "{:.0f}"
             elif isinstance(a, list) or isinstance(np.ndarray):
                 # no name only values
-                slider_arr_passed = True
-                slider_arr = a
+                kwargs[name] = a
         elif names is not None and names[i] is not None:
             name = names[i]
         name_to_dim[name] = i
 
-        if slider_arr_passed and use_ipywidgets:
-            kwargs[name] = slider_arr
-        else:
-            if slider_arr_passed:
-                warnings.warn(
-                    "Displaying mapped values for an axis is not yet supported for matplotlib sliders"
-                )
-            if start is None or stop is None or not use_ipywidgets:
-                kwargs[name] = np.arange(arr.shape[i])
-                if use_ipywidgets:
-                    slider_format_strings[name] = "{:d}"
-                else:
-                    slider_format_strings[name] = "%d"
-            else:
-                kwargs[name] = np.linspace(start, stop, arr.shape[i])
+        if not name in kwargs:
+            slider_format_strings[name] = "{:.0f}"
+            kwargs[name] = np.arange(arr.shape[i])
 
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+        kwargs, controls, display_controls, slider_format_strings, play_buttons, play_button_pos
     )
 
     def update(params, indices, cache):
