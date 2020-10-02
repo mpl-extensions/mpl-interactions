@@ -8,7 +8,7 @@
 
 mpl_interactions' library provides helpful ways to interact with [Matplotlib](https://matplotlib.org/) plots. A summary of key components can be found below. Fuller narrative, further examples, and more information can be found on [ReadtheDocs](https://mpl-interactions.readthedocs.io/en/latest/#).
 
-<img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/short-interactive.gif width=45%>  <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/images/heatmap_slicer.gif width=45%>
+<img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/_static/images/short-interactive.gif width=45%>  <img src=https://raw.githubusercontent.com/ianhi/mpl-interactions/master/docs/_static/images/heatmap_slicer.gif width=45%>
 
 There are three submodules:
 
