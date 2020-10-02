@@ -30,26 +30,26 @@ Boolean: All get a button
 
     N = 50
     x = np.random.rand(N)
+
+
     def f_y(x, tau, beta):
-        return np.sin(x*tau)**2 + np.random.randn(N)*.01*beta
-    fig, ax, controls = interactive_scatter(x, f_y,
-                                            tau = (1, 2*np.pi, 100),
-                                            beta = (0, 2),
-                                            play_buttons = True, 
-                                            display = False) 
-    display(controls)
+        return np.sin(x * tau) ** 2 + np.random.randn(N) * 0.01 * beta
+
+
+    fig, ax = plt.subplots()
+    controls = interactive_scatter(
+        x, f_y, tau=(1, 2 * np.pi, 100), beta=(0, 2), play_buttons=True, display=False
+    )
 
 List: Choose by name
 ^^^^^^^^^^^^^^^^^^^^
 
 .. jupyter-execute::
 
-    fig, ax, controls = interactive_scatter(x, f_y,
-                                            tau = (1, 2*np.pi, 100),
-                                            beta = (0, 2),
-                                            play_buttons = ['tau'],
-                                            display = False) 
-    display(controls)
+    fig, ax = plt.subplots()
+    controls = interactive_scatter(
+        x, f_y, tau=(1, 2 * np.pi, 100), beta=(0, 2), play_buttons=["tau"], display=False
+    )
 
 defaultdict: Specify by name and choose default
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -60,18 +60,22 @@ you should use a `defaultdict``
 .. jupyter-execute::
 
     from collections import defaultdict
+
     def f(x, **kwargs):
         return x
     play_buttons = defaultdict(lambda: True)
-    play_buttons['tau'] = False
-    fig, ax, controls = interactive_scatter(x, f,
-                                            tau = (1, 2*np.pi, 100),
-                                            beta = (0, 2),
-                                            zeta = (0,1),
-                                            psi = (0,1),
-                                            play_buttons = play_buttons,
-                                            display = False) 
-    display(controls)
+    play_buttons["tau"] = False
+    fig, ax = plt.subplots()
+    controls = interactive_scatter(
+        x,
+        f,
+        tau=(1, 2 * np.pi, 100),
+        beta=(0, 2),
+        zeta=(0, 1),
+        psi=(0, 1),
+        play_buttons=play_buttons,
+        display=False,
+    )
 
 Choosing Play Button Position
 -----------------------------
@@ -86,16 +90,21 @@ and suggest how to improve this)
 .. jupyter-execute::
 
     from collections import defaultdict
+
     def f(x, **kwargs):
         return x
+
     play_buttons = defaultdict(lambda: True)
-    play_buttons['tau'] = False
-    fig, ax, controls = interactive_scatter(x, f,
-                                            tau = (1, 2*np.pi, 100),
-                                            beta = (0, 2),
-                                            zeta = (0,1),
-                                            psi = (0,1),
-                                            play_buttons = play_buttons,
-                                            play_button_pos = 'left',
-                                            display = False) 
-    display(controls)
+    play_buttons["tau"] = False
+    fig, ax = plt.subplots()
+    controls = interactive_scatter(
+        x,
+        f,
+        tau=(1, 2 * np.pi, 100),
+        beta=(0, 2),
+        zeta=(0, 1),
+        psi=(0, 1),
+        play_buttons=play_buttons,
+        play_button_pos="left",
+        display=False,
+    )

@@ -15,7 +15,7 @@ All development for this library happens on Github at `mpl_interactions <https:/
    
    git clone <your fork>
    cd mpl-interactions
-   pip install -e ".[dev, doc, test]"
+   pip install -e ".[dev, doc, test, jupyter]"
    pre-commit install
 
 .. code-block:: bash
@@ -58,7 +58,7 @@ Following changes to the source files, you can view recent adjustments by buildi
 .. code-block:: bash
 
     cd mpl-interactions
-    pip install -e ".[doc]"
+    pip install -e ".[doc, jupyter]"
 
 2. Run the following commands:
 

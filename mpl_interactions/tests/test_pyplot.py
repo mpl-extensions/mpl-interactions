@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 from matplotlib import __version__ as mpl_version
 from packaging import version
+from mpl_interactions.utils import figure
 
 from mpl_interactions.pyplot import interactive_hist, interactive_plot
 
@@ -17,9 +18,9 @@ def f_hist(loc, scale):
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_hist_plot():
-    fig, ax, controls = interactive_hist(
-        f_hist, density=True, figsize=2, loc=(5.5, 100), scale=(10, 15), display=False
-    )
+    fig = figure(2)
+    ax = fig.gca()
+    controls = interactive_hist(f_hist, density=True, loc=(5.5, 100), scale=(10, 15))
     fig.tight_layout()
     return fig
 
@@ -28,8 +29,11 @@ def test_hist_plot():
 def test_hist_controls():
     if not mpl_gr_32:
         pytest.skip("wonky font differences")
-    fig, ax, controls = interactive_hist(f_hist, density=True, loc=(5.5, 100), scale=(10, 15))
-    return controls[0]
+    fig, ax = plt.subplots()
+    controls = interactive_hist(
+        f_hist, density=True, loc=(5.5, 100), scale=(10, 15), slider_formats="{:.1f}"
+    )
+    return controls.control_figures[0]
 
 
 def f1(x, tau, beta):
@@ -61,7 +65,7 @@ def test_mixed_types():
     # can't test ipywidgets yet
     # no mpl widgets for booleans
     # f = widgets.Checkbox(value=True, description='A checkbox!!')
-    return interactive_plot(foo, x=x, a=a, b=b, d=d, e=e, display=False)[-1][0]
+    return interactive_plot(x, foo, a=a, b=b, d=d, e=e, display=False).control_figures[0]
 
 
 def f1(x, tau, beta):
@@ -79,20 +83,30 @@ beta = (1, 2)
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_multiple_functions():
-    fig, ax, sliders = interactive_plot([f1, f2], x=x, tau=tau, beta=beta, display=False)
+    fig, ax = plt.subplots()
+    controls = interactive_plot(x, f1, tau=tau, beta=beta, label="f1")
+    interactive_plot(x, f2, controls=controls, label="f2")
     _ = plt.legend()
     return fig
 
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_styling():
-    fig, ax, controls = interactive_plot(
-        [f1, f2],
-        x=x,
+    fig, ax = plt.subplots()
+    controls = interactive_plot(
+        x,
+        f1,
         beta=beta,
         tau=tau,
-        plot_kwargs=[{}, {"label": "custom label!", "linestyle": "--"}],
         title="the value of tau is: {tau:.2f}",
+        label="f1",
+    )
+    interactive_plot(
+        x,
+        f2,
+        controls=controls,
+        label="custom label!",
+        linestyle="--",
     )
     plt.legend()
     return fig

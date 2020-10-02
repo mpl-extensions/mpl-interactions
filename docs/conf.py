@@ -20,6 +20,10 @@ import sphinx_rtd_theme
 import mpl_interactions as mpl_inter
 
 sys.path.insert(0, os.path.abspath("../mpl_interactions"))
+sys.path.insert(0, os.path.abspath("."))
+from gifmaker import gogogo_all
+
+gogogo_all("../examples", "examples/")
 
 release = mpl_inter.__version__
 
@@ -44,9 +48,12 @@ extensions = [
     "sphinx.ext.napoleon",
     "numpydoc",
     "jupyter_sphinx",
+    "nbsphinx",
     "sphinx_copybutton",
 ]
 
+nbsphinx_execute = "never"
+# nbsphinx_allow_errors = True
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True

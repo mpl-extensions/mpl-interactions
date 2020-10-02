@@ -7,6 +7,9 @@ User install
 To install simply run:
 ``pip install mpl_interactions``
 
+The above only has Matplotlib as a dependency. If you plan on using ``mpl_interactions`` in a Jupyter Notebook or JupyterLab then you should
+install with ``pip install mpl_interactions[jupyter]``
+
 Optional JupyterLab setup
 -------------------------
 

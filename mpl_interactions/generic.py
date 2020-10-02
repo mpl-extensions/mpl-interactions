@@ -7,13 +7,14 @@ from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
 from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
-from matplotlib.pyplot import close, subplots
+from matplotlib.pyplot import close, subplots, sci
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 from packaging import version
 
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
+from .controller import gogogo_controls
 
 # functions that are methods
 __all__ = [
@@ -502,14 +503,14 @@ def hyperslicer(
     resample=None,
     url=None,
     ax=None,
-    slider_format_string=None,
+    slider_formats=None,
     title=None,
-    figsize=None,
-    display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
     is_color_image=False,
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
 
@@ -525,36 +526,27 @@ def hyperslicer(
         scalar data to colors. This parameter is ignored for RGB(A) data.
         forwarded to matplotlib
     norm: `~matplotlib.colors.Normalize`, optional
-           The `.Normalize` instance used to scale scalar data to the [0, 1]
-           range before mapping to colors using *cmap*. By default, a linear
-           scaling mapping the lowest value to 0 and the highest to 1 is used.
-           This parameter is ignored for RGB(A) data.
-           forwarded to matplotlib
+        The `.Normalize` instance used to scale scalar data to the [0, 1]
+        range before mapping to colors using *cmap*. By default, a linear
+        scaling mapping the lowest value to 0 and the highest to 1 is used.
+        This parameter is ignored for RGB(A) data.
+        forwarded to matplotlib
     autoscale_cmap : bool
-           If True rescale the colormap for every function update. Will not update
-           if vmin and vmax are provided or if the returned image is RGB(A) like.
-           forwarded to matplotlib
+        If True rescale the colormap for every function update. Will not update
+        if vmin and vmax are provided or if the returned image is RGB(A) like.
+        forwarded to matplotlib
     aspect : {'equal', 'auto'} or float
-           forwarded to matplotlib
-           interpolation : str
-           forwarded to matplotlib
+        forwarded to matplotlib
+        interpolation : str
+        forwarded to matplotlib
     ax : matplotlib axis, optional
-           if None a new figure and axis will be created
-    slider_format_string : None, string, or dict
-           If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
-           For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
-           format for all values. A dictionary will allow assigning different formats to different sliders.
-           note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
-           object for matplotlib slider values.
-     title : None or string
-         If a string then you can have it update automatically using string formatting of the names
-         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-     figsize : tuple or scalar
-         If tuple it will be used as the matplotlib figsize. If a number
-         then it will be used to scale the current rcParams figsize
-     display : boolean
-         If True then the output and controls will be automatically displayed
-     force_ipywidgets : boolean
+        if None a new figure and axis will be created
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses the new {} style formatting
+    title : None or string
+        If a string then you can have it update automatically using string formatting of the names
+        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
+    force_ipywidgets : boolean
          If True ipywidgets will always be used, even if not using the ipympl backend.
          If False the function will try to detect if it is ok to use ipywidgets
          If ipywidgets are not used the function will fall back on matplotlib widgets
@@ -566,12 +558,15 @@ def hyperslicer(
         left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
     is_color_image : boolean
         If True, will treat the last 3 dimensions as comprising a color images and will only set up sliders for the first arr.ndim - 3 dimensions.
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
     """
 
     arr = np.asarray(np.squeeze(arr))
@@ -585,11 +580,10 @@ def hyperslicer(
     else:
         im_dims = 2
 
-    params = {}
     ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize, ax)
+    fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_format_strings = create_slider_format_dict(slider_formats)
 
     name_to_dim = {}
     slices = [0 for i in range(arr.ndim - im_dims)]
@@ -669,19 +663,16 @@ def hyperslicer(
             else:
                 kwargs[name] = np.linspace(start, stop, arr.shape[i])
 
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
+
+    def update(params, indices, cache):
         if title is not None:
             ax.set_title(title.format(**params))
 
-        if key in name_to_dim:
-            slices[name_to_dim[key]] = change["new"]
+        for k, v in indices.items():
+            slices[name_to_dim[k]] = v
 
         new_data = arr[tuple(slices)]
         im.set_data(new_data)
@@ -693,15 +684,8 @@ def hyperslicer(
             im.norm.vmin = vmin(**params)
         if isinstance(vmax, Callable):
             im.norm.vmax = vmax(**params)
-        fig.canvas.draw_idle()
 
-    if use_ipywidgets:
-        sliders, slabels, controls, players = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings, valstep=1)
-
+    controls.register_function(update, fig, params.keys())
     # make it once here so we can use the dims in update
     new_data = arr[tuple(0 for i in range(arr.ndim - im_dims))]
     im = ax.imshow(
@@ -721,10 +705,8 @@ def hyperslicer(
         url=url,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
-    ax._sci(im)
+    sci(im)
     if title is not None:
         ax.set_title(title.format(**params))
 
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-
-    return fig, ax, controls
+    return controls

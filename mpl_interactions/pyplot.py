@@ -7,23 +7,26 @@ from matplotlib.cbook.deprecation import deprecated
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
-from matplotlib.pyplot import sca
+from matplotlib.pyplot import sca, sci
+
+from .controller import Controls, gogogo_controls
 
 from .helpers import (
     broadcast_many,
     callable_else_value,
+    callable_else_value_wrapper,
+    eval_xy,
     create_slider_format_dict,
     gogogo_display,
     gogogo_figure,
-    kwargs_to_ipywidgets,
-    kwargs_to_mpl_widgets,
+    kwarg_to_ipywidget,
+    kwarg_to_mpl_widget,
     notebook_backend,
     update_datalim_from_bbox,
 )
 
 # functions that are methods
 __all__ = [
-    "interactive_plot_factory",
     "interactive_plot",
     "interactive_hist",
     "interactive_scatter",
@@ -31,82 +34,40 @@ __all__ = [
 ]
 
 
-@deprecated("0.6.1", alternative="interactive_plot with the ax argument", name="", removal="0.8.0")
-def interactive_plot_factory(
-    ax,
-    f,
-    x=None,
-    xlim="stretch",
-    ylim="stretch",
-    slider_format_string=None,
-    plot_kwargs=None,
-    title=None,
-    use_ipywidgets=None,
-    play_buttons=False,
-    play_button_pos="right",
-    **kwargs,
-):
-    """
-    Use this function for maximum control over layout of the widgets.
-
-    parameters
-    ----------
-    ax : matplotlib axes
-    f : function or iterable of functions
-    use_ipywidgets : None or boolean, optional
-        If None will attempt to infer whether to use ipywidgets based on the backend. Use
-        True or False to ensure ipywidgets is or is not used.
-    play_buttons : bool or dict, optional
-        Whether to attach an ipywidgets.Play widget to any sliders that get created.
-        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
-        want to attach play buttons too.
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
-    """
-    return interactive_plot(
-        f,
-        x=x,
-        xlim=xlim,
-        ylim=ylim,
-        slider_format_string=slider_format_string,
-        plot_kwargs=plot_kwargs,
-        title=title,
-        ax=ax,
-        display=False,
-        force_ipywidgets=use_ipywidgets,
-        play_buttons=play_buttons,
-        play_button_pos=play_button_pos,
-        **kwargs,
-    )[-1].children
-
-
 def interactive_plot(
-    f,
-    x=None,
+    *args,
     xlim="stretch",
     ylim="stretch",
-    slider_format_string=None,
-    plot_kwargs=None,
+    slider_formats=None,
     title=None,
-    figsize=None,
+    parametric=False,
+    multiline=False,
     ax=None,
-    display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
     Control a plot using widgets
 
+    interactive_plot([x], y, [fmt])
+
+    where x/y is are either arraylike or a function that returns arrays. Any kwargs accepted by
+    matplotlib.pyplot.plot will be passed through, other kwargs will be intrepreted as controls
+
     parameters
     ----------
-    f : function or list(functions)
-        The function(s) to plot. Each function should return either the y values, or
-        a list of both the x and y arrays to plot [x, y]
-    x : arraylike or None
-        x values a which to evaluate the function. If None the function(s) f should
-        return a list of [x, y]
+    x, y : array-like or scalar or function
+        The horizontal / vertical coordinates of the data points.
+        *x* values are optional and default to ``range(len(y))``. If both *x* and *y* are
+        provided and *y* is a function then it will be called as ``y(x, **params)``. If
+        *x* is a function it will be called as ``x(**params)``
+    fmt : str, optional
+        A format string, e.g. 'ro' for red circles. See matplotlib.pyplot.plot
+        for full documentation.
     xlim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_xlim. Other options are:
         'auto': rescale the x axis for every redraw
@@ -114,25 +75,18 @@ def interactive_plot(
     ylim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_ylim. Other options are same
         as xlim
-    slider_format_string : None, string, or dict
-        If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
-        For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
-        format for all values. A dictionary will allow assigning different formats to different sliders.
-        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
-        object for matplotlib slider values.
-    plot_kwargs : None, dict, or iterable of dicts
-        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
-        None or be iterable.
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses the new {} style formatting
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
+    parametric : boolean
+        If True then the function expects to have only received a value for y and that that function will
+        return an array for both x and y, or will return an array with shape (2, N)
+    parametric_labels : list(str or None)
+        The labels to give to the generated by the function
     ax : matplotlib axis, optional
-        If None a new figure and axis will be created
-    display : boolean
-        If True then the output and controls will be automatically displayed
+        The axis on which to plot. If none the current axis will be used.
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -143,12 +97,15 @@ def interactive_plot(
         want to attach play buttons too.
     play_button_pos : str, or dict, or list(str)
         'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
 
     Examples
     --------
@@ -157,44 +114,99 @@ def interactive_plot(
 
         x = np.linspace(0,2*np.pi)
         tau = np.linspace(0, np.pi)
-        def f(x, tau):
-            return np.sin(x+tau)
-        interactive_plot(f, x=x, tau=tau)
+        def f(tau):
+            return np.sin(x*tau)
+        interactive_plot(f, tau=tau)
 
     with tuples::
 
         x = np.linspace(0,2*np.pi)
         def f(x, tau):
             return np.sin(x+tau)
-        interactive_plot(f, x=x, tau=(0, np.pi, 1000))
+        interactive_plot(x, f, tau=(0, np.pi, 1000))
 
     """
+    # this is a list of options to Line2D partially taken from
+    # https://github.com/matplotlib/matplotlib/blob/f9d29189507cfe4121a231f6ab63539d216c37bd/lib/matplotlib/lines.py#L271
+    # many of these can also be made into functions
+    plot_kwargs_list = [
+        "linewidth",
+        "linestyle",
+        "color",
+        "marker",
+        "markersize",
+        "markeredgewidth",
+        "markeredgecolor",
+        "markerfacecolor",
+        "markerfacecoloralt",
+        "fillstyle",
+        "antialiased",
+        "dash_capstyle",
+        "solid_capstyle",
+        "dash_joinstyle",
+        "solid_joinstyle",
+        "pickradius",
+        "drawstyle",
+        "markevery",
+        "label",
+    ]
+    plot_kwargs = {}
+    for k in plot_kwargs_list:
+        if k in kwargs:
+            plot_kwargs[k] = kwargs.pop(k)
+    x_and_y = False
+    x = None
+    fmt = None
+    if len(args) == 0:
+        # wot...
+        return
+    elif len(args) == 1:
+        y = args[0]
+    elif len(args) == 2:
+        # either (y, fmt) or (x, y)
+        # hard to know for sure though bc fmt can be a function
+        # or maybe just requirement that fmt is a function
+        if isinstance(args[1], str):
+            y, fmt = args
+        else:
+            x_and_y = True
+            x, y = args
+    elif len(args) == 3:
+        x_and_y = True
+        x, y, fmt = args
+    else:
+        raise ValueError(f"You passed in {len(args)} args, but no more than 3 is supported.")
 
     ipympl = notebook_backend()
     use_ipywidgets = ipympl or force_ipywidgets
-    fig, ax = gogogo_figure(ipympl, figsize=figsize, ax=ax)
-    params = {}
-    funcs = np.atleast_1d(f)
+    fig, ax = gogogo_figure(ipympl, ax=ax)
+    slider_formats = create_slider_format_dict(slider_formats)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
 
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
-
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
+    def update(params, indices, cache):
+        if x_and_y:
+            x_, y_ = eval_xy(x, y, params, cache)
+            # broadcast so that we can always index
+            if x_.ndim == 1:
+                x_ = np.broadcast_to(x_[:, None], (x_.shape[0], len(lines)))
+            if y_.ndim == 1:
+                y_ = np.broadcast_to(y_[:, None], (y_.shape[0], len(lines)))
+            for i, line in enumerate(lines):
+                line.set_data(x_[:, i], y_[:, i])
+        elif parametric:
+            # transpose to splat bc matplotlib considers columns of arrays to be
+            # the datasets
+            # I don't think it's possible to have multiple lines here
+            assert len(lines) == 1
+            lines[0].set_data(*callable_else_value(y, params, cache).T)
         else:
-            # categorical
-            params[key] = change["new"]
-
-        # update plot
-        for i, f in enumerate(funcs):
-            if x is not None and not indexed_x:
-                lines[i].set_data(x, f(x, **params))
-            elif indexed_x:
-                lines[i].set_data(x, f(**params))
-            else:
-                lines[i].set_data(*f(**params))
+            y_ = callable_else_value(y, params, cache)
+            if y_.ndim == 1:
+                y_ = np.broadcast_to(y_[:, None], (y_.shape[0], len(lines)))
+            for i, line in enumerate(lines):
+                line.set_ydata(y_[:, i])
 
         cur_xlims = ax.get_xlim()
         cur_ylims = ax.get_ylim()
@@ -219,57 +231,45 @@ def interactive_plot(
             ax.set_xlim(new_lims)
         if title is not None:
             ax.set_title(title.format(**params))
-        fig.canvas.draw_idle()
 
-    fig = ax.get_figure()
-    if use_ipywidgets:
-        sliders, slabels, controls, play_buttons = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
-        sca(ax)
+    controls.register_function(update, fig, params.keys())
 
-    indexed_x = False
-    if x is not None:
-        x = np.asarray(x)
-        if x.ndim != 1:
-            raise ValueError(f"x must be None or be 1D but is {x.ndim}D")
-    else:
-        # call f once to determine it returns x
-        out = np.asarray(f(**params))
-        if len(out.shape) != 2 or (len(out.shape) == 2 and out.shape[0] == 1):
-            # probably should use arange to set the x values
-            indexed_x = True
-            x = np.arange(out.size)
-
-    if plot_kwargs is None:
-        plot_kwargs = []
-        for i in range(len(funcs)):
-            plot_kwargs.append({})
-    else:
-        plot_kwargs = np.atleast_1d(plot_kwargs)
-        if not len(plot_kwargs) == len(funcs):
-            raise ValueError(
-                "If using multiple functions"
-                " then plot_kwargs must be a list"
-                " of the same length or None."
-            )
-
-    # make sure plot labels make sense
-    for i in range(len(funcs)):
-        if "label" not in plot_kwargs[i]:
-            plot_kwargs[i]["label"] = funcs[i].__name__
-
-    lines = []
-    for i, f in enumerate(funcs):
-
-        if x is not None and not indexed_x:
-            lines.append(ax.plot(x, f(x, **params), **plot_kwargs[i])[0])
-        elif indexed_x:
-            lines.append(ax.plot(x, f(**params), **plot_kwargs[i])[0])
+    if x_and_y:
+        x_, y_ = eval_xy(x, y, params)
+        if fmt:
+            lines = ax.plot(x_, y_, fmt, **plot_kwargs)
         else:
-            lines.append(ax.plot(*f(**params), **plot_kwargs[i])[0])
+            lines = ax.plot(x_, y_, **plot_kwargs)
+    else:
+        y_ = callable_else_value(y, params)
+        # set up to ensure that splatting works well
+        if parametric:
+            y_ = np.asanyarray(y_).T
+        else:
+            # make a tuple so we can splat it
+            # reduces the number of if statements necessary to plot
+            # parametric functions
+            y_ = (y_,)
+
+        if fmt:
+            lines = ax.plot(*y_, fmt, **plot_kwargs)
+        else:
+            lines = ax.plot(*y_, **plot_kwargs)
+    try:
+        # hack in the way it feels like matplotlib should behave
+        # this is a necessary change to support ODEs which is a reasonable use case for
+        # this library - lesser of two evils situation. (the evil here is deviating from matplotlib)
+        labels = plot_kwargs["label"]
+        if (
+            len(lines) > 1
+            and (isinstance(labels, list) or isinstance(labels, tuple))
+            and len(labels) == len(lines)
+        ):
+            for label, line in zip(labels, lines):
+                line.set_label(label)
+    except KeyError:
+        pass
+
     if not isinstance(xlim, str):
         ax.set_xlim(xlim)
     if not isinstance(ylim, str):
@@ -281,8 +281,7 @@ def interactive_plot(
     if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
         fig.canvas.toolbar.push_current()
 
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-    return fig, ax, controls
+    return controls
 
 
 def simple_hist(arr, bins="auto", density=None, weights=None):
@@ -315,17 +314,17 @@ def stretch(ax, xlims, ylims):
 
 
 def interactive_hist(
-    f,
+    arr,
     density=False,
     bins="auto",
     weights=None,
-    figsize=None,
     ax=None,
-    slider_format_string=None,
-    display=True,
+    slider_formats=None,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
@@ -337,17 +336,14 @@ def interactive_hist(
 
     parameters
     ----------
-    f : function
-        A function that will return a 1d array of which to take the histogram
+    arr : arraylike or function
+        The array or the funciton that returns an array that is to be histogrammed
     density : bool, optional
         whether to plot as a probability density. Passed to np.histogram
     bins : int or sequence of scalars or str, optional
         bins argument to np.histogram
     weights : array_like, optional
         passed to np.histogram
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
     ax : matplotlib axis, optional
         If None a new figure and axis will be created
     slider_format_string : None, string, or dict
@@ -356,8 +352,6 @@ def interactive_hist(
         format for all values. A dictionary will allow assigning different formats to different sliders.
         note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
-    display : boolean
-        If True then the output and controls will be automatically displayed
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -368,12 +362,15 @@ def interactive_hist(
         want to attach play buttons too.
     play_button_pos : str, or dict, or list(str)
         'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
 
     Examples
     --------
@@ -393,56 +390,33 @@ def interactive_hist(
         interactive_hist(f, loc=(-5, 5, 500), scale=(1, 10, 100))
     """
 
-    params = {}
-    funcs = np.atleast_1d(f)
-    # supporting more would require more thought
-    if len(funcs) != 1:
-        raise ValueError(
-            f"Currently only a single function is supported. You passed in {len(funcs)} functions"
-        )
-
     ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize=figsize, ax=ax)
+    fig, ax = gogogo_figure(ipympl, ax=ax)
     use_ipywidgets = ipympl or force_ipywidgets
-
+    slider_formats = create_slider_format_dict(slider_formats)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
-
-    # update plot
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
-        arr = funcs[0](**params)
-        new_x, new_y, new_patches = simple_hist(arr, density=density, bins=bins, weights=weights)
+    def update(params, indices, cache):
+        arr_ = callable_else_value(arr, params, cache)
+        new_x, new_y, new_patches = simple_hist(arr_, density=density, bins=bins, weights=weights)
         stretch(ax, new_x, new_y)
         pc.set_paths(new_patches)
         ax.autoscale_view()
-        fig.canvas.draw_idle()
 
-    # this line implicitly fills the params dict
-    if use_ipywidgets:
-        (sliders, slabels, controls, play_buttons,) = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+    controls.register_function(update, fig, params.keys())
 
     new_x, new_y, new_patches = simple_hist(
-        funcs[0](**params), density=density, bins=bins, weights=weights
+        callable_else_value(arr, params), density=density, bins=bins, weights=weights
     )
     pc.set_paths(new_patches)
     ax.set_xlim(new_x)
     ax.set_ylim(new_y)
 
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-    return fig, ax, controls
+    return controls
 
 
 def interactive_scatter(
@@ -459,13 +433,14 @@ def interactive_scatter(
     xlim="stretch",
     ylim="stretch",
     ax=None,
-    slider_format_string=None,
+    slider_formats=None,
     title=None,
-    figsize=None,
     display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
@@ -473,12 +448,8 @@ def interactive_scatter(
 
     parameters
     ----------
-    x : function or array-like
-        Must be broadcastable with y and any plotting kwargs. Can be a mix
-        of numbers and functions. Any functions in x must return a 1D array
-        or list of the same length as the paired y function or array
-    y : function or array-like
-        see x
+    x, y : function or float or array-like
+        shape (n, ) for array-like. Functions must return the correct shape as well
     c : array-like or list of colors or color, broadcastable
         Must be broadcastable to x,y and any other plotting kwargs.
         valid input to plt.scatter, or an array of valid inputs, or a function
@@ -502,18 +473,15 @@ def interactive_scatter(
         as xlim
     ax : matplotlib axis, optional
         If None a new figure and axis will be created
-    slider_format_string : None, string, or dict
+    slider_formats : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
         format for all values. A dictionary will allow assigning different formats to different sliders.
-        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        note: For matplotlib >= 3.3 a value of None for slider_formats will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
     display : boolean
         If True then the output and controls will be automatically displayed
     force_ipywidgets : boolean
@@ -527,41 +495,16 @@ def interactive_scatter(
         you want to have sliders
     play_button_pos : str, or dict, or list(str)
         'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
     """
-
-    def _prep_color(col):
-        if (
-            isinstance(col, np.ndarray)
-            and np.issubdtype(col.dtype, np.number)
-            and col.ndim == 2
-            and col.shape[1] in [3, 4]
-        ):
-            return col[None, :, :]
-        else:
-            return col
-
-    def _prep_size(s):
-        if (isinstance(s, tuple) or isinstance(s, list)) and all(
-            [isinstance(es, Number) for es in s]
-        ):
-            return np.asarray(s, dtype=np.object)
-        return s
-
-    X, Y, cols, sizes, edgecolors, alphas, labels = broadcast_many(
-        (x, "x"),
-        (y, "y"),
-        (_prep_color(c), "c"),
-        (_prep_size(s), "s"),
-        (_prep_color(edgecolors), "edgecolors"),
-        (alpha, "alpha"),
-        (label, "labels"),
-    )
 
     if isinstance(xlim, str):
         stretch_x = xlim == "stretch"
@@ -573,67 +516,52 @@ def interactive_scatter(
     else:
         stretch_y = False
 
-    params = {}
     ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize, ax)
+    fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
-    scats = []
-    cache = {}
+    slider_formats = create_slider_format_dict(slider_formats)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
 
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
+    def update(params, indices, cache):
         if title is not None:
             ax.set_title(title.format(**params))
-        for scat, x_, y_, c_, s_, ec_, alpha_ in zip(scats, X, Y, cols, sizes, edgecolors, alphas):
-            x, y = eval_xy(x_, y_, params)
-            scat.set_offsets(np.column_stack([x, y]))
-            c = check_callable_xy(c_, x, y, params)
-            s = check_callable_xy(s_, x, y, params)
-            ec = check_callable_xy(ec_, x, y, params)
-            a = check_callable_alpha(alpha_, params)
-            if c is not None:
+        x_, y_ = eval_xy(x, y, params, cache)
+        scatter.set_offsets(np.column_stack([x_, y_]))
+        c_ = check_callable_xy(c, x_, y_, params, cache)
+        s_ = check_callable_xy(s, x_, y_, params, cache)
+        ec_ = check_callable_xy(edgecolors, x_, y_, params, cache)
+        a_ = check_callable_alpha(alpha, params, cache)
+        if c_ is not None:
+            try:
+                c_ = to_rgba_array(c_)
+            except ValueError as array_err:
                 try:
-                    c = to_rgba_array(c)
-                except ValueError as array_err:
-                    try:
-                        c = scat.cmap(c)
-                    except TypeError as cmap_err:
-                        raise ValueError(
-                            "If c is a function it must return either an RGB(A) array"
-                            "or a 1D array of valid color names or values to be colormapped"
-                        )
-                scat.set_facecolor(c)
-            if ec is not None:
-                scat.set_edgecolor(ec)
-            if s is not None and not isinstance(s, Number):
-                scat.set_sizes(s)
-            if a is not None:
-                scat.set_alpha(a)
+                    c_ = scatter.cmap(c_)
+                except TypeError as cmap_err:
+                    raise ValueError(
+                        "If c is a function it must return either an RGB(A) array"
+                        "or a 1D array of valid color names or values to be colormapped"
+                    )
+            scatter.set_facecolor(c_)
+        if ec_ is not None:
+            scatter.set_edgecolor(ec_)
+        if s_ is not None and not isinstance(s_, Number):
+            scatter.set_sizes(s_)
+        if a_ is not None:
+            scatter.set_alpha(a_)
 
-            update_datalim_from_bbox(
-                ax, scat.get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
-            )
-        cache.clear()
-        ax.autoscale_view()
-        fig.canvas.draw_idle()
-
-    if use_ipywidgets:
-        sliders, slabels, controls, play_buttons = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
+        update_datalim_from_bbox(
+            ax, scatter.get_datalim(ax.transData), stretch_x=stretch_x, stretch_y=stretch_y
         )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+        ax.autoscale_view()
+
+    controls.register_function(update, fig, params.keys())
     if title is not None:
         ax.set_title(title.format(**params))
 
-    def check_callable_xy(arg, x, y, params):
+    def check_callable_xy(arg, x, y, params, cache):
         if isinstance(arg, Callable):
             if arg not in cache:
                 cache[arg] = arg(x, y, **params)
@@ -641,7 +569,7 @@ def interactive_scatter(
         else:
             return arg
 
-    def check_callable_alpha(alpha_, params):
+    def check_callable_alpha(alpha_, params, cache):
         if isinstance(alpha_, Callable):
             if not alpha_ in cache:
                 cache[alpha_] = alpha_(**params)
@@ -649,47 +577,27 @@ def interactive_scatter(
         else:
             return alpha_
 
-    def eval_xy(x_, y_, params):
-        if isinstance(x_, Callable):
-            if not x_ in cache:
-                cache[x_] = x_(**params)
-            x = cache[x_]
-        else:
-            x = x_
-        if isinstance(y_, Callable):
-            if not y_ in cache:
-                cache[y_] = y_(x, **params)
-            y = cache[y_]
-        else:
-            y = y_
-        return x, y
+    x_, y_ = eval_xy(x, y, params, {})
+    c_ = check_callable_xy(c, x_, y_, params, {})
+    s_ = check_callable_xy(s, x_, y_, params, {})
+    ec_ = check_callable_xy(edgecolors, x_, y_, params, {})
+    a_ = check_callable_alpha(alpha, params, {})
+    scatter = ax.scatter(
+        x_,
+        y_,
+        c=c_,
+        s=s_,
+        vmin=vmin,
+        vmax=vmax,
+        cmap=cmap,
+        alpha=a_,
+        edgecolors=ec_,
+        label=label,
+    )
+    if title is not None:
+        ax.set_title(title.format(**params))
 
-    for x_, y_, c_, s_, ec_, alpha_, label_ in zip(X, Y, cols, sizes, edgecolors, alphas, labels):
-        x, y = eval_xy(x_, y_, params)
-        c = check_callable_xy(c_, x, y, params)
-        s = check_callable_xy(s_, x, y, params)
-        ec = check_callable_xy(ec_, x, y, params)
-        a = check_callable_alpha(alpha_, params)
-        scats.append(
-            ax.scatter(
-                x,
-                y,
-                c=c,
-                s=s,
-                vmin=vmin,
-                vmax=vmax,
-                cmap=cmap,
-                alpha=a,
-                edgecolors=ec,
-                label=label_,
-            )
-        )
-        if title is not None:
-            ax.set_title(title.format(**params))
-
-    cache.clear()
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-    return fig, ax, controls
+    return controls
 
 
 # portions of this docstring were copied directly from the docsting
@@ -711,13 +619,14 @@ def interactive_imshow(
     resample=None,
     url=None,
     ax=None,
-    slider_format_string=None,
+    slider_formats=None,
     title=None,
-    figsize=None,
     display=True,
     force_ipywidgets=False,
     play_buttons=False,
     play_button_pos="right",
+    controls=None,
+    display_controls=True,
     **kwargs,
 ):
     """
@@ -748,18 +657,15 @@ def interactive_imshow(
         forwarded to matplotlib
     ax : matplotlib axis, optional
         if None a new figure and axis will be created
-    slider_format_string : None, string, or dict
+    slider_formats : None, string, or dict
         If None a default value of decimal points will be used. For ipywidgets this uses the new f-string formatting
         For matplotlib widgets you need to use `%` style formatting. A string will be used as the default
         format for all values. A dictionary will allow assigning different formats to different sliders.
-        note: For matplotlib >= 3.3 a value of None for slider_format_string will use the matplotlib ScalarFormatter
+        note: For matplotlib >= 3.3 a value of None for slider_formats will use the matplotlib ScalarFormatter
         object for matplotlib slider values.
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
-    figsize : tuple or scalar
-        If tuple it will be used as the matplotlib figsize. If a number
-        then it will be used to scale the current rcParams figsize
     display : boolean
         If True then the output and controls will be automatically displayed
     force_ipywidgets : boolean
@@ -776,45 +682,35 @@ def interactive_imshow(
 
     returns
     -------
-    fig : matplotlib figure
-    ax : matplotlib axis
-    controls : list of widgets
+    controls
     """
-
-    params = {}
     ipympl = notebook_backend()
-    fig, ax = gogogo_figure(ipympl, figsize, ax)
+    fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
-    slider_format_strings = create_slider_format_dict(slider_format_string, use_ipywidgets)
+    slider_formats = create_slider_format_dict(slider_formats)
 
-    def update(change, key, label):
-        if label:
-            # continuous
-            params[key] = kwargs[key][change["new"]]
-            label.value = slider_format_strings[key].format(kwargs[key][change["new"]])
-        else:
-            # categorical
-            params[key] = change["new"]
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
+
+    def update(params, indices, cache):
         if title is not None:
             ax.set_title(title.format(**params))
 
         if isinstance(X, Callable):
-            new_data = np.asarray(X(**params))
+            # check this here to avoid setting the data if we don't need to
+            # use the callable_else_value fxn to make use of easy caching
+            new_data = callable_else_value(X, params, cache)
             im.set_data(new_data)
             if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
                 im.norm.autoscale(new_data)
+        # caching for these?
         if isinstance(vmin, Callable):
             im.norm.vmin = vmin(**params)
         if isinstance(vmax, Callable):
             im.norm.vmax = vmax(**params)
-        fig.canvas.draw_idle()
 
-    if use_ipywidgets:
-        sliders, slabels, controls, play_buttons = kwargs_to_ipywidgets(
-            kwargs, params, update, slider_format_strings, play_buttons, play_button_pos
-        )
-    else:
-        controls = kwargs_to_mpl_widgets(kwargs, params, update, slider_format_strings)
+    controls.register_function(update, fig, params.keys())
 
     # make it once here so we can use the dims in update
     new_data = callable_else_value(X, params)
@@ -835,10 +731,7 @@ def interactive_imshow(
         url=url,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
-    ax._sci(im)
+    sci(im)
     if title is not None:
         ax.set_title(title.format(**params))
-
-    controls = gogogo_display(ipympl, use_ipywidgets, display, controls, fig)
-
-    return fig, ax, controls
+    return controls

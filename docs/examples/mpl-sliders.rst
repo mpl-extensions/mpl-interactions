@@ -7,7 +7,7 @@ Using Matplotlib Widgets
     will be garbage collected and cease to work.
 
 This page is dedicated to showing how to use the ``interactive_*`` functions---such as ``interactive_plot``---with Matplotlib widgets. For
-a more general discussion of how to use the ``pyplot`` submodule see the :doc:`pyplot-notebook` page.
+a more general discussion of how to use the ``pyplot`` submodule see the :doc:`Usage-Guide` page.
 
 
 Differences from ipywidgets sliders
@@ -42,7 +42,7 @@ If you are not using the ``ipympl`` backend then ``mpl_interactions`` will autom
     plt.legend()
     plt.show()
 
-.. image:: interactive-plot-images/mpl-sliders.gif
+.. image:: ../_static/images/mpl-sliders.gif
 
 Custom positioning of Matplotlib widgets
 ----------------------------------------
@@ -69,4 +69,4 @@ the :meth:`~mpl_interactions.interactive_plot_factory` function:
     controls = interactive_plot_factory(ax, f, x=x, freq=slider)
     plt.show()
 
-.. image:: interactive-plot-images/same-fig-mpl-slider.png
+.. image:: ../_static/images/same-fig-mpl-slider.png

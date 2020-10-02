@@ -137,3 +137,8 @@ _build
 
 # autoapi stuff - may be bad to ignore this idk
 autoapi
+
+# notebooks in the docs folder
+# this is to enable the madness with adding gifs
+docs/examples/*.ipynb
+docs/*.ipynb
