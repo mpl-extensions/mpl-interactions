@@ -23,6 +23,10 @@ Specifying Which Sliders Get Play buttons
     import numpy as np
     from mpl_interactions import *
 
+    # turn off interactive mode so that broken
+    # plots don't render in the docs
+    plt.ioff()
+
 Boolean: All get a button
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -38,8 +42,7 @@ Boolean: All get a button
 
     fig, ax = plt.subplots()
     controls = interactive_scatter(
-        x, f_y, tau=(1, 2 * np.pi, 100), beta=(0, 2), play_buttons=True, display=False
-    )
+        x, f_y, tau=(1, 2 * np.pi, 100), beta=(0, 2), play_buttons=True)
 
 List: Choose by name
 ^^^^^^^^^^^^^^^^^^^^
@@ -48,8 +51,7 @@ List: Choose by name
 
     fig, ax = plt.subplots()
     controls = interactive_scatter(
-        x, f_y, tau=(1, 2 * np.pi, 100), beta=(0, 2), play_buttons=["tau"], display=False
-    )
+        x, f_y, tau=(1, 2 * np.pi, 100), beta=(0, 2), play_buttons=["tau"])
 
 defaultdict: Specify by name and choose default
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,7 +76,6 @@ you should use a `defaultdict``
         zeta=(0, 1),
         psi=(0, 1),
         play_buttons=play_buttons,
-        display=False,
     )
 
 Choosing Play Button Position
@@ -106,5 +107,4 @@ and suggest how to improve this)
         psi=(0, 1),
         play_buttons=play_buttons,
         play_button_pos="left",
-        display=False,
     )

@@ -19,6 +19,8 @@ will use the built-in Matplotlib widgets.
    ~mpl_interactions.interactive_hist
    ~mpl_interactions.interactive_scatter
    ~mpl_interactions.interactive_imshow
+   ~mpl_interactions.interactive_axhline
+   ~mpl_interactions.interactive_axvline
 
 
 generic
