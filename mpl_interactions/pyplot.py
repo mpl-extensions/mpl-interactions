@@ -726,3 +726,161 @@ def interactive_imshow(
     if title is not None:
         ax.set_title(title.format(**params))
     return controls
+
+
+def interactive_axhline(
+    y=0,
+    xmin=0,
+    xmax=1,
+    ax=None,
+    slider_formats=None,
+    title=None,
+    force_ipywidgets=False,
+    play_buttons=False,
+    play_button_pos="right",
+    controls=None,
+    display_controls=True,
+    **kwargs,
+):
+    """
+    Control an horizontal line using widgets.
+
+    parameters
+    ----------
+    y : float or function
+        y position in data coordinates of the horizontal line.
+    xmin : float or function
+        Should be between 0 and 1, 0 being the far left of the plot, 1 the
+        far right of the plot.
+    xmax : float or function
+        Should be between 0 and 1, 0 being the far left of the plot, 1 the
+        far right of the plot.
+    ax : matplotlib axis, optional
+        If None a new figure and axis will be created
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses the new {} style formatting
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+    play_buttons : bool or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+    play_button_pos : str, or dict, or list(str)
+        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
+
+    returns
+    -------
+    controls
+    """
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_formats = create_slider_format_dict(slider_formats)
+
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
+
+    def update(params, indices, cache):
+        if title is not None:
+            ax.set_title(title.format(**params))
+        y_ = callable_else_value(y, params, cache).item()
+        line.set_ydata([y_, y_])
+        xmin_ = callable_else_value(xmin, params, cache).item()
+        xmax_ = callable_else_value(xmax, params, cache).item()
+        line.set_xdata([xmin_, xmax_])
+        # TODO consider updating just the ydatalim here
+
+    controls.register_function(update, fig, params)
+    line = ax.axhline(
+        callable_else_value(y, params).item(),
+        callable_else_value(xmin, params).item(),
+        callable_else_value(xmax, params).item(),
+    )
+    return controls
+
+
+def interactive_axvline(
+    x=0,
+    ymin=0,
+    ymax=1,
+    ax=None,
+    slider_formats=None,
+    title=None,
+    force_ipywidgets=False,
+    play_buttons=False,
+    play_button_pos="right",
+    controls=None,
+    display_controls=True,
+    **kwargs,
+):
+    """
+    Control a vertical line using widgets.
+
+    parameters
+    ----------
+    x : float or function
+        x position in data coordinates of the horizontal line.
+    ymin : float or function
+        Should be between 0 and 1, 0 being the bottom of the plot, 1 the
+        far top of the plot
+    ymax : float or function
+        Should be between 0 and 1, 0 being the top of the plot, 1 the
+        top of the plot.
+    ax : matplotlib axis, optional
+        If None a new figure and axis will be created
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses the new {} style formatting
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+    play_buttons : bool or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+    play_button_pos : str, or dict, or list(str)
+        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
+
+    returns
+    -------
+    controls
+    """
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_formats = create_slider_format_dict(slider_formats)
+
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
+    )
+
+    def update(params, indices, cache):
+        if title is not None:
+            ax.set_title(title.format(**params))
+        x_ = callable_else_value(x, params, cache).item()
+        line.set_ydata([x_, x_])
+        ymin_ = callable_else_value(ymin, params, cache).item()
+        ymax_ = callable_else_value(ymax, params, cache).item()
+        line.set_xdata([ymin_, ymax_])
+        # TODO consider updating just the ydatalim here
+
+    controls.register_function(update, fig, params)
+    line = ax.axvline(
+        callable_else_value(x, params).item(),
+        callable_else_value(ymin, params).item(),
+        callable_else_value(ymax, params).item(),
+    )
+    return controls
