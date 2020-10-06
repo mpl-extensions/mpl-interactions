@@ -30,6 +30,7 @@ __all__ = [
     "broadcast_many",
     "notebook_backend",
     "callable_else_value",
+    "callable_else_value_no_cast",
     "kwarg_to_ipywidget",
     "kwarg_to_mpl_widget",
     "extract_num_options",
@@ -191,6 +192,21 @@ def callable_else_value(arg, params, cache=None):
         else:
             return np.asanyarray(arg(**params))
     return np.asanyarray(arg)
+
+
+def callable_else_value_no_cast(arg, params, cache=None):
+    """
+    doesn't cast to numpy. Useful when working with parametric functions that might
+    return (x, y) where it's handy to check if the return is a tuple
+    """
+    if isinstance(arg, Callable):
+        if cache:
+            if not arg in cache:
+                cache[arg] = arg(**params)
+            return cache[arg]
+        else:
+            return arg(**params)
+    return arg
 
 
 def callable_else_value_wrapper(arg, params, cache=None):
