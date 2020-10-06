@@ -58,11 +58,11 @@ To control a plot with a slider:
 
 **If you are in a Jupyter Notebook the output will look like this:**
 
-.. image:: images/basic-example.gif
+.. image:: _static/images/basic-example.gif
 
 **and from a script or ipython the output will use Matplotlib sliders:**
 
-.. image:: images/front-page-mpl-widgets.gif
+.. image:: _static/images/front-page-mpl-widgets.gif
 
 
 For other functionality and more detailed examples, visit the :doc:`Examples` page. 
