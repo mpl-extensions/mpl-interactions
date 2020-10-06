@@ -2,7 +2,7 @@
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
-[![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=latest)](https://mpl-interactions.readthedocs.io/en/latest/?badge=latest)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: The interactions will be laggy when on binder)
+[![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=stable)](https://mpl-interactions.readthedocs.io/en/stable/?badge=stable)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab) (Warning: The interactions will be laggy when on binder)
 
 ## Welcome!
 
