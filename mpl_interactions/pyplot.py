@@ -617,6 +617,9 @@ def interactive_scatter(
         edgecolors=ec_,
         label=label,
     )
+    # this is necessary to make calls to plt.colorbar behave as expected
+    sci(scatter)
+
     if title is not None:
         ax.set_title(title.format(**params))
 
