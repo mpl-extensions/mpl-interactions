@@ -101,6 +101,7 @@ Further discussion of the behavior as a function of backend can be found on the 
    examples/heatmap-slicer.ipynb
    examples/hyperslicer.ipynb
    examples/Lotka-Volterra.ipynb
+   examples/rossler-attractor.ipynb
    examples/tidbits.rst
 
 Indices and Tables
