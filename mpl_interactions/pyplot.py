@@ -289,6 +289,8 @@ def interactive_plot(
     # make sure the home button will work
     if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
         fig.canvas.toolbar.push_current()
+    # set current axis to be pyplot-like
+    sca(ax)
 
     return controls
 
@@ -423,6 +425,7 @@ def interactive_hist(
     new_x, new_y, new_patches = simple_hist(
         callable_else_value(arr, params), density=density, bins=bins, weights=weights
     )
+    sca(ax)
     pc.set_paths(new_patches)
     ax.set_xlim(new_x)
     ax.set_ylim(new_y)
@@ -618,6 +621,7 @@ def interactive_scatter(
         label=label,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
+    sca(ax)
     sci(scatter)
 
     if title is not None:
@@ -733,6 +737,7 @@ def interactive_imshow(
 
     # make it once here so we can use the dims in update
     new_data = callable_else_value(X, params)
+    sca(ax)
     im = ax.imshow(
         new_data,
         cmap=cmap,
@@ -827,6 +832,7 @@ def interactive_axhline(
         # TODO consider updating just the ydatalim here
 
     controls.register_function(update, fig, params)
+    sca(ax)
     line = ax.axhline(
         callable_else_value(y, params).item(),
         callable_else_value(xmin, params).item(),
@@ -906,6 +912,7 @@ def interactive_axvline(
         # TODO consider updating just the ydatalim here
 
     controls.register_function(update, fig, params)
+    sca(ax)
     line = ax.axvline(
         callable_else_value(x, params).item(),
         callable_else_value(ymin, params).item(),
