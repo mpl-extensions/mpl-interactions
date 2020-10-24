@@ -90,12 +90,15 @@ def interactive_plot(
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
-    play_buttons : bool or dict, optional
+    play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -333,7 +336,6 @@ def interactive_hist(
     title=None,
     force_ipywidgets=False,
     play_buttons=False,
-    play_button_pos="right",
     controls=None,
     display_controls=True,
     **kwargs,
@@ -366,12 +368,15 @@ def interactive_hist(
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
-    play_buttons : bool or dict, optional
+    play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -453,7 +458,6 @@ def interactive_scatter(
     ylim="stretch",
     force_ipywidgets=False,
     play_buttons=False,
-    play_button_pos="right",
     controls=None,
     display_controls=True,
     **kwargs,
@@ -500,13 +504,15 @@ def interactive_scatter(
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
-    play_buttons : bool or dict or list(str), optional
+    play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
-        want to attach play buttons too. If a list of strings use the names of the parameters that
-        you want to have sliders
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+        want to attach play buttons too.
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -652,7 +658,6 @@ def interactive_imshow(
     title=None,
     force_ipywidgets=False,
     play_buttons=False,
-    play_button_pos="right",
     controls=None,
     display_controls=True,
     **kwargs,
@@ -694,13 +699,20 @@ def interactive_imshow(
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
-    play_buttons : bool or dict or list(str), optional
+    play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
-        want to attach play buttons too. If a list of strings use the names of the parameters that
-        you want to have sliders
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+        want to attach play buttons too.
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
 
     returns
     -------
@@ -769,7 +781,6 @@ def interactive_axhline(
     title=None,
     force_ipywidgets=False,
     play_buttons=False,
-    play_button_pos="right",
     controls=None,
     display_controls=True,
     **kwargs,
@@ -795,12 +806,15 @@ def interactive_axhline(
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
-    play_buttons : bool or dict, optional
+    play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-    play_button_pos : str, or dict, or list(str)
-        'left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -849,7 +863,6 @@ def interactive_axvline(
     title=None,
     force_ipywidgets=False,
     play_buttons=False,
-    play_button_pos="right",
     controls=None,
     display_controls=True,
     **kwargs,
