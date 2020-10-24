@@ -7,4 +7,4 @@ Smaller tutorials showcasing parts of the library that were difficult to natural
 .. toctree::
    :maxdepth: 1
    
-   tidbits/play-button.rst
+   tidbits/play-buttons.rst
