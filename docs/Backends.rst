@@ -42,8 +42,9 @@ This will result in sliders in the notebook, but the plot will be in a ``qt`` wi
 
 
 * You can also explicitly set whether to use Matplotlib sliders or not with the ``use_ipywidgets`` 
-argument :meth:`~mpl_interactions.interactive_plot_factory`. If ``None`` then the funciton will try to infer whether
+argument :meth:`~mpl_interactions.interactive_plot`. If ``None`` then the funciton will try to infer whether
 to use ipywidgets or not. By setting the argument to ``False`` then you will be able to use Matplotlib sliders in the notebook.
+
 
 .. code-block:: python
 
@@ -51,7 +52,8 @@ to use ipywidgets or not. By setting the argument to ``False`` then you will be 
     import matplotlib.pyplot as plt
     import numpy as np
     from matplotlib.widgets import Slider
-    from mpl_interactions import interactive_plot_factory
+    import mpl_interactions.ipyplot as iplt
+
     fig, ax = plt.subplots()
     plt.subplots_adjust(bottom=.25)
     x = np.linspace(0,2*np.pi,200)
@@ -59,6 +61,6 @@ to use ipywidgets or not. By setting the argument to ``False`` then you will be 
         return np.sin(x*freq)
     axfreq = plt.axes([0.25, 0.1, 0.65, 0.03])
     slider = Slider(axfreq,label='freq', valmin=.05, valmax = 10)
-    controls = interactive_plot_factory(ax,f,x=x,freq=slider,use_ipywidgets=False)
+    controls = iplt.plot(x,f, freq=slider, use_ipywidgets=False, ax=ax)
 
 .. image:: _static/images/mpl-slider-in-notebook.gif

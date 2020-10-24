@@ -65,8 +65,6 @@ To control a plot with a slider:
 .. image:: _static/images/front-page-mpl-widgets.gif
 
 
-For other functionality and more detailed examples, visit the :doc:`Examples` page. 
-
 Matplotlib backends
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -95,9 +93,10 @@ Further discussion of the behavior as a function of backend can be found on the 
    examples/plot.ipynb
    examples/scatter.ipynb
    examples/imshow.ipynb
-   example/hist.ipynb
+   examples/hist.ipynb
    examples/mpl-sliders.rst
    examples/image-segmentation.ipynb
+   examples/zoom-factory.ipynb
    examples/heatmap-slicer.ipynb
    examples/hyperslicer.ipynb
    examples/Lotka-Volterra.ipynb
