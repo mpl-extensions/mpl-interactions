@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath("."))
 from gifmaker import gogogo_all
 
 gogogo_all("../examples", "examples/")
-gogogo_all("../examples/tidbits", "examples/tidbits")
+gogogo_all("../examples/tidbits", "examples/tidbits/")
 
 release = mpl_inter.__version__
 
