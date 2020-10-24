@@ -507,7 +507,6 @@ def hyperslicer(
     title=None,
     force_ipywidgets=False,
     play_buttons=False,
-    play_button_pos="right",
     is_color_image=False,
     controls=None,
     display_controls=True,
@@ -550,12 +549,15 @@ def hyperslicer(
          If True ipywidgets will always be used, even if not using the ipympl backend.
          If False the function will try to detect if it is ok to use ipywidgets
          If ipywidgets are not used the function will fall back on matplotlib widgets
-     play_buttons : bool or dict or list(str), optional
+    play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
-        want to attach play buttons too. If a list of strings use the names of the parameters that
-        you want to have sliders
-        left' or 'right'. Whether to position the play widget(s) to the left or right of the slider(s)
+        want to attach play buttons too.
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
     is_color_image : boolean
         If True, will treat the last 3 dimensions as comprising a color images and will only set up sliders for the first arr.ndim - 3 dimensions.
     controls : mpl_interactions.controller.Controls
@@ -654,7 +656,7 @@ def hyperslicer(
             kwargs[name] = np.arange(arr.shape[i])
 
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_format_strings, play_buttons, play_button_pos
+        kwargs, controls, display_controls, slider_format_strings, play_buttons
     )
 
     def update(params, indices, cache):
