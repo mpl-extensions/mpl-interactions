@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.abspath("."))
 from gifmaker import gogogo_all
 
 gogogo_all("../examples", "examples/")
+gogogo_all("../examples/tidbits", "examples/tidbits/")
 
 release = mpl_inter.__version__
 
@@ -54,6 +55,10 @@ extensions = [
 
 nbsphinx_execute = "never"
 # nbsphinx_allow_errors = True
+
+# ensure widget output is not duplicated
+# see https://github.com/spatialaudio/nbsphinx/issues/378
+nbsphinx_widgets_path = ""
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True

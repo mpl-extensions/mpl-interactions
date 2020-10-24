@@ -54,9 +54,9 @@ class Controls:
         self.figs = defaultdict(list)  # maybe should only store weakrefs?
         self.indices = defaultdict(lambda: 0)
         self._update_funcs = defaultdict(list)
-        self.add_kwargs(kwargs, slider_formats, play_buttons, play_button_pos)
+        self.add_kwargs(kwargs, slider_formats, play_buttons)
 
-    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=False, play_button_pos="right"):
+    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None):
         """
         If you pass a redundant kwarg it will just be overwritten
         maybe should only raise a warning rather than an error?
@@ -64,18 +64,18 @@ class Controls:
         need to implement matplotlib widgets
         also a big question is how to dynamically update the display of matplotlib widgets.
         """
-        if isinstance(play_buttons, bool):
-            has_play_button = defaultdict(lambda: play_buttons)
+        if isinstance(play_buttons, bool) or isinstance(play_buttons, str) or play_buttons is None:
+            _play_buttons = defaultdict(lambda: play_buttons)
         elif isinstance(play_buttons, defaultdict):
-            has_play_button = play_buttons
+            _play_buttons = play_buttons
         elif isinstance(play_buttons, dict):
-            has_play_button = defaultdict(lambda: False, play_buttons)
+            _play_buttons = defaultdict(lambda: False, play_buttons)
         elif isinstance(play_buttons, Iterable) and all([isinstance(p, str) for p in play_buttons]):
-            has_play_button = defaultdict(
+            _play_buttons = defaultdict(
                 lambda: False, dict(zip(play_buttons, [True] * len(play_buttons)))
             )
         else:
-            has_play_button = play_buttons
+            _play_buttons = play_buttons
         if slider_formats is not None:
             slider_formats = create_slider_format_dict(slider_formats)
             for k, v in slider_formats.items():
@@ -90,8 +90,7 @@ class Controls:
                     v,
                     partial(self.slider_updated, key=k),
                     self.slider_format_strings[k],
-                    play_button=has_play_button[k],
-                    play_button_pos=play_button_pos,
+                    play_button=_play_buttons[k],
                 )
                 if control:
                     self.controls[k] = control
@@ -188,27 +187,20 @@ class Controls:
         ipy_display(self.vbox)
 
 
-def gogogo_controls(
-    kwargs, controls, display_controls, slider_formats, play_buttons, play_button_pos
-):
+def gogogo_controls(kwargs, controls, display_controls, slider_formats, play_buttons):
     if controls:
         if isinstance(controls, tuple):
             # it was indexed by the user when passed in
             extra_keys = controls[1]
             controls = controls[0]
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, play_button_pos)
+            controls.add_kwargs(kwargs, slider_formats, play_buttons)
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         else:
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, play_button_pos)
+            controls.add_kwargs(kwargs, slider_formats, play_buttons)
             params = controls.params
         return controls, params
     else:
-        controls = Controls(
-            slider_formats=slider_formats,
-            play_buttons=play_buttons,
-            play_button_pos=play_button_pos,
-            **kwargs
-        )
+        controls = Controls(slider_formats=slider_formats, play_buttons=play_buttons, **kwargs)
         params = controls.params
         if display_controls:
             controls.display()

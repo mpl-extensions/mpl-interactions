@@ -256,9 +256,7 @@ def eval_xy(x_, y_, params, cache=None):
     return np.asanyarray(x), np.asanyarray(y)
 
 
-def kwarg_to_ipywidget(
-    key, val, update, slider_format_string, play_button=False, play_button_pos="right"
-):
+def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None):
     """
     parameters
     ----------
@@ -336,13 +334,13 @@ def kwarg_to_ipywidget(
                 transform=lambda x: slider_format_string.format(val[x]),
             )
             slider.observe(partial(update, values=val), names="value")
-            if play_button:
+            if play_button is not None and play_button is not False:
                 play = widgets.Play(min=0, max=val.size - 1, step=1)
                 widgets.jslink((play, "value"), (slider, "value"))
-                if play_button_pos == "left":
-                    control = widgets.HBox([play, slider, label])
-                else:
+                if isinstance(play_button, str) and play_button.lower() == "right":
                     control = widgets.HBox([slider, label, play])
+                else:
+                    control = widgets.HBox([play, slider, label])
             else:
                 control = widgets.HBox([slider, label])
             return val[0], control
