@@ -656,7 +656,7 @@ def hyperslicer(
             kwargs[name] = np.arange(arr.shape[i])
 
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_format_strings, play_buttons
+        kwargs, controls, display_controls, slider_format_strings, play_buttons, allow_dupes=True
     )
 
     def update(params, indices, cache):

@@ -56,7 +56,7 @@ class Controls:
         self._update_funcs = defaultdict(list)
         self.add_kwargs(kwargs, slider_formats, play_buttons)
 
-    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None):
+    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None, allow_duplicates=False):
         """
         If you pass a redundant kwarg it will just be overwritten
         maybe should only raise a warning rather than an error?
@@ -83,7 +83,10 @@ class Controls:
         if self.use_ipywidgets:
             for k, v in kwargs.items():
                 if k in self.params:
-                    raise ValueError("can't overwrite an existing param in the controller")
+                    if allow_duplicates:
+                        continue
+                    else:
+                        raise ValueError("can't overwrite an existing param in the controller")
                 # create slider
                 self.params[k], control = kwarg_to_ipywidget(
                     k,
@@ -101,6 +104,11 @@ class Controls:
                 self.control_figures.append(mpl_layout[0])
                 widget_y = 0.05
                 for k, v in kwargs.items():
+                    if k in self.params:
+                        if allow_duplicates:
+                            continue
+                        else:
+                            raise ValueError("Can't overwrite an existing param in the controller")
                     self.params[k], control, cb, widget_y = kwarg_to_mpl_widget(
                         mpl_layout[0],
                         mpl_layout[1:],
@@ -187,16 +195,18 @@ class Controls:
         ipy_display(self.vbox)
 
 
-def gogogo_controls(kwargs, controls, display_controls, slider_formats, play_buttons):
+def gogogo_controls(
+    kwargs, controls, display_controls, slider_formats, play_buttons, allow_dupes=False
+):
     if controls:
         if isinstance(controls, tuple):
             # it was indexed by the user when passed in
             extra_keys = controls[1]
             controls = controls[0]
-            controls.add_kwargs(kwargs, slider_formats, play_buttons)
+            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         else:
-            controls.add_kwargs(kwargs, slider_formats, play_buttons)
+            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
             params = controls.params
         return controls, params
     else:
