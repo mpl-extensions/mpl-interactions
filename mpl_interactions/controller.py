@@ -183,7 +183,8 @@ class Controls:
             ipy_display(self.vbox)
         else:
             for fig in self.control_figures:
-                fig.show()
+                if fig is not None:
+                    fig.show()
 
     def show(self):
         """
