@@ -435,6 +435,9 @@ def create_mpl_controls_fig(kwargs):
         n_sliders * slider_in + n_opts * radio_in + widget_gap_in * (n_sliders + n_radio + 1) + 0.5
     )  # half an inch for margin
     fig = None
+    slider_height = 0
+    radio_height = 0
+    gap_height = 0
     if not all(map(lambda x: isinstance(x, mwidgets.AxesWidget), kwargs.values())):
         # if the only kwargs are existing matplotlib widgets don't make a new figure
         with ioff:
@@ -529,7 +532,7 @@ def kwarg_to_mpl_widget(
         # check if valstep has been set and then try to infer the values
         # but not now, I'm trying to avoid premature optimization lest this
         # drag on forever
-        # cb = val.on_changed(partial(changeify, update=update))
+        cb = val.on_changed(partial(changeify, update=partial(update, values=None)))
         return val.val, val, cb, widget_y
     else:
         slider = None
