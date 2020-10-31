@@ -53,6 +53,27 @@ extensions = [
     "sphinx_copybutton",
 ]
 
+# prolog taken nearly verbatim from https://github.com/spatialaudio/nbsphinx/blob/98005a9d6b331b7d6d14221539154df69f7ae51a/doc/conf.py#L38
+nbsphinx_prolog = r"""
+{% set docname = env.doc2path(env.docname, base=None) %}
+
+.. raw:: html
+
+    <div class="admonition note">
+      This page was generated from
+      <a class="reference external" href="https://github.com/ianhi/mpl-interactions/blob/{{ env.config.release|e }}/{{ docname|e }}">{{ docname|e }}</a>.
+      Interactive online version:
+      (Warning: The interactions will be much laggier on Binder than on your computer.)
+      <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/ianhi/mpl-interactions/{{ env.config.release|e }}?filepath={{ docname|e }}"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg" style="vertical-align:text-bottom"></a>.</span>
+    </div>
+
+.. raw:: latex
+
+    \nbsphinxstartnotebook{\scriptsize\noindent\strut
+    \textcolor{gray}{The following section was generated from
+    \sphinxcode{\sphinxupquote{\strut {{ docname | escape_latex }}}} \dotfill}}
+"""
+
 nbsphinx_execute = "never"
 # nbsphinx_allow_errors = True
 

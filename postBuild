@@ -1,3 +1,4 @@
 conda install -c conda-forge mamba -y
 mamba install -c conda-forge nodejs=12 -y
+pip install ipympl ipywidgets
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
