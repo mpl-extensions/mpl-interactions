@@ -21,7 +21,7 @@ and that you have installed ``jupyterlab-manager``.
 
 .. code-block:: bash
 
-   conda install nodejs=12
+   conda install -c conda-forge nodejs=13
    jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
 
