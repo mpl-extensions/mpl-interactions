@@ -69,9 +69,10 @@ fig = figure(3)
 pip install mpl_interactions
 
 # if using jupyterlab
-conda install nodejs=12
+conda install -c conda-forge nodejs=13
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 ```
+
 If you use JupyterLab, make sure you follow the full instructions in the ipympl [readme](https://github.com/matplotlib/ipympl#install-the-jupyterlab-extension) in particular installing jupyterlab-manager.
 ## Contributing / feature requests / roadmap
 
@@ -88,16 +89,16 @@ Tragically, neither GitHub nor the sphinx documentation render the actual moving
 
 ### interactive_plot
 Easily make a line plot interactive:
-![](docs/images/interactive-plot.gif)
+![](docs/_static/images/interactive-plot.gif)
 
 
 ### heatmap_slicer
 Compare vertical and horizontal slices across multiple heatmaps:
-![](docs/images/heatmap_slicer.gif)
+![](docs/_static/images/heatmap_slicer.gif)
 
 
 ### scrolling zoom + middle click pan
-![](docs/images/zoom-and-pan.gif)
+![](docs/_static/images/zoom-and-pan.gif)
 
 ## Contributors ✨
 
