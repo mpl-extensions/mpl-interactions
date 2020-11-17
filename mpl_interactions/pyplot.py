@@ -24,6 +24,7 @@ from .helpers import (
     notebook_backend,
     update_datalim_from_bbox,
 )
+from .mpl_kwargs import plot_kwargs_list, imshow_kwargs_list, kwarg_popper
 
 # functions that are methods
 __all__ = [
@@ -128,35 +129,7 @@ def interactive_plot(
         interactive_plot(x, f, tau=(0, np.pi, 1000))
 
     """
-    # this is a list of options to Line2D partially taken from
-    # https://github.com/matplotlib/matplotlib/blob/f9d29189507cfe4121a231f6ab63539d216c37bd/lib/matplotlib/lines.py#L271
-    # many of these can also be made into functions
-    plot_kwargs_list = [
-        "alpha",
-        "linewidth",
-        "linestyle",
-        "color",
-        "marker",
-        "markersize",
-        "markeredgewidth",
-        "markeredgecolor",
-        "markerfacecolor",
-        "markerfacecoloralt",
-        "fillstyle",
-        "antialiased",
-        "dash_capstyle",
-        "solid_capstyle",
-        "dash_joinstyle",
-        "solid_joinstyle",
-        "pickradius",
-        "drawstyle",
-        "markevery",
-        "label",
-    ]
-    plot_kwargs = {}
-    for k in plot_kwargs_list:
-        if k in kwargs:
-            plot_kwargs[k] = kwargs.pop(k)
+    kwargs, plot_kwargs = kwarg_popper(kwargs, plot_kwargs_list)
     x_and_y = False
     x = None
     fmt = None

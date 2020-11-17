@@ -393,10 +393,14 @@ class image_segmenter:
         mask=None,
         mask_colors=None,
         mask_alpha=0.75,
+        lineprops=None,
         figsize=(10, 10),
-        cmap="viridis",
+        **kwargs,
     ):
         """
+        Create an image segmenter. Any ``kwargs`` will be passed through to the ``imshow``
+        call that displays *img*.
+
         parameters
         ----------
         img : array_like
@@ -409,12 +413,14 @@ class image_segmenter:
         mask_alpha : float, default .75
             The alpha values to use for selected regions. This will always override the alpha values
             in mask_colors if any were passed
+        lineprops : dict, default: None
+            lineprops passed to LassoSelector. If None the default values are:
+            {"color": "black", "linewidth": 1, "alpha": 0.8}
         figsize : (float, float), optional
             passed to plt.figure
-        cmap : 'string'
-            the colormap to use if img has shape (X,Y)
+        **kwargs:
+            All other kwargs will passed to the imshow command for the image
         """
-
         # ensure mask colors is iterable and the same length as the number of classes
         # choose colors from default color cycle?
 
@@ -450,10 +456,11 @@ class image_segmenter:
         with ioff:
             self.fig = figure(figsize=figsize)
             self.ax = self.fig.gca()
-            self.displayed = self.ax.imshow(self._img)
+            self.displayed = self.ax.imshow(self._img, **kwargs)
             self._mask = self.ax.imshow(self._overlay)
 
-        lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
+        if lineprops is None:
+            lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
         useblit = False if "ipympl" in get_backend().lower() else True
         self.lasso = LassoSelector(self.ax, self._onselect, lineprops=lineprops, useblit=useblit)
         self.lasso.set_visible(True)
