@@ -393,6 +393,7 @@ class image_segmenter:
         mask=None,
         mask_colors=None,
         mask_alpha=0.75,
+        lineprops=None,
         figsize=(10, 10),
         **kwargs,
     ):
@@ -412,6 +413,9 @@ class image_segmenter:
         mask_alpha : float, default .75
             The alpha values to use for selected regions. This will always override the alpha values
             in mask_colors if any were passed
+        lineprops : dict, default: None
+            lineprops passed to LassoSelector. If None the default values are:
+            {"color": "black", "linewidth": 1, "alpha": 0.8}
         figsize : (float, float), optional
             passed to plt.figure
         **kwargs:
@@ -455,7 +459,8 @@ class image_segmenter:
             self.displayed = self.ax.imshow(self._img, **kwargs)
             self._mask = self.ax.imshow(self._overlay)
 
-        lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
+        if lineprops is None:
+            lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
         useblit = False if "ipympl" in get_backend().lower() else True
         self.lasso = LassoSelector(self.ax, self._onselect, lineprops=lineprops, useblit=useblit)
         self.lasso.set_visible(True)
