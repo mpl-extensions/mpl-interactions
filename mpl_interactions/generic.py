@@ -578,15 +578,14 @@ def hyperslicer(
     -------
     controls
     """
-    
+
     arr = np.squeeze(arr)
-    
-    arr_type = 'numpy'
-    if  'xarray.core.dataarray.DataArray' in str(arr.__class__):
-        arr_type = 'xarray'
-    elif 'dask.array.core.Array' in str(arr.__class__):
-        arr_type = 'dask'
-    
+
+    arr_type = "numpy"
+    if "xarray.core.dataarray.DataArray" in str(arr.__class__):
+        arr_type = "xarray"
+    elif "dask.array.core.Array" in str(arr.__class__):
+        arr_type = "dask"
 
     if arr.ndim < 3 + is_color_image:
         raise ValueError(
@@ -608,13 +607,13 @@ def hyperslicer(
 
     names = None
     axes = None
-    if arr_type != 'xarray':
+    if arr_type != "xarray":
         if "names" in kwargs:
             names = kwargs.pop("names")
 
         elif "axes" in kwargs:
             axes = kwargs.pop("axes")
-    
+
     else:
         axes = get_hs_axes(arr, is_color_image=is_color_image)
 
@@ -674,14 +673,14 @@ def hyperslicer(
         if not name in kwargs:
             slider_format_strings[name] = "{:.0f}"
             kwargs[name] = np.arange(arr.shape[i])
-    
-    if arr_type =='xarray':
+
+    if arr_type == "xarray":
         slider_format_strings = get_hs_fmts(arr, is_color_image=is_color_image)
-        extent = get_hs_extent(arr, is_color_image=is_color_image) 
+        extent = get_hs_extent(arr, is_color_image=is_color_image)
     else:
-        if 'extent' not in kwargs:
-            extent=None
-   
+        if "extent" not in kwargs:
+            extent = None
+
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_format_strings, play_buttons, allow_dupes=True
     )

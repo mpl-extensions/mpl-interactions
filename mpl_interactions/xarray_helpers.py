@@ -1,113 +1,114 @@
 import numpy as np
 
+
 def choose_fmt_str(dtype=None):
     """
     Choose the appropriate string formatting for different dtypes.
-    
+
     Paramters
     ---------
-    
+
     dtype: np.dtye
         Dtype of array containing values to be formatted.
-        
-        
+
+
     Returns
     -------
-    
+
     fmt: str
         Format string
-        
+
     """
-    if np.issubdtype(dtype,'float'):
-        fmt = r'{:0.2f}'
-    elif np.issubdtype(dtype,'int'):
-        fmt = r'{:d}'
+    if np.issubdtype(dtype, "float"):
+        fmt = r"{:0.2f}"
+    elif np.issubdtype(dtype, "int"):
+        fmt = r"{:d}"
     else:
-        fmt =r'{:}'
+        fmt = r"{:}"
     return fmt
 
 
-def choose_datetime_nonsense(arr, timeunit='m'):
+def choose_datetime_nonsense(arr, timeunit="m"):
     """
     Try to do something reasonable to datetimes and timedeltas.
-    
+
     Parameters
     ----------
-    
-    arr: np.array 
+
+    arr: np.array
         Array with values to be formatted.
-    
+
     Returns
     -------
-    
+
     out: np.array
         Array modified to format decently in a slider.
-        
+
     """
-    if np.issubdtype(arr.dtype, 'datetime64'):
-        #print('datetime')
-        out = arr.astype(f'datetime64[{timeunit}]')
-    elif np.issubdtype(arr.dtype, 'timedelta64'):
-        out = arr.astype(f'timedelta64[{timeunit}]').astype(int)
+    if np.issubdtype(arr.dtype, "datetime64"):
+        # print('datetime')
+        out = arr.astype(f"datetime64[{timeunit}]")
+    elif np.issubdtype(arr.dtype, "timedelta64"):
+        out = arr.astype(f"timedelta64[{timeunit}]").astype(int)
     else:
         out = arr
     return out
 
 
-def get_hs_axes(xarr, is_color_image=False, timeunit='m'):
+def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
     """
-    Read the dims and coordinates from an xarray and construct the 
+    Read the dims and coordinates from an xarray and construct the
     axes argument for hyperslicer. Called internally by hyperslicer.
-    
+
     Parameters
     ----------
-    
+
     xarr: xarray.DataArray
         DataArray being viewed with hyperslicer
-        
+
     is_color_image: bool default False
         Whether the individual images of the hyperstack are color images.
-        
+
     timeunit: str default "m"
-        Truncation level for datetime and timedelta axes. 
-        
+        Truncation level for datetime and timedelta axes.
+
     Returns
     -------
     axes: list
         axes kwarg for hyperslicer
-        
+
     """
     if not is_color_image:
         dims = xarr.dims[:-2]
-    else: 
+    else:
         dims = xarr.dims[:-3]
     coords_list = [choose_datetime_nonsense(xarr.coords[d].values, timeunit=timeunit) for d in dims]
-    #print(coords_list)
+    # print(coords_list)
     axes = zip(dims, coords_list)
     return list(axes)
 
 
 def get_hs_extent(xarr, is_color_image=False):
     """
-    Read the "XY" coordinates of an xarray.DataArray to set extent of image for 
+    Read the "XY" coordinates of an xarray.DataArray to set extent of image for
     imshow.
-    
+
     Parameters
     ----------
-    
+
     xarr: xarray.DataArray
         DataArray being viewed with hyperslicer
-        
+
     is_color_image: bool default False
         Whether the individual images of the hyperstack are color images.
-        
+
     Returns
     -------
     extent: list
         Extent argument for imshow. [d0_min, d0_max, d1_min, d1_max]
-    
+
     """
-    
+
     if not is_color_image:
         dims = xarr.dims[-2:]
     else:
@@ -122,22 +123,22 @@ def get_hs_extent(xarr, is_color_image=False):
 
 def get_hs_fmts(xarr, units=None, is_color_image=False):
     """
-    Get appropriate slider format strings from xarray coordinates 
+    Get appropriate slider format strings from xarray coordinates
     based the dtype of corresponding values.
-    
+
     Parameters
     ----------
-    
+
     xarr: xarray.DataArray
         DataArray being viewed with hyperslicer
-    
+
     units: array-like
-        Units to append to end of slider value. Must have the same length 
+        Units to append to end of slider value. Must have the same length
         as number of non-image dimensions in xarray.
-    
+
     is_color_image: bool default False
         Whether the individual images of the hyperstack are color images.
-        
+
     Returns
     -------
     fmt_strings: dict
@@ -148,10 +149,11 @@ def get_hs_fmts(xarr, units=None, is_color_image=False):
     else:
         dims = xarr.dims[:-3]
     fmt_strs = {}
-    for i,d in enumerate(dims):
+    for i, d in enumerate(dims):
         fmt_strs[d] = choose_fmt_str(xarr[d].dtype)
         if units is not None and units[i] is not None:
             try:
                 fmt_strs[d] += " {}".format(units[i])
-            except: continue
+            except:
+                continue
     return fmt_strs
