@@ -628,30 +628,30 @@ def gogogo_display(ipympl, use_ipywidgets, display, controls, fig):
             controls[0].show()
     return controls
 
+
 def choose_fmt_str(dtype=None):
     """
     Choose the appropriate string formatting for different dtypes.
-    
+
     Paramters
     ---------
-    
+
     dtype : np.dtye
     dtype of array containing values to be formatted.
-                                                
+
     Returns
     -------
-                                                        
+
     fmt : str
     Format string
     """
-    if np.issubdtype(dtype,'float'):
-        fmt = r'{:0.2f}'
-    
-    elif np.issubdtype(dtype,'int'):
-        fmt = r'{:d}'
-    
+    if np.issubdtype(dtype, "float"):
+        fmt = r"{:0.2f}"
+
+    elif np.issubdtype(dtype, "int"):
+        fmt = r"{:d}"
+
     else:
-        fmt =r'{:}'
-    
+        fmt = r"{:}"
+
     return fmt
-      
