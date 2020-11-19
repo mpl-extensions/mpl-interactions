@@ -1,6 +1,7 @@
 import numpy as np
 from .helpers import choose_fmt_str
 
+
 def choose_datetime_nonsense(arr, timeunit="m"):
     """
     Try to do something reasonable to datetimes and timedeltas.
