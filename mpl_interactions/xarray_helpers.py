@@ -1,33 +1,6 @@
 import numpy as np
 
 
-def choose_fmt_str(dtype=None):
-    """
-    Choose the appropriate string formatting for different dtypes.
-
-    Paramters
-    ---------
-
-    dtype: np.dtye
-        Dtype of array containing values to be formatted.
-
-
-    Returns
-    -------
-
-    fmt: str
-        Format string
-
-    """
-    if np.issubdtype(dtype, "float"):
-        fmt = r"{:0.2f}"
-    elif np.issubdtype(dtype, "int"):
-        fmt = r"{:d}"
-    else:
-        fmt = r"{:}"
-    return fmt
-
-
 def choose_datetime_nonsense(arr, timeunit="m"):
     """
     Try to do something reasonable to datetimes and timedeltas.
@@ -35,16 +8,17 @@ def choose_datetime_nonsense(arr, timeunit="m"):
     Parameters
     ----------
 
-    arr: np.array
+    arr : np.array
         Array with values to be formatted.
 
     Returns
     -------
 
-    out: np.array
+    out : np.array
         Array modified to format decently in a slider.
 
     """
+
     if np.issubdtype(arr.dtype, "datetime64"):
         # print('datetime')
         out = arr.astype(f"datetime64[{timeunit}]")
@@ -63,18 +37,18 @@ def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
     Parameters
     ----------
 
-    xarr: xarray.DataArray
+    xarr : xarray.DataArray
         DataArray being viewed with hyperslicer
 
-    is_color_image: bool default False
+    is_color_image : bool, default False
         Whether the individual images of the hyperstack are color images.
 
-    timeunit: str default "m"
+    timeunit : str, default "m"
         Truncation level for datetime and timedelta axes.
 
     Returns
     -------
-    axes: list
+    axes : list
         axes kwarg for hyperslicer
 
     """
@@ -96,15 +70,15 @@ def get_hs_extent(xarr, is_color_image=False):
     Parameters
     ----------
 
-    xarr: xarray.DataArray
+    xarr : xarray.DataArray
         DataArray being viewed with hyperslicer
 
-    is_color_image: bool default False
+    is_color_image : bool, default False
         Whether the individual images of the hyperstack are color images.
 
     Returns
     -------
-    extent: list
+    extent : list
         Extent argument for imshow. [d0_min, d0_max, d1_min, d1_max]
 
     """
@@ -129,19 +103,19 @@ def get_hs_fmts(xarr, units=None, is_color_image=False):
     Parameters
     ----------
 
-    xarr: xarray.DataArray
+    xarr : xarray.DataArray
         DataArray being viewed with hyperslicer
 
-    units: array-like
+    units : array-like
         Units to append to end of slider value. Must have the same length
         as number of non-image dimensions in xarray.
 
-    is_color_image: bool default False
+    is_color_image : bool, default False
         Whether the individual images of the hyperstack are color images.
 
     Returns
     -------
-    fmt_strings: dict
+    fmt_strings : dict
         Slider format strings for hyperslicer (or other mpl-interactions?)
     """
     if not is_color_image:
