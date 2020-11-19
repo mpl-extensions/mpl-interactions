@@ -40,6 +40,7 @@ __all__ = [
     "gogogo_display",
     "create_mpl_controls_fig",
     "eval_xy",
+    "choose_fmt_str",
 ]
 
 
