@@ -15,7 +15,7 @@ from packaging import version
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
 from .controller import gogogo_controls
-from .xarray_helpers import *
+from xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
 # functions that are methods
 __all__ = [
