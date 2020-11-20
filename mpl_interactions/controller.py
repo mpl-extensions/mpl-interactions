@@ -13,9 +13,11 @@ from .helpers import (
     kwarg_to_mpl_widget,
     create_mpl_controls_fig,
     notebook_backend,
+    process_mpl_widget,
 )
 from functools import partial
 from collections.abc import Iterable
+from matplotlib.widgets import AxesWidget
 
 
 class Controls:
@@ -87,17 +89,21 @@ class Controls:
                         continue
                     else:
                         raise ValueError("can't overwrite an existing param in the controller")
-                # create slider
-                self.params[k], control = kwarg_to_ipywidget(
-                    k,
-                    v,
-                    partial(self.slider_updated, key=k),
-                    self.slider_format_strings[k],
-                    play_button=_play_buttons[k],
-                )
-                if control:
-                    self.controls[k] = control
-                    self.vbox.children = list(self.vbox.children) + [control]
+                if isinstance(v, AxesWidget):
+                    self.params[k], self.controls[k], _ = process_mpl_widget(
+                        v, partial(self.slider_updated, key=k)
+                    )
+                else:
+                    self.params[k], control = kwarg_to_ipywidget(
+                        k,
+                        v,
+                        partial(self.slider_updated, key=k),
+                        self.slider_format_strings[k],
+                        play_button=_play_buttons[k],
+                    )
+                    if control:
+                        self.controls[k] = control
+                        self.vbox.children = list(self.vbox.children) + [control]
         else:
             if len(kwargs) > 0:
                 mpl_layout = create_mpl_controls_fig(kwargs)

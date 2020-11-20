@@ -471,6 +471,31 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
     return slider
 
 
+def process_mpl_widget(val, update):
+    """
+    handle the case of a kwarg being an existing matplotlib widget.
+    This needs to be separate so that the controller can call it when mixing ipywidets and
+    a widget like scatter_selector without having to create a control figure
+    """
+    if isinstance(val, mwidgets.RadioButtons):
+        # gotta set it to the zeroth index bc theres no reasonable way to determine the current value
+        # the only way the current value is stored is through the color of the circles.
+        # so could query that an extract but oh boy do I ever not want to
+        val.set_active(0)
+        cb = val.on_clicked(partial(changeify_radio, labels=val.labels, update=update))
+        return val.labels[0], val, cb
+    elif isinstance(val, mwidgets.Slider):
+        # potential future improvement:
+        # check if valstep has been set and then try to infer the values
+        # but not now, I'm trying to avoid premature optimization lest this
+        # drag on forever
+        cb = val.on_changed(partial(changeify, update=partial(update, values=None)))
+        return val.val, val, cb
+    else:
+        cb = val.on_changed(partial(changeify, update=partial(update, values=None)))
+        return val.val, val, cb
+
+
 def kwarg_to_mpl_widget(
     fig,
     heights,
@@ -521,20 +546,8 @@ def kwarg_to_mpl_widget(
         radio_buttons = mwidgets.RadioButtons(radio_ax, val, active=0)
         cb = radio_buttons.on_clicked(partial(changeify_radio, labels=val, update=update))
         return val[0], radio_buttons, cb, widget_y
-    elif isinstance(val, mwidgets.RadioButtons):
-        # gotta set it to the zeroth index bc theres no reasonable way to determine the current value
-        # the only way the current value is stored is through the color of the circles.
-        # so could query that an extract but oh boy do I ever not want to
-        val.set_active(0)
-        cb = val.on_clicked(partial(changeify_radio, labels=val.labels, update=update))
-        return val.labels[0], val, cb, widget_y
-    elif isinstance(val, mwidgets.Slider):
-        # potential future improvement:
-        # check if valstep has been set and then try to infer the values
-        # but not now, I'm trying to avoid premature optimization lest this
-        # drag on forever
-        cb = val.on_changed(partial(changeify, update=partial(update, values=None)))
-        return val.val, val, cb, widget_y
+    elif isinstance(val, mwidgets.AxesWidget):
+        return *process_mpl_widget(val, update), widget_y
     else:
         slider = None
         update_fxn = None
