@@ -11,11 +11,9 @@ try:
     from IPython.display import display as ipy_display
 except ImportError:
     pass
-from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
 from matplotlib.pyplot import axes, gca, gcf, figure
 from numpy.distutils.misc_util import is_sequence
-from packaging import version
 
 from .utils import ioff
 

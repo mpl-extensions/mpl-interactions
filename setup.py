@@ -20,8 +20,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[
-        "matplotlib",
-        "packaging",
+        "matplotlib>=3.3",
     ],
     author="Ian Hunt-Isaak",
     author_email="ianhuntisaak@gmail.com",
