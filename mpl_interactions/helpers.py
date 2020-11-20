@@ -547,7 +547,8 @@ def kwarg_to_mpl_widget(
         cb = radio_buttons.on_clicked(partial(changeify_radio, labels=val, update=update))
         return val[0], radio_buttons, cb, widget_y
     elif isinstance(val, mwidgets.AxesWidget):
-        return *process_mpl_widget(val, update), widget_y
+        val, widget, cb = process_mpl_widget(val, update)
+        return val, widget, cb, widget_y
     else:
         slider = None
         update_fxn = None
