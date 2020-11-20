@@ -4,3 +4,6 @@ from .pyplot import interactive_imshow as imshow
 from .pyplot import interactive_scatter as scatter
 from .pyplot import interactive_axhline as axhline
 from .pyplot import interactive_axvline as axvline
+from .pyplot import interactive_title as title
+from .pyplot import interactive_xlabel as xlabel
+from .pyplot import interactive_ylabel as ylabel

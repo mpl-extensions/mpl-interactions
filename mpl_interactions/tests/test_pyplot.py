@@ -6,6 +6,7 @@ from packaging import version
 from mpl_interactions.utils import figure
 
 from mpl_interactions.pyplot import interactive_hist, interactive_plot
+import mpl_interactions.ipyplot as iplt
 
 np.random.seed(1111111121)
 
@@ -98,9 +99,9 @@ def test_styling():
         f1,
         beta=beta,
         tau=tau,
-        title="the value of tau is: {tau:.2f}",
         label="f1",
     )
+    iplt.title("the value of tau is: {tau:.2f}", controls=controls["tau"])
     interactive_plot(
         x,
         f2,
