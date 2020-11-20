@@ -9,10 +9,14 @@ __all__ = [
 
 
 class scatter_selector(AxesWidget):
-    """"""
+    """
+    A widget for selecting a point in a scatter plot. callback will receive (index, (x, y))
+    """
 
     def __init__(self, ax, x, y, pickradius=5, which_button=1, **kwargs):
         """
+        Create the scatter plot and selection machinery.
+
         Parameters
         ----------
         ax : Axes
@@ -55,15 +59,26 @@ class scatter_selector(AxesWidget):
 
     def on_changed(self, func):
         """
-        blah blah blah
+        When a point is clicked calll *func* with the newly selected point
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when slider is changed.
+            The function must accept a (int, tuple(float, float)) as its arguments.
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*)
         """
         return self._observers.connect("picked", lambda idx, val: func(idx, val))
 
 
 class scatter_selector_index(scatter_selector):
     """
-    this docstring???
-    ``on_changed`` will send the index of the selected point.
+    A widget for selecting a point in a scatter plot. callback will receive the index of
+    the selected point as an argument.
     """
 
     def _init_val(self):
@@ -74,12 +89,29 @@ class scatter_selector_index(scatter_selector):
 
     def on_changed(self, func):
         """
-        blah blah blah
+        When a point is clicked calll *func* with the newly selected point's index
+        and position as arguments.
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when slider is changed.
+            The function must accept a single int as its arguments.
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*)
         """
         return self._observers.connect("picked", lambda idx: func(idx))
 
 
 class scatter_selector_value(scatter_selector):
+    """
+    A widget for selecting a point in a scatter plot. callbacks will receive the x,y position of
+    the selected point as arguments.
+    """
+
     def _init_val(self):
         self.val = (self._x[0], self._y[0])
 
@@ -88,6 +120,18 @@ class scatter_selector_value(scatter_selector):
 
     def on_changed(self, func):
         """
-        blah blah blah
+        When a point is clicked calll *func* with the newly selected point's index
+        as arguments.
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when slider is changed.
+            The function must accept a single int as its arguments.
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*)
         """
         return self._observers.connect("picked", lambda val: func(val))

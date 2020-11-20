@@ -95,6 +95,7 @@ Further discussion of the behavior as a function of backend can be found on the 
    examples/imshow.ipynb
    examples/hist.ipynb
    examples/mpl-sliders.ipynb
+   examples/scatter-selector.ipynb
    examples/image-segmentation.ipynb
    examples/zoom-factory.ipynb
    examples/heatmap-slicer.ipynb
