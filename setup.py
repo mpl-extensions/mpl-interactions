@@ -61,6 +61,7 @@ setup(
             "jupyter-sphinx",
             "sphinx-copybutton",
             "sphinx-autobuild",
+            "xarray",
         ],
         "test": [
             "pytest",
@@ -71,6 +72,7 @@ setup(
             "pandas",
             "requests",
             "scipy",
+            "xarray",
         ],
         "dev": [
             "pre-commit",
