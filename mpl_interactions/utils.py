@@ -3,12 +3,14 @@ from collections.abc import Iterable
 from matplotlib import interactive, is_interactive
 from matplotlib.pyplot import figure as mpl_figure
 from matplotlib.pyplot import install_repl_displayhook, rcParams, uninstall_repl_displayhook
-from numpy import abs, argmin, asarray
+from numpy import abs, argmin, asarray, take
+import numpy as np
 
 __all__ = [
     "figure",
     "nearest_idx",
     "ioff",
+    "indexer",
 ]
 
 
@@ -76,3 +78,38 @@ def nearest_idx(array, value, axis=None):
     """
     array = asarray(array)
     return argmin(abs(array - value), axis=axis)
+
+
+def indexer(arr, axis=0, index_name=None):
+    """
+    Utility function for when you want to index an array as part of an interactive function.
+    For example: ``iplt.plot(indexor(arr), idx = np.arange(5))``
+
+    Parameters
+    ----------
+    arr : arraylike
+        The array to be indexed
+    axis : int
+        which axis to index, default to first axis
+    index_name : str, default: None
+        The name of the variable the returned function should expect to receive.
+        If ``None`` then the function will check for ``idx``, ``index``, ``ind``, and ``indx``.
+
+    Returns
+    -------
+    f : function
+        Function to be passed as an argument to an interactive plotting function
+    """
+
+    if index_name is None:
+        idxs = ["idx", "index", "indx", "ind"]
+    else:
+        idxs = [index_name]
+
+    def f(**kwargs):
+        for i in idxs:
+            if i in kwargs:
+                return np.take(arr, kwargs[i], axis=axis)
+        raise ValueError(f"indexer did not receive a kwarg with a name in {idxs}")
+
+    return f

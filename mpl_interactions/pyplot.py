@@ -24,7 +24,7 @@ from .helpers import (
     notebook_backend,
     update_datalim_from_bbox,
 )
-from .mpl_kwargs import plot_kwargs_list, imshow_kwargs_list, kwarg_popper
+from .mpl_kwargs import plot_kwargs_list, imshow_kwargs_list, Text_kwargs_list, kwarg_popper
 
 # functions that are methods
 __all__ = [
@@ -34,6 +34,9 @@ __all__ = [
     "interactive_imshow",
     "interactive_axhline",
     "interactive_axvline",
+    "interactive_title",
+    "interactive_xlabel",
+    "interactive_ylabel",
 ]
 
 
@@ -43,7 +46,6 @@ def interactive_plot(
     multiline=False,
     ax=None,
     slider_formats=None,
-    title=None,
     xlim="stretch",
     ylim="stretch",
     force_ipywidgets=False,
@@ -78,9 +80,6 @@ def interactive_plot(
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses the new {} style formatting
-    title : None or string
-        If a string then you can have it update automatically using string formatting of the names
-        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
     xlim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_xlim. Other options are:
         'auto': rescale the x axis for every redraw
@@ -212,8 +211,6 @@ def interactive_plot(
                 new_lims[1] if new_lims[1] > cur_xlims[1] else cur_xlims[1],
             ]
             ax.set_xlim(new_lims)
-        if title is not None:
-            ax.set_title(title.format(**params))
 
     controls.register_function(update, fig, params.keys())
 
@@ -258,8 +255,6 @@ def interactive_plot(
         ax.set_xlim(xlim)
     if not isinstance(ylim, str):
         ax.set_ylim(ylim)
-    if title is not None:
-        ax.set_title(title.format(**params))
 
     # make sure the home button will work
     if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
@@ -306,7 +301,6 @@ def interactive_hist(
     weights=None,
     ax=None,
     slider_formats=None,
-    title=None,
     force_ipywidgets=False,
     play_buttons=False,
     controls=None,
@@ -334,9 +328,6 @@ def interactive_hist(
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses the new {} style formatting
-    title : None or string
-        If a string then you can have it update automatically using string formatting of the names
-        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -389,8 +380,6 @@ def interactive_hist(
     ax.add_collection(pc, autolim=True)
 
     def update(params, indices, cache):
-        if title is not None:
-            ax.set_title(title.format(**params))
         arr_ = callable_else_value(arr, params, cache)
         new_x, new_y, new_patches = simple_hist(arr_, density=density, bins=bins, weights=weights)
         stretch(ax, new_x, new_y)
@@ -406,8 +395,6 @@ def interactive_hist(
     pc.set_paths(new_patches)
     ax.set_xlim(new_x)
     ax.set_ylim(new_y)
-    if title is not None:
-        ax.set_title(title.format(**params))
 
     return controls
 
@@ -426,7 +413,6 @@ def interactive_scatter(
     parametric=False,
     ax=None,
     slider_formats=None,
-    title=None,
     xlim="stretch",
     ylim="stretch",
     force_ipywidgets=False,
@@ -464,9 +450,6 @@ def interactive_scatter(
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses the new {} style formatting
-    title : None or string
-        If a string then you can have it update automatically using string formatting of the names
-        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
     xlim : string or tuple of floats, optional
         If a tuple it will be passed to ax.set_xlim. Other options are:
         'auto': rescale the x axis for every redraw
@@ -516,9 +499,6 @@ def interactive_scatter(
     )
 
     def update(params, indices, cache):
-        if title is not None:
-            ax.set_title(title.format(**params))
-
         if parametric:
             out = callable_else_value_no_cast(x, params)
             if not isinstance(out, tuple):
@@ -556,8 +536,6 @@ def interactive_scatter(
         ax.autoscale_view()
 
     controls.register_function(update, fig, params.keys())
-    if title is not None:
-        ax.set_title(title.format(**params))
 
     def check_callable_xy(arg, x, y, params, cache):
         if isinstance(arg, Callable):
@@ -602,9 +580,6 @@ def interactive_scatter(
     sca(ax)
     sci(scatter)
 
-    if title is not None:
-        ax.set_title(title.format(**params))
-
     return controls
 
 
@@ -628,7 +603,6 @@ def interactive_imshow(
     url=None,
     ax=None,
     slider_formats=None,
-    title=None,
     force_ipywidgets=False,
     play_buttons=False,
     controls=None,
@@ -665,9 +639,6 @@ def interactive_imshow(
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses the new {} style formatting
-    title : None or string
-        If a string then you can have it update automatically using string formatting of the names
-        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -701,9 +672,6 @@ def interactive_imshow(
     )
 
     def update(params, indices, cache):
-        if title is not None:
-            ax.set_title(title.format(**params))
-
         if isinstance(X, Callable):
             # check this here to avoid setting the data if we don't need to
             # use the callable_else_value fxn to make use of easy caching
@@ -740,8 +708,6 @@ def interactive_imshow(
     )
     # this is necessary to make calls to plt.colorbar behave as expected
     sci(im)
-    if title is not None:
-        ax.set_title(title.format(**params))
     return controls
 
 
@@ -751,7 +717,6 @@ def interactive_axhline(
     xmax=1,
     ax=None,
     slider_formats=None,
-    title=None,
     force_ipywidgets=False,
     play_buttons=False,
     controls=None,
@@ -808,8 +773,6 @@ def interactive_axhline(
     )
 
     def update(params, indices, cache):
-        if title is not None:
-            ax.set_title(title.format(**params))
         y_ = callable_else_value(y, params, cache).item()
         line.set_ydata([y_, y_])
         xmin_ = callable_else_value(xmin, params, cache).item()
@@ -833,7 +796,6 @@ def interactive_axvline(
     ymax=1,
     ax=None,
     slider_formats=None,
-    title=None,
     force_ipywidgets=False,
     play_buttons=False,
     controls=None,
@@ -890,8 +852,6 @@ def interactive_axvline(
     )
 
     def update(params, indices, cache):
-        if title is not None:
-            ax.set_title(title.format(**params))
         x_ = callable_else_value(x, params, cache).item()
         line.set_ydata([x_, x_])
         ymin_ = callable_else_value(ymin, params, cache).item()
@@ -905,5 +865,265 @@ def interactive_axvline(
         callable_else_value(x, params).item(),
         callable_else_value(ymin, params).item(),
         callable_else_value(ymax, params).item(),
+    )
+    return controls
+
+
+def interactive_title(
+    label,
+    controls=None,
+    ax=None,
+    *,
+    fontdict=None,
+    loc=None,
+    y=None,
+    pad=None,
+    slider_formats=None,
+    display_controls=True,
+    play_buttons=False,
+    force_ipywidgets=False,
+    **kwargs,
+):
+    """
+    Set an title that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    other kwargs will be used to create interactive controls.
+
+    Parameters
+    ----------
+    title : str or function
+        The title text. Can include {} style formatting. e.g. 'The voltage is {volts:.2f} mV'
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    ax : matplotlib axis, optional
+        The axis on which to plot. If none the current axis will be used.
+    loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
+        Which title to set.
+    y : float, default: :rc:`axes.titley`
+        Vertical axes loation for the title (1.0 is the top).  If
+        None (the default), y is determined automatically to avoid
+        decorators on the axes.
+    pad : float, default: :rc:`axes.titlepad`
+        The offset of the title from the top of the axes, in points.
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses {} style formatting
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
+    play_buttons : bool or str or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+
+    Returns
+    -------
+    controls
+    """
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_formats = create_slider_format_dict(slider_formats)
+
+    kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons
+    )
+
+    def update(params, indices, cache):
+        ax.set_title(
+            callable_else_value_no_cast(label, params, cache).format(**params),
+            fontdict=fontdict,
+            loc=loc,
+            pad=pad,
+            y=y,
+            **text_kwargs,
+        )
+
+    controls.register_function(update, fig, params)
+    ax.set_title(
+        callable_else_value_no_cast(label, params, None).format(**params),
+        fontdict=fontdict,
+        loc=loc,
+        pad=pad,
+        y=y,
+        **text_kwargs,
+    )
+    return controls
+
+
+def interactive_xlabel(
+    xlabel,
+    controls=None,
+    ax=None,
+    *,
+    fontdict=None,
+    labelpad=None,
+    loc=None,
+    slider_formats=None,
+    display_controls=True,
+    play_buttons=False,
+    force_ipywidgets=False,
+    **kwargs,
+):
+    """
+    Set an xlabel that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    other kwargs will be used to create interactive controls.
+
+    Parameters
+    ----------
+    xlabel : str or function
+        The label text. Can include {} style formatting. e.g. 'The voltage is {volts:.2f} mV'
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    ax : matplotlib axis, optional
+        The axis on which to plot. If none the current axis will be used.
+    labelpad : float, default: None
+        Spacing in points from the axes bounding box including ticks
+        and tick labels.
+    loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
+        The label position. This is a high-level alternative for passing
+        parameters *y* and *horizontalalignment*.
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses {} style formatting
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
+    play_buttons : bool or str or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+
+    Returns
+    -------
+    controls
+    """
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_formats = create_slider_format_dict(slider_formats)
+
+    kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons
+    )
+
+    def update(params, indices, cache):
+        ax.set_xlabel(
+            callable_else_value_no_cast(xlabel, params, cache).format(**params),
+            fontdict=fontdict,
+            labelpad=labelpad,
+            loc=loc,
+            **text_kwargs,
+        )
+
+    controls.register_function(update, fig, params)
+    ax.set_xlabel(
+        callable_else_value_no_cast(xlabel, params, None).format(**params),
+        fontdict=fontdict,
+        labelpad=labelpad,
+        loc=loc,
+        **text_kwargs,
+    )
+    return controls
+
+
+def interactive_ylabel(
+    ylabel,
+    controls=None,
+    ax=None,
+    *,
+    fontdict=None,
+    labelpad=None,
+    loc=None,
+    slider_formats=None,
+    display_controls=True,
+    play_buttons=False,
+    force_ipywidgets=False,
+    **kwargs,
+):
+    """
+    Set a ylabel that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    other kwargs will be used to create interactive controls.
+
+    Parameters
+    ----------
+    ylabel : str or function
+        The label text. Can include {} style formatting. e.g. 'The voltage is {volts:.2f}'
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    ax : matplotlib axis, optional
+        The axis on which to plot. If none the current axis will be used.
+    labelpad : float, default: None
+        Spacing in points from the axes bounding box including ticks
+        and tick labels.
+    loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
+        The label position. This is a high-level alternative for passing
+        parameters *y* and *horizontalalignment*.
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses {} style formatting
+    display_controls : boolean
+        Whether the controls should display themselve on creation. Ignored if controls is specified.
+    play_buttons : bool or str or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+            - None: no sliders
+            - True: sliders on the lft
+            - False: no sliders
+            - 'left': sliders on the left
+            - 'right': sliders on the right
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+
+    Returns
+    -------
+    controls
+    """
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_formats = create_slider_format_dict(slider_formats)
+
+    kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons
+    )
+
+    def update(params, indices, cache):
+        ax.set_ylabel(
+            callable_else_value_no_cast(ylabel, params, cache).format(**params),
+            fontdict=fontdict,
+            labelpad=labelpad,
+            loc=loc,
+            **text_kwargs,
+        )
+
+    controls.register_function(update, fig, params)
+    ax.set_ylabel(
+        callable_else_value_no_cast(ylabel, params, None).format(**params),
+        fontdict=fontdict,
+        labelpad=labelpad,
+        loc=loc,
+        **text_kwargs,
     )
     return controls

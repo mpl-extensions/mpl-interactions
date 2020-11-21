@@ -3,14 +3,12 @@ from collections.abc import Callable, Iterable
 
 import matplotlib.cm as cm
 import numpy as np
-from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
 from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
 from matplotlib.pyplot import close, subplots, sci
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
-from packaging import version
 
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
@@ -136,11 +134,7 @@ def heatmap_slicer(
     # mpl pcolormesh from verison 3.3+ handles len(X), len(Y) equal to Z shape
     # differently than <2. (Unquestionably better, but different enough to justify a shim)
     # https://github.com/matplotlib/matplotlib/pull/16258
-    mpl_gr_33 = version.parse(mpl_version) >= version.parse("3.3")
-    if mpl_gr_33:
-        shading = "auto"
-    else:
-        shading = "flat"
+    shading = "auto"
 
     x_centered = X[:-1] + (X[1:] - X[:-1]) / 2
     y_centered = Y[:-1] + (Y[1:] - Y[:-1]) / 2

@@ -52,3 +52,18 @@ Functions that make some features in Matplotlib a bit more convenient.
    ~mpl_interactions.ioff
    ~mpl_interactions.figure
    ~mpl_interactions.nearest_idx
+   ~mpl_interactions.indexer
+
+widgets
+-------
+
+Custom matplotlib widgets made for use in this library.
+
+.. currentmodule:: mpl_interactions
+.. autosummary::
+   :toctree: autoapi
+   :nosignatures:
+
+   ~mpl_interactions.widgets.scatter_selector
+   ~mpl_interactions.widgets.scatter_selector_value
+   ~mpl_interactions.widgets.scatter_selector_index
