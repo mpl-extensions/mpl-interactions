@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import get_backend
 from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
-from matplotlib.pyplot import close, subplots, sci
+from matplotlib.pyplot import close, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 
@@ -717,7 +717,9 @@ def hyperslicer(
         url=url,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
-    sci(im)
+    # i know it's bad news to use private methods :(
+    # but idk how else to accomplish being a psuedo-pyplot
+    ax._sci(im)
     if title is not None:
         ax.set_title(title.format(**params))
 

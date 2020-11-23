@@ -7,7 +7,7 @@ from matplotlib.cbook.deprecation import deprecated
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
-from matplotlib.pyplot import sca, sci
+from matplotlib.pyplot import sca
 
 from .controller import Controls, gogogo_controls
 
@@ -578,7 +578,7 @@ def interactive_scatter(
     )
     # this is necessary to make calls to plt.colorbar behave as expected
     sca(ax)
-    sci(scatter)
+    ax._sci(scatter)
 
     return controls
 
@@ -706,8 +706,10 @@ def interactive_imshow(
         resample=resample,
         url=url,
     )
-    # this is necessary to make calls to plt.colorbar behave as expected
-    sci(im)
+
+    # i know it's bad news to use private methods :(
+    # but idk how else to accomplish being a psuedo-pyplot
+    ax._sci(im)
     return controls
 
 
