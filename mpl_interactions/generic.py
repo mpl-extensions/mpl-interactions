@@ -516,12 +516,15 @@ def hyperslicer(
 ):
 
     """
-    View slices from a hyperstack of images selected by sliders.
+    View slices from a hyperstack of images selected by sliders. Also accepts Xarray.DataArrays
+    in which case the axes names and coordinates will be inferred from the xarray dims and coords.
 
     parameters
     ----------
-    arr : array like
+    arr : arraylike or xarray
         Hyperstack of images. The last 2 or 3 dimensions will be treated as individiual images.
+        If an xarray.DataArray then the dimensions will be automatically inferred.
+
     cmap : str or `~matplotlib.colors.Colormap`
         The Colormap instance or registered colormap name used to map
         scalar data to colors. This parameter is ignored for RGB(A) data.
