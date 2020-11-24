@@ -24,7 +24,7 @@ from .helpers import (
     notebook_backend,
     update_datalim_from_bbox,
 )
-from .mpl_kwargs import plot_kwargs_list, imshow_kwargs_list, Text_kwargs_list, kwarg_popper
+from .mpl_kwargs import Line2D_kwargs_list, imshow_kwargs_list, Text_kwargs_list, kwarg_popper
 
 # functions that are methods
 __all__ = [
@@ -128,7 +128,7 @@ def interactive_plot(
         interactive_plot(x, f, tau=(0, np.pi, 1000))
 
     """
-    kwargs, plot_kwargs = kwarg_popper(kwargs, plot_kwargs_list)
+    kwargs, plot_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
     x_and_y = False
     x = None
     fmt = None
@@ -760,6 +760,9 @@ def interactive_axhline(
         controls
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
+    **kwargs :
+        Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
+        extracted and passed through to the creation of the line.
 
     returns
     -------
@@ -769,6 +772,8 @@ def interactive_axhline(
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
+    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
+    line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
 
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
@@ -788,6 +793,7 @@ def interactive_axhline(
         callable_else_value(y, params).item(),
         callable_else_value(xmin, params).item(),
         callable_else_value(xmax, params).item(),
+        **line_kwargs,
     )
     return controls
 
@@ -839,6 +845,9 @@ def interactive_axvline(
         controls
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
+    **kwargs :
+        Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
+        extracted and passed through to the creation of the line.
 
     returns
     -------
@@ -848,6 +857,8 @@ def interactive_axvline(
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
+    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
+    line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
 
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
@@ -855,10 +866,10 @@ def interactive_axvline(
 
     def update(params, indices, cache):
         x_ = callable_else_value(x, params, cache).item()
-        line.set_ydata([x_, x_])
+        line.set_xdata([x_, x_])
         ymin_ = callable_else_value(ymin, params, cache).item()
         ymax_ = callable_else_value(ymax, params, cache).item()
-        line.set_xdata([ymin_, ymax_])
+        line.set_ydata([ymin_, ymax_])
         # TODO consider updating just the ydatalim here
 
     controls.register_function(update, fig, params)
@@ -867,6 +878,7 @@ def interactive_axvline(
         callable_else_value(x, params).item(),
         callable_else_value(ymin, params).item(),
         callable_else_value(ymax, params).item(),
+        **line_kwargs,
     )
     return controls
 
