@@ -142,4 +142,5 @@ autoapi
 # this is to enable the madness with adding gifs
 docs/examples/tidbits/*.ipynb
 docs/examples/*.ipynb
+docs/examples/*.gif
 docs/*.ipynb

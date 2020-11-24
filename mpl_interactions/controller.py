@@ -18,6 +18,8 @@ from .helpers import (
 from functools import partial
 from collections.abc import Iterable
 from matplotlib.widgets import AxesWidget
+from matplotlib.widgets import Slider as mSlider
+from matplotlib.animation import FuncAnimation
 
 
 class Controls:
@@ -180,6 +182,72 @@ class Controls:
         elif key is None:
             key = []
         return self, key
+
+    def save_animation(
+        self, filename, fig, param, interval=20, func_anim_kwargs={}, N_frames=None, **kwargs
+    ):
+        """
+        Save an animation over one of the parameters controlled by this `controls` object.
+
+        Parameters
+        ----------
+        filename : str
+        fig : figure
+        param : str
+            the name of the kwarg to use to animate
+        interval : int, default: 2o
+            interval between frames in ms
+        func_anim_kwargs : dict
+            kwargs to pass the creation of the underlying FuncAnimation
+        N_frames : int
+            Only used if the param is a matplotlib slider that was created without a
+            valstep argument. This will only be relevant if you passed your own matplotlib
+            slider as a kwarg when plotting. If needed but not given it will default to
+            a value of 200.
+        **kwargs :
+            Passed through to anim.save
+
+        Returns
+        -------
+        anim : matplotlib.animation.FuncAniation
+        """
+        slider = self.controls[param]
+        ipywidgets_slider = False
+        if "Box" in str(slider.__class__):
+            ipywidgets_slider = True
+            for obj in slider.children:
+                if "Slider" in str(obj.__class__):
+                    slider = obj
+            N = int((slider.max - slider.min) / slider.step)
+            min_ = slider.min
+            max_ = slider.max
+            step = slider.step
+        elif isinstance(slider, mSlider):
+            min_ = slider.valmin
+            max_ = slider.valmax
+            if slider.valstep is None:
+                N = N_frames if N_frames else 200
+                step = (max_ - min_) / N
+            else:
+                N = int((max_ - min_) / slider.valstep)
+                step = slider.valstep
+
+        def f(i):
+            val = min_ + step * i
+            if ipywidgets_slider:
+                slider.value = val
+            else:
+                slider.set_val(val)
+            return []
+
+        repeat = func_anim_kwargs.pop("repeat", False)
+        anim = FuncAnimation(fig, f, frames=N, interval=interval, repeat=repeat, **func_anim_kwargs)
+        # draw then stop necessary to prevent an extra loop after finished saving
+        # see https://discourse.matplotlib.org/t/how-to-prevent-funcanimation-looping-a-single-time-after-save/21680/2
+        fig.canvas.draw()
+        anim.event_source.stop()
+        anim.save(filename, **kwargs)
+        return anim
 
     def display(self):
         """
