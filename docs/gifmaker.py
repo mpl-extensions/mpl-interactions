@@ -2,6 +2,7 @@ import json
 import base64
 import os
 import glob
+import shutil
 
 
 def gogogo_all(source_dir, dest_dir):
@@ -9,9 +10,13 @@ def gogogo_all(source_dir, dest_dir):
     copy and render all the notebooks from one dir to another
     """
     notebooks = glob.glob(os.path.join(source_dir, "*.ipynb"))
+    gifs = glob.glob(os.path.join(source_dir, "*.gif"))
     for nb in notebooks:
         to = os.path.join(dest_dir, os.path.basename(nb))
         gogogo_gif(nb, to)
+    for gif in gifs:
+        to = os.path.join(dest_dir, os.path.basename(gif))
+        shutil.copyfile(gif, to)
 
 
 def gogogo_gif(notebook_from, notebook_to):
