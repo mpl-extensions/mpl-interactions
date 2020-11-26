@@ -163,9 +163,10 @@ class Controls:
         params = list(params)
         for p in params:
             self._update_funcs[p].append((f, params))
-            self.figs[p].append(fig)  # maybe should use a weakref?
-            # also should probably register a close_event callback to remove
-            # the figure
+            if fig not in self.figs[p]:
+                self.figs[p].append(fig)  # maybe should use a weakref?
+                # also should probably register a close_event callback to remove
+                # the figure
 
     def __getitem__(self, key):
         """
@@ -271,13 +272,38 @@ class Controls:
 
 
 def gogogo_controls(
-    kwargs, controls, display_controls, slider_formats, play_buttons, allow_dupes=False
+    kwargs,
+    controls,
+    display_controls,
+    slider_formats,
+    play_buttons,
+    extra_controls=None,
+    allow_dupes=False,
 ):
-    if controls:
+    if controls or (extra_controls and not all([e is None for e in extra_controls])):
+        if extra_controls is not None:
+            controls = [controls] + extra_controls
+
         if isinstance(controls, tuple):
             # it was indexed by the user when passed in
             extra_keys = controls[1]
             controls = controls[0]
+            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
+        elif isinstance(controls, list):
+            # collected from extra controls
+            ctrls = []
+            kwgs = []
+            for c in controls:
+                if c is not None:
+                    ctrls.append(c[0])
+                    if c[1] is not None:
+                        kwgs += [*c[1]]
+            extra_keys = set(kwgs)
+            controls = set(ctrls)
+            if len(controls) != 1:
+                raise ValueError("Only one controls object may be used per function")
+            controls = controls.pop()
             controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         else:
@@ -290,3 +316,20 @@ def gogogo_controls(
         if display_controls:
             controls.display()
         return controls, params
+
+
+def prep_scalar(arg, name=None):
+    if isinstance(arg, tuple):
+        if isinstance(arg[0], Controls):
+
+            def f(**kwargs):
+                return kwargs[arg[1][0]]
+
+            return f, arg, None
+        elif name is not None:
+
+            def f(**kwargs):
+                return kwargs[name]
+
+            return f, None, (name, arg)
+    return arg, None, None
