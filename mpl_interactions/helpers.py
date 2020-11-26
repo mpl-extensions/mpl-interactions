@@ -312,6 +312,27 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
             return val.value, val
             # val.observe(partial(update, key=key, label=None), names=["value"])
     else:
+        if isinstance(val, tuple) and val[0] in ["r", "range", "rang", "rage"]:
+            # also check for some reasonably easy mispellings
+            if isinstance(val[1], (np.ndarray, list)):
+                vals = val[1]
+            else:
+                vals = np.linspace(*val[1:])
+            label = widgets.Label(value=str(vals[0]))
+            slider = widgets.IntRangeSlider(
+                value=(0, vals.size - 1), min=0, max=vals.size - 1, readout=False, description=key
+            )
+            widgets.dlink(
+                (slider, "value"),
+                (label, "value"),
+                transform=lambda x: slider_format_string.format(vals[x[0]])
+                + " - "
+                + slider_format_string.format(vals[x[1]]),
+            )
+            slider.observe(partial(update, values=vals), names="value")
+            controls = widgets.HBox([slider, label])
+            return vals[[0, -1]], controls
+
         if isinstance(val, tuple) and len(val) in [2, 3]:
             # treat as an argument to linspace
             # idk if it's acceptable to overwrite kwargs like this

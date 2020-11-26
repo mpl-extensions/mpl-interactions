@@ -106,6 +106,9 @@ class Controls:
                     if control:
                         self.controls[k] = control
                         self.vbox.children = list(self.vbox.children) + [control]
+                if k == "vmin_vmax":
+                    self.params["vmin"] = self.params["vmin_vmax"][0]
+                    self.params["vmax"] = self.params["vmin_vmax"][1]
         else:
             if len(kwargs) > 0:
                 mpl_layout = create_mpl_controls_fig(kwargs)
@@ -129,14 +132,22 @@ class Controls:
                     if control:
                         self.controls[k] = control
 
-    def slider_updated(self, change, key, values):
+    def _slider_updated(self, change, key, values):
         """
         gotta also give the indices in order to support hyperslicer without horrifying contortions
         """
         if values is None:
             self.params[key] = change["new"]
         else:
-            self.params[key] = values[change["new"]]
+            c = change["new"]
+            if isinstance(c, tuple):
+                # This is for range sliders which return 2 indices
+                self.params[key] = values[[*change["new"]]]
+                if key == "vmin_vmax":
+                    self.params["vmin"] = self.params[key][0]
+                    self.params["vmax"] = self.params[key][1]
+            else:
+                self.params[key] = values[change["new"]]
         self.indices[key] = change["new"]
         if self.use_cache:
             cache = {}
@@ -151,6 +162,17 @@ class Controls:
             f(params=ps, indices=idxs, cache=cache)
         for f in self.figs[key]:
             f.canvas.draw_idle()
+
+    def slider_updated(self, change, key, values):
+        """
+        thin wrapper to enable splitting of special cased range sliders.
+        e.g. of `vmin_vmax` -> `vmin` and `vmax`. In the future maybe
+        generalize this to any range slider with an underscore in the name?
+        """
+        self._slider_updated(change, key, values)
+        if key == "vmin_vmax":
+            self._slider_updated({"new": change["new"][0]}, "vmin", values)
+            self._slider_updated({"new": change["new"][1]}, "vmax", values)
 
     def register_function(self, f, fig, params=None):
         """
