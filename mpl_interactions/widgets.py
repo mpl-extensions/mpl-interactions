@@ -283,6 +283,7 @@ class RangeSlider(SliderBase):
             ax, orientation, closedmin, closedmax, valmin, valmax, valfmt, dragging, valstep
         )
 
+        self.val = valinit
         if valinit is None:
             valinit = np.array([valmin + 0.25 * valmax, valmin + 0.75 * valmax])
         else:

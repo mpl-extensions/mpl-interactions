@@ -688,9 +688,7 @@ def interactive_imshow(
         if a is not None:
             kwargs[a[0]] = a[1]
     if vmin_vmax is not None:
-        if not isinstance(vmin_vmax, tuple):
-            raise ValueError("vmin_vmax must be a tuple")
-        if not isinstance(vmin_vmax[0], str):
+        if isinstance(vmin_vmax, tuple) and not isinstance(vmin_vmax[0], str):
             vmin_vmax = ("r", *vmin_vmax)
         kwargs["vmin_vmax"] = vmin_vmax
 
