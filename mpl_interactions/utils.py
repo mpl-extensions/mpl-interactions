@@ -80,7 +80,7 @@ def nearest_idx(array, value, axis=None):
     return argmin(abs(array - value), axis=axis)
 
 
-def indexer(arr, axis=0, index_name=None):
+def indexer(arr, index_name=None, axis=0):
     """
     Utility function for when you want to index an array as part of an interactive function.
     For example: ``iplt.plot(indexor(arr), idx = np.arange(5))``
@@ -89,11 +89,11 @@ def indexer(arr, axis=0, index_name=None):
     ----------
     arr : arraylike
         The array to be indexed
-    axis : int
-        which axis to index, default to first axis
     index_name : str, default: None
         The name of the variable the returned function should expect to receive.
         If ``None`` then the function will check for ``idx``, ``index``, ``ind``, and ``indx``.
+    axis : int
+        which axis to index, default to first axis
 
     Returns
     -------
@@ -106,7 +106,7 @@ def indexer(arr, axis=0, index_name=None):
     else:
         idxs = [index_name]
 
-    def f(**kwargs):
+    def f(*args, **kwargs):
         for i in idxs:
             if i in kwargs:
                 return np.take(arr, kwargs[i], axis=axis)
