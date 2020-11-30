@@ -1,0 +1,34 @@
+name: mpl-latest
+
+on:
+  schedule:
+    - cron: "0 16 * * *" # monday at noon est
+
+jobs:
+  test-3x:
+    name: Python ${{ matrix.python-version }} - Matplotlib master
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8.x', '3.9.x']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
+
+      - name: Install
+        run: |
+          pip install wheel
+          pip install git+https://github.com/matplotlib/matplotlib.git
+          pip install ".[jupyter, test]"
+
+      - name: Tests
+        run: |
+          pytest --color=yes
+
+
