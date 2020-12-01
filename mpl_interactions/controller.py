@@ -307,6 +307,11 @@ def gogogo_controls(
 ):
     if controls or (extra_controls and not all([e is None for e in extra_controls])):
         if extra_controls is not None:
+            if isinstance(controls, Controls):
+                # e.g. plt.scatter(x,y, s=ctrls['size'], controls=ctrls)
+                # so now we pretend as if the controls object was indexed with all of its
+                # parameters
+                controls = (controls, list(controls.params.keys()))
             controls = [controls] + extra_controls
 
         if isinstance(controls, tuple):
@@ -321,13 +326,16 @@ def gogogo_controls(
             kwgs = []
             for c in controls:
                 if c is not None:
+                    # c[0] is a controls object
                     ctrls.append(c[0])
                     if c[1] is not None:
+                        # at this point c[1] is a list of the the values indexed from controls
                         kwgs += [*c[1]]
             extra_keys = set(kwgs)
             controls = set(ctrls)
             if len(controls) != 1:
                 raise ValueError("Only one controls object may be used per function")
+            # now we are garunteed to only have a single entry in controls, so it's ok to pop
             controls = controls.pop()
             controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
@@ -346,14 +354,16 @@ def gogogo_controls(
 def prep_scalar(arg, name=None):
     if isinstance(arg, tuple):
         if isinstance(arg[0], Controls):
+            # index controls. e.g. ctrls['size']
 
-            def f(**kwargs):
+            def f(*args, **kwargs):
                 return kwargs[arg[1][0]]
 
             return f, arg, None
         elif name is not None:
-
-            def f(**kwargs):
+            # name will be set by calling function if from ipyplot
+            # this case is if given an abbreviation e.g.: `s = (0, 10)`
+            def f(*args, **kwargs):
                 return kwargs[name]
 
             return f, None, (name, arg)
