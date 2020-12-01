@@ -51,6 +51,13 @@ Also feel free to ask for help/advice on the relevant Github `issue <https://git
 Documentation
 -------------
 
+For the most part the Documentation is generated from the Notebooks in the `examples` folder. So to write new
+examples work in a notebook in the ``examples`` directory. When the docs are generated then they will be
+converted to html via `nbsphinx <https://nbsphinx.readthedocs.io/en/latest/>`_. 
+
+If you are adding a new example then you need to include it in the toctree in ``docs/index.rst``.
+
+
 Following changes to the source files, you can view recent adjustments by building the documentation.
 
 1. Make sure you have installed the requirements for building the documentation:
@@ -68,6 +75,16 @@ Following changes to the source files, you can view recent adjustments by buildi
     make html
 
 If you open the ``index.html`` file in your browser you should now be able to see the rendered documentation.
+
+Embedding GIFs
+^^^^^^^^^^^^^^
+
+Unfortunately the interactive plots are not interactive on readthedocs, this is because they require an active
+Python kernel to work. So instead we short gifs or apngs of interacting with the plots and embed them. To accomplish this
+the GIFs are stored in ``docs/_static/images`` and they are automatically embedded when the notebooks are converted to html
+based on the file names in the cell metadata. For example here is the process of setting the metadata of a cell when using JupyterLab.
+
+.. image:: _static/images/how-to-embed-gif.gif
 
 Autobuild the documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
