@@ -12,7 +12,7 @@ from numpy import asanyarray, asarray, max, min, swapaxes
 
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
-from .controller import gogogo_controls
+from .controller import gogogo_controls, prep_scalar
 from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
 # functions that are methods
@@ -628,7 +628,7 @@ def hyperslicer(
                 slider_arr = kwargs.pop(name)
 
         if axes is not None and axes[i] is not None:
-            # no we assume the axes[i] has one of the following forms
+            # now we assume the axes[i] has one of the following forms
             # ('mu', (0,1))
             # ('mu', np.array)
             # ('mu', 0, 1)
@@ -678,8 +678,24 @@ def hyperslicer(
         if "extent" not in kwargs:
             extent = None
 
+    args = []
+    extra_ctrls = []
+    # fmt: off
+    vmin, ec, arg = prep_scalar(vmin, name='vmin'); extra_ctrls.append(ec); args.append(arg)
+    vmax, ec, arg = prep_scalar(vmax, name='vmax'); extra_ctrls.append(ec); args.append(arg)
+    # fmt: on
+    for a in args:
+        if a is not None:
+            kwargs[a[0]] = a[1]
+
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_format_strings, play_buttons, allow_dupes=True
+        kwargs,
+        controls,
+        display_controls,
+        slider_format_strings,
+        play_buttons,
+        extra_ctrls,
+        allow_dupes=True,
     )
 
     def update(params, indices, cache):
@@ -687,7 +703,12 @@ def hyperslicer(
             ax.set_title(title.format(**params))
 
         for k, v in indices.items():
-            slices[name_to_dim[k]] = v
+            try:
+                slices[name_to_dim[k]] = v
+            except KeyError:
+                # this is necssary to allow things
+                # like vmax = (240, 250)
+                pass
 
         new_data = arr[tuple(slices)]
         im.set_data(new_data)

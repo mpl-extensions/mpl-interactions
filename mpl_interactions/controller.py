@@ -106,6 +106,9 @@ class Controls:
                     if control:
                         self.controls[k] = control
                         self.vbox.children = list(self.vbox.children) + [control]
+                if k == "vmin_vmax":
+                    self.params["vmin"] = self.params["vmin_vmax"][0]
+                    self.params["vmax"] = self.params["vmin_vmax"][1]
         else:
             if len(kwargs) > 0:
                 mpl_layout = create_mpl_controls_fig(kwargs)
@@ -128,15 +131,26 @@ class Controls:
                     )
                     if control:
                         self.controls[k] = control
+                    if k == "vmin_vmax":
+                        self.params["vmin"] = self.params["vmin_vmax"][0]
+                        self.params["vmax"] = self.params["vmin_vmax"][1]
 
-    def slider_updated(self, change, key, values):
+    def _slider_updated(self, change, key, values):
         """
         gotta also give the indices in order to support hyperslicer without horrifying contortions
         """
         if values is None:
             self.params[key] = change["new"]
         else:
-            self.params[key] = values[change["new"]]
+            c = change["new"]
+            if isinstance(c, tuple):
+                # This is for range sliders which return 2 indices
+                self.params[key] = values[[*change["new"]]]
+                if key == "vmin_vmax":
+                    self.params["vmin"] = self.params[key][0]
+                    self.params["vmax"] = self.params[key][1]
+            else:
+                self.params[key] = values[change["new"]]
         self.indices[key] = change["new"]
         if self.use_cache:
             cache = {}
@@ -152,6 +166,17 @@ class Controls:
         for f in self.figs[key]:
             f.canvas.draw_idle()
 
+    def slider_updated(self, change, key, values):
+        """
+        thin wrapper to enable splitting of special cased range sliders.
+        e.g. of `vmin_vmax` -> `vmin` and `vmax`. In the future maybe
+        generalize this to any range slider with an underscore in the name?
+        """
+        self._slider_updated(change, key, values)
+        if key == "vmin_vmax":
+            self._slider_updated({"new": change["new"][0]}, "vmin", values)
+            self._slider_updated({"new": change["new"][1]}, "vmax", values)
+
     def register_function(self, f, fig, params=None):
         """
         if params is None use the entire current set of params
@@ -163,9 +188,10 @@ class Controls:
         params = list(params)
         for p in params:
             self._update_funcs[p].append((f, params))
-            self.figs[p].append(fig)  # maybe should use a weakref?
-            # also should probably register a close_event callback to remove
-            # the figure
+            if fig not in self.figs[p]:
+                self.figs[p].append(fig)  # maybe should use a weakref?
+                # also should probably register a close_event callback to remove
+                # the figure
 
     def __getitem__(self, key):
         """
@@ -271,13 +297,46 @@ class Controls:
 
 
 def gogogo_controls(
-    kwargs, controls, display_controls, slider_formats, play_buttons, allow_dupes=False
+    kwargs,
+    controls,
+    display_controls,
+    slider_formats,
+    play_buttons,
+    extra_controls=None,
+    allow_dupes=False,
 ):
-    if controls:
+    if controls or (extra_controls and not all([e is None for e in extra_controls])):
+        if extra_controls is not None:
+            if isinstance(controls, Controls):
+                # e.g. plt.scatter(x,y, s=ctrls['size'], controls=ctrls)
+                # so now we pretend as if the controls object was indexed with all of its
+                # parameters
+                controls = (controls, list(controls.params.keys()))
+            controls = [controls] + extra_controls
+
         if isinstance(controls, tuple):
             # it was indexed by the user when passed in
             extra_keys = controls[1]
             controls = controls[0]
+            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
+        elif isinstance(controls, list):
+            # collected from extra controls
+            ctrls = []
+            kwgs = []
+            for c in controls:
+                if c is not None:
+                    # c[0] is a controls object
+                    ctrls.append(c[0])
+                    if c[1] is not None:
+                        # at this point c[1] is a list of the the values indexed from controls
+                        kwgs += [*c[1]]
+            extra_keys = set(kwgs)
+            controls = set(ctrls)
+            if len(controls) != 1:
+                raise ValueError("Only one controls object may be used per function")
+            # now we are garunteed to only have a single entry in controls, so it's ok to pop
+            controls = controls.pop()
             controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         else:
@@ -290,3 +349,22 @@ def gogogo_controls(
         if display_controls:
             controls.display()
         return controls, params
+
+
+def prep_scalar(arg, name=None):
+    if isinstance(arg, tuple):
+        if isinstance(arg[0], Controls):
+            # index controls. e.g. ctrls['size']
+
+            def f(*args, **kwargs):
+                return kwargs[arg[1][0]]
+
+            return f, arg, None
+        elif name is not None:
+            # name will be set by calling function if from ipyplot
+            # this case is if given an abbreviation e.g.: `s = (0, 10)`
+            def f(*args, **kwargs):
+                return kwargs[name]
+
+            return f, None, (name, arg)
+    return arg, None, None

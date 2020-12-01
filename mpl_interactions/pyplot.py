@@ -9,7 +9,7 @@ from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
 from matplotlib.pyplot import sca
 
-from .controller import Controls, gogogo_controls
+from .controller import Controls, gogogo_controls, prep_scalar
 
 from .helpers import (
     broadcast_many,
@@ -24,9 +24,8 @@ from .helpers import (
     notebook_backend,
     update_datalim_from_bbox,
 )
-from .mpl_kwargs import plot_kwargs_list, imshow_kwargs_list, Text_kwargs_list, kwarg_popper
+from .mpl_kwargs import Line2D_kwargs_list, imshow_kwargs_list, Text_kwargs_list, kwarg_popper
 
-# functions that are methods
 __all__ = [
     "interactive_plot",
     "interactive_hist",
@@ -128,7 +127,7 @@ def interactive_plot(
         interactive_plot(x, f, tau=(0, np.pi, 1000))
 
     """
-    kwargs, plot_kwargs = kwarg_popper(kwargs, plot_kwargs_list)
+    kwargs, plot_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
     x_and_y = False
     x = None
     fmt = None
@@ -431,11 +430,9 @@ def interactive_scatter(
         then parametric must be True and the function for x must return x, y
     c : array-like or list of colors or color, broadcastable
         Must be broadcastable to x,y and any other plotting kwargs.
-        valid input to plt.scatter, or an array of valid inputs, or a function
-        or an array-like of functions of the same length as f
-    s : float or array-like or function, broadcastable
-        valid input to plt.scatter, or an array of valid inputs, or a function
-        or an array-like of functions of the same length as f
+        valid input to plt.scatter
+    s : float, array-like, function, or index controls object
+        valid input to plt.scatter, or a function
     alpha : float, None, or function(s), broadcastable
         Affects all scatter points. This will compound with any alpha introduced by
         the ``c`` argument
@@ -494,8 +491,18 @@ def interactive_scatter(
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
+
+    args = []
+    extra_ctrls = []
+    # fmt: off
+    s, ec, arg = prep_scalar(s, name='s'); extra_ctrls.append(ec); args.append(arg)
+    alpha, ec, arg = prep_scalar(alpha, name='alpha'); extra_ctrls.append(ec); args.append(arg)
+    # fmt: on
+    for a in args:
+        if a is not None:
+            kwargs[a[0]] = a[1]
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_formats, play_buttons
+        kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
     def update(params, indices, cache):
@@ -525,7 +532,9 @@ def interactive_scatter(
             scatter.set_facecolor(c_)
         if ec_ is not None:
             scatter.set_edgecolor(ec_)
-        if s_ is not None and not isinstance(s_, Number):
+        if s_ is not None:
+            if isinstance(s_, Number):
+                s_ = np.broadcast_to(s_, (len(x_),))
             scatter.set_sizes(s_)
         if a_ is not None:
             scatter.set_alpha(a_)
@@ -594,6 +603,7 @@ def interactive_imshow(
     alpha=None,
     vmin=None,
     vmax=None,
+    vmin_vmax=None,
     origin=None,
     extent=None,
     autoscale_cmap=True,
@@ -666,10 +676,35 @@ def interactive_imshow(
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
+    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
+
+    args = []
+    extra_ctrls = []
+    # fmt: off
+    vmin, ec, arg = prep_scalar(vmin, name='vmin'); extra_ctrls.append(ec); args.append(arg)
+    vmax, ec, arg = prep_scalar(vmax, name='vmax'); extra_ctrls.append(ec); args.append(arg)
+    # fmt: on
+    for a in args:
+        if a is not None:
+            kwargs[a[0]] = a[1]
+    if vmin_vmax is not None:
+        if isinstance(vmin_vmax, tuple) and not isinstance(vmin_vmax[0], str):
+            vmin_vmax = ("r", *vmin_vmax)
+        kwargs["vmin_vmax"] = vmin_vmax
 
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_formats, play_buttons
+        kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
+    if vmin_vmax is not None:
+        params.pop("vmin_vmax")
+        params["vmin"] = controls.params["vmin"]
+        params["vmax"] = controls.params["vmax"]
+
+        def vmin(**kwargs):
+            return kwargs["vmin"]
+
+        def vmax(**kwargs):
+            return kwargs["vmax"]
 
     def update(params, indices, cache):
         if isinstance(X, Callable):
@@ -760,6 +795,9 @@ def interactive_axhline(
         controls
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
+    **kwargs :
+        Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
+        extracted and passed through to the creation of the line.
 
     returns
     -------
@@ -770,9 +808,23 @@ def interactive_axhline(
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
+    extra_ctrls = []
+    args = []
+    # fmt: off
+    y, ec = prep_scalar(x)
+    extra_ctrls.append(ec)
+    xmin, ec, arg = prep_scalar(xmin, "xmin"); extra_ctrls.append(ec);  args.append(arg)
+    xmax, ec, arg = prep_scalar(xmax, "xmax"); extra_ctrls.append(ec); args.append(arg)
+    # fmt: on
+    for a in args:
+        if a is not None:
+            kwargs[a[0]] = a[1]
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_formats, play_buttons
+        kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
+
+    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
+    line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
 
     def update(params, indices, cache):
         y_ = callable_else_value(y, params, cache).item()
@@ -788,6 +840,7 @@ def interactive_axhline(
         callable_else_value(y, params).item(),
         callable_else_value(xmin, params).item(),
         callable_else_value(xmax, params).item(),
+        **line_kwargs,
     )
     return controls
 
@@ -839,6 +892,9 @@ def interactive_axvline(
         controls
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
+    **kwargs :
+        Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
+        extracted and passed through to the creation of the line.
 
     returns
     -------
@@ -849,16 +905,30 @@ def interactive_axvline(
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
+    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
+    line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
+
+    extra_ctrls = []
+    args = []
+    # fmt: off
+    x, ec, arg = prep_scalar(x, 'x'); extra_ctrls.append(ec); args.append(arg)
+    ymin, ec,arg = prep_scalar(ymin, 'ymin'); extra_ctrls.append(ec); args.append(arg)
+    ymax, ec,arg  = prep_scalar(ymax, 'ymax'); extra_ctrls.append(ec); args.append(arg)
+    # fmt: on
+    for a in args:
+        if a is not None:
+            kwargs[a[0]] = a[1]
+
     controls, params = gogogo_controls(
-        kwargs, controls, display_controls, slider_formats, play_buttons
+        kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
     def update(params, indices, cache):
         x_ = callable_else_value(x, params, cache).item()
-        line.set_ydata([x_, x_])
+        line.set_xdata([x_, x_])
         ymin_ = callable_else_value(ymin, params, cache).item()
         ymax_ = callable_else_value(ymax, params, cache).item()
-        line.set_xdata([ymin_, ymax_])
+        line.set_ydata([ymin_, ymax_])
         # TODO consider updating just the ydatalim here
 
     controls.register_function(update, fig, params)
@@ -867,6 +937,7 @@ def interactive_axvline(
         callable_else_value(x, params).item(),
         callable_else_value(ymin, params).item(),
         callable_else_value(ymax, params).item(),
+        **line_kwargs,
     )
     return controls
 
@@ -935,6 +1006,7 @@ def interactive_title(
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
+
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
     )

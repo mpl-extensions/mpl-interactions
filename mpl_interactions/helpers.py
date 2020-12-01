@@ -15,6 +15,7 @@ from matplotlib import get_backend
 from matplotlib.pyplot import axes, gca, gcf, figure
 from numpy.distutils.misc_util import is_sequence
 
+from .widgets import RangeSlider
 from .utils import ioff
 
 __all__ = [
@@ -312,6 +313,27 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
             return val.value, val
             # val.observe(partial(update, key=key, label=None), names=["value"])
     else:
+        if isinstance(val, tuple) and val[0] in ["r", "range", "rang", "rage"]:
+            # also check for some reasonably easy mispellings
+            if isinstance(val[1], (np.ndarray, list)):
+                vals = val[1]
+            else:
+                vals = np.linspace(*val[1:])
+            label = widgets.Label(value=str(vals[0]))
+            slider = widgets.IntRangeSlider(
+                value=(0, vals.size - 1), min=0, max=vals.size - 1, readout=False, description=key
+            )
+            widgets.dlink(
+                (slider, "value"),
+                (label, "value"),
+                transform=lambda x: slider_format_string.format(vals[x[0]])
+                + " - "
+                + slider_format_string.format(vals[x[1]]),
+            )
+            slider.observe(partial(update, values=vals), names="value")
+            controls = widgets.HBox([slider, label])
+            return vals[[0, -1]], controls
+
         if isinstance(val, tuple) and len(val) in [2, 3]:
             # treat as an argument to linspace
             # idk if it's acceptable to overwrite kwargs like this
@@ -469,6 +491,25 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
     return slider
 
 
+def create_mpl_range_selection_slider(ax, label, values, slider_format_string):
+    """
+    creates a slider that behaves similarly to the ipywidgets selection slider
+    """
+    slider = RangeSlider(ax, label, 0, len(values) - 1, valinit=(0, len(values) - 1), valstep=1)
+
+    def update_text(val):
+        slider.valtext.set_text(
+            slider_format_string.format(values[val[0]])
+            + " - "
+            + slider_format_string.format(values[val[-1]])
+        )
+
+    # make sure the initial value also gets formatted
+    update_text((0, len(values) - 1))
+    slider.on_changed(update_text)
+    return slider
+
+
 def process_mpl_widget(val, update):
     """
     handle the case of a kwarg being an existing matplotlib widget.
@@ -482,7 +523,7 @@ def process_mpl_widget(val, update):
         val.set_active(0)
         cb = val.on_clicked(partial(changeify_radio, labels=val.labels, update=update))
         return val.labels[0], val, cb
-    elif isinstance(val, mwidgets.Slider):
+    elif isinstance(val, (mwidgets.Slider, RangeSlider)):
         # potential future improvement:
         # check if valstep has been set and then try to infer the values
         # but not now, I'm trying to avoid premature optimization lest this
@@ -550,6 +591,17 @@ def kwarg_to_mpl_widget(
     else:
         slider = None
         update_fxn = None
+        if isinstance(val, tuple) and val[0] in ["r", "range", "rang", "rage"]:
+            if isinstance(val[1], (np.ndarray, list)):
+                vals = val[1]
+            else:
+                vals = np.linspace(*val[1:])
+            slider_ax = fig.add_axes([0.2, 0.9 - widget_y - gap_height, 0.65, slider_height])
+            slider = create_mpl_range_selection_slider(slider_ax, key, vals, slider_format_string)
+            cb = slider.on_changed(partial(changeify, update=partial(update, values=vals)))
+            widget_y += slider_height + gap_height
+            return vals[[0, -1]], slider, cb, widget_y
+
         if isinstance(val, tuple):
             if len(val) == 2:
                 min_ = float(val[0])
