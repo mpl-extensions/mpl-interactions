@@ -13,6 +13,7 @@ To achieve this, mpl_interactions provides:
 * A function to compare horizontal and vertical slices of heatmaps.
 * A function allowing zooming using the scroll wheel.
 
+
 Installation
 ^^^^^^^^^^^^^
 
@@ -23,6 +24,12 @@ jupyter dependencies by running ``pip install mpl_interactions[jupyter]``
 
 Further instructions for installation from JupyterLab can be found on the :doc:`Installation` page. 
 
+Getting Help
+^^^^^^^^^^^^
+
+If you have a question on how to do something with ``mpl_interactions`` a great place
+to ask it is: https://discourse.matplotlib.org/c/3rdparty/18. Feel free to mention  ``@ianhi`` in your
+post there.
 
 Basic example
 ^^^^^^^^^^^^^^
