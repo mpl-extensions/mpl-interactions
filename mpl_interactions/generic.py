@@ -497,6 +497,7 @@ def hyperslicer(
     alpha=None,
     vmin=None,
     vmax=None,
+    vmin_vmax=None,
     origin=None,
     extent=None,
     autoscale_cmap=True,
@@ -687,6 +688,10 @@ def hyperslicer(
     for a in args:
         if a is not None:
             kwargs[a[0]] = a[1]
+    if vmin_vmax is not None:
+        if isinstance(vmin_vmax, tuple) and not isinstance(vmin_vmax[0], str):
+            vmin_vmax = ("r", *vmin_vmax)
+        kwargs["vmin_vmax"] = vmin_vmax
 
     controls, params = gogogo_controls(
         kwargs,
@@ -697,6 +702,16 @@ def hyperslicer(
         extra_ctrls,
         allow_dupes=True,
     )
+    if vmin_vmax is not None:
+        params.pop("vmin_vmax")
+        params["vmin"] = controls.params["vmin"]
+        params["vmax"] = controls.params["vmax"]
+
+        def vmin(**kwargs):
+            return kwargs["vmin"]
+
+        def vmax(**kwargs):
+            return kwargs["vmax"]
 
     def update(params, indices, cache):
         if title is not None:
