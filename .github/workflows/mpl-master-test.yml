@@ -2,7 +2,7 @@ name: mpl-latest
 
 on:
   schedule:
-    - cron: "0 16 * * *" # monday at noon est
+    - cron: "0 16 * * 1" # monday at noon est
 
 jobs:
   test-3x:
