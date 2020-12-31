@@ -150,7 +150,7 @@ class Controls:
                     self.params["vmin"] = self.params[key][0]
                     self.params["vmax"] = self.params[key][1]
             else:
-                self.params[key] = values[change["new"]]
+                self.params[key] = values[int(change["new"])]
         self.indices[key] = change["new"]
         if self.use_cache:
             cache = {}

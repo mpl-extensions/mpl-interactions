@@ -483,7 +483,7 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
     slider = mwidgets.Slider(ax, label, 0, len(values), valinit=0, valstep=1)
 
     def update_text(val):
-        slider.valtext.set_text(slider_format_string.format(values[val]))
+        slider.valtext.set_text(slider_format_string.format(values[int(val)]))
 
     # make sure the initial value also gets formatted
     update_text(0)
