@@ -84,7 +84,7 @@ Python kernel to work. So instead we short gifs or apngs of interacting with the
 the GIFs are stored in ``docs/_static/images`` and they are automatically embedded when the notebooks are converted to html
 based on the file names in the cell metadata. For example here is the process of setting the metadata of a cell when using JupyterLab.
 
-.. image:: _static/images/how-to-embed-gif.gif
+.. image:: _static/images/how-to-embed-gif.apng
 
 Autobuild the documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
