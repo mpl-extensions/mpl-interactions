@@ -150,7 +150,9 @@ class Controls:
                     self.params["vmin"] = self.params[key][0]
                     self.params["vmax"] = self.params[key][1]
             else:
-                self.params[key] = values[change["new"]]
+                # int casting due to a bug in numpy < 1.19
+                # see https://github.com/ianhi/mpl-interactions/pull/155
+                self.params[key] = values[int(change["new"])]
         self.indices[key] = change["new"]
         if self.use_cache:
             cache = {}
