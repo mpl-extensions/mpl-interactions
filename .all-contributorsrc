@@ -63,6 +63,15 @@
         "code",
         "userTesting"
       ]
+    },
+    {
+      "login": "kmdalton",
+      "name": "Kevin Dalton",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/2790777?v=4",
+      "profile": "https://github.com/kmdalton",
+      "contributions": [
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
