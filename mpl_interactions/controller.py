@@ -179,7 +179,7 @@ class Controls:
             self._slider_updated({"new": change["new"][0]}, "vmin", values)
             self._slider_updated({"new": change["new"][1]}, "vmax", values)
 
-    def register_function(self, f, fig, params=None):
+    def _register_function(self, f, fig, params=None):
         """
         if params is None use the entire current set of params
         """
