@@ -480,7 +480,7 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
     """
     creates a slider that behaves similarly to the ipywidgets selection slider
     """
-    slider = mwidgets.Slider(ax, label, 0, len(values), valinit=0, valstep=1)
+    slider = mwidgets.Slider(ax, label, 0, len(values) - 1, valinit=0, valstep=1)
 
     def update_text(val):
         slider.valtext.set_text(slider_format_string.format(values[int(val)]))
