@@ -736,7 +736,7 @@ def hyperslicer(
         if isinstance(vmax, Callable):
             im.norm.vmax = vmax(**params)
 
-    controls.register_function(update, fig, params.keys())
+    controls._register_function(update, fig, params.keys())
     # make it once here so we can use the dims in update
     new_data = arr[tuple(0 for i in range(arr.ndim - im_dims))]
     im = ax.imshow(

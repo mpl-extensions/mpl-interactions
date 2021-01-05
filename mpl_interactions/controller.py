@@ -58,6 +58,7 @@ class Controls:
         self.figs = defaultdict(list)  # maybe should only store weakrefs?
         self.indices = defaultdict(lambda: 0)
         self._update_funcs = defaultdict(list)
+        self._user_callbacks = defaultdict(list)
         self.add_kwargs(kwargs, slider_formats, play_buttons)
 
     def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None, allow_duplicates=False):
@@ -158,6 +159,7 @@ class Controls:
             cache = {}
         else:
             cache = None
+
         for f, params in self._update_funcs[key]:
             ps = {}
             idxs = {}
@@ -165,6 +167,9 @@ class Controls:
                 ps[k] = self.params[k]
                 idxs[k] = self.indices[k]
             f(params=ps, indices=idxs, cache=cache)
+        for f, params in self._user_callbacks[key]:
+            f(**{key: self.params[key] for key in params})
+
         for f in self.figs[key]:
             f.canvas.draw_idle()
 
@@ -179,7 +184,26 @@ class Controls:
             self._slider_updated({"new": change["new"][0]}, "vmin", values)
             self._slider_updated({"new": change["new"][1]}, "vmax", values)
 
-    def _register_function(self, f, fig, params=None):
+    def register_callback(self, callback, params=None, eager=False):
+        """
+        Register a callback to be called anytime one of the specified params changes.
+
+        Parameters
+        ----------
+        callback : callable
+            a function called
+        params : list of str, str, or None
+            the params to be passed to the callback
+        eager : bool
+            Whether to call the callback immediately upon registration
+        """
+        if isinstance(params, str):
+            params = [params]
+        if eager:
+            callback(**{key: self.params[key] for key in params})
+        self._register_function(callback, fig=None, params=params)
+
+    def _register_function(self, f, fig=None, params=None):
         """
         if params is None use the entire current set of params
         """
@@ -189,11 +213,14 @@ class Controls:
         # bc thats mutable
         params = list(params)
         for p in params:
-            self._update_funcs[p].append((f, params))
-            if fig not in self.figs[p]:
-                self.figs[p].append(fig)  # maybe should use a weakref?
-                # also should probably register a close_event callback to remove
-                # the figure
+            if fig is None:
+                self._user_callbacks[p].append((f, params))
+            else:
+                self._update_funcs[p].append((f, params))
+                if fig not in self.figs[p] and fig is not None:
+                    self.figs[p].append(fig)  # maybe should use a weakref?
+                    # also should probably register a close_event callback to remove
+                    # the figure
 
     def __getitem__(self, key):
         """

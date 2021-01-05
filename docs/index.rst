@@ -97,6 +97,7 @@ Further discussion of the behavior as a function of backend can be found on the 
    :caption: Tutorials
    
    examples/Usage-Guide.ipynb
+   examples/custom-callbacks.ipynb
    examples/plot.ipynb
    examples/scatter.ipynb
    examples/imshow.ipynb
