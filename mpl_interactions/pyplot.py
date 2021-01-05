@@ -211,7 +211,7 @@ def interactive_plot(
             ]
             ax.set_xlim(new_lims)
 
-    controls.register_function(update, fig, params.keys())
+    controls._register_function(update, fig, params.keys())
 
     if x_and_y:
         x_, y_ = eval_xy(x, y, params)
@@ -385,7 +385,7 @@ def interactive_hist(
         pc.set_paths(new_patches)
         ax.autoscale_view()
 
-    controls.register_function(update, fig, params.keys())
+    controls._register_function(update, fig, params.keys())
 
     new_x, new_y, new_patches = simple_hist(
         callable_else_value(arr, params), density=density, bins=bins, weights=weights
@@ -544,7 +544,7 @@ def interactive_scatter(
         )
         ax.autoscale_view()
 
-    controls.register_function(update, fig, params.keys())
+    controls._register_function(update, fig, params.keys())
 
     def check_callable_xy(arg, x, y, params, cache):
         if isinstance(arg, Callable):
@@ -720,7 +720,7 @@ def interactive_imshow(
         if isinstance(vmax, Callable):
             im.norm.vmax = vmax(**params)
 
-    controls.register_function(update, fig, params.keys())
+    controls._register_function(update, fig, params.keys())
 
     # make it once here so we can use the dims in update
     new_data = callable_else_value(X, params)
@@ -834,7 +834,7 @@ def interactive_axhline(
         line.set_xdata([xmin_, xmax_])
         # TODO consider updating just the ydatalim here
 
-    controls.register_function(update, fig, params)
+    controls._register_function(update, fig, params)
     sca(ax)
     line = ax.axhline(
         callable_else_value(y, params).item(),
@@ -931,7 +931,7 @@ def interactive_axvline(
         line.set_ydata([ymin_, ymax_])
         # TODO consider updating just the ydatalim here
 
-    controls.register_function(update, fig, params)
+    controls._register_function(update, fig, params)
     sca(ax)
     line = ax.axvline(
         callable_else_value(x, params).item(),
@@ -1021,7 +1021,7 @@ def interactive_title(
             **text_kwargs,
         )
 
-    controls.register_function(update, fig, params)
+    controls._register_function(update, fig, params)
     ax.set_title(
         callable_else_value_no_cast(label, params, None).format(**params),
         fontdict=fontdict,
@@ -1107,7 +1107,7 @@ def interactive_xlabel(
             **text_kwargs,
         )
 
-    controls.register_function(update, fig, params)
+    controls._register_function(update, fig, params)
     ax.set_xlabel(
         callable_else_value_no_cast(xlabel, params, None).format(**params),
         fontdict=fontdict,
@@ -1192,7 +1192,7 @@ def interactive_ylabel(
             **text_kwargs,
         )
 
-    controls.register_function(update, fig, params)
+    controls._register_function(update, fig, params)
     ax.set_ylabel(
         callable_else_value_no_cast(ylabel, params, None).format(**params),
         fontdict=fontdict,

@@ -3,14 +3,18 @@ name: mpl-latest
 on:
   schedule:
     - cron: "0 16 * * 1" # monday at noon est
+  push:
+    branches: [master]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   test-3x:
-    name: Python ${{ matrix.python-version }} - Matplotlib master
+    name: Matplotlib master
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8.x', '3.9.x']
+        python-version: ['3.9.x']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
