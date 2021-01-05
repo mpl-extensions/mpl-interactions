@@ -13,8 +13,10 @@ with open(path, encoding="utf8") as f:
     exec(f.read(), {}, version_ns)
 version = version_ns["__version__"]
 
-setup(
-    name="mpl_interactions",
+name = "mpl_interactions"
+
+setup_args = dict(
+    name=name,
     version=version,
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -78,3 +80,6 @@ setup(
         ],
     },
 )
+
+if __name__ == "__main__":
+    setup(**setup_args)
