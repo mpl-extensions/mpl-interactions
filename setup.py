@@ -63,6 +63,8 @@ setup_args = dict(
             "sphinx-copybutton",
             "sphinx-autobuild",
             "xarray",
+            "sphinx_gallery>=0.8.2",
+            "mpl-playback>=0.0.2",
         ],
         "test": [
             "pytest",
