@@ -51,7 +51,19 @@ extensions = [
     "jupyter_sphinx",
     "nbsphinx",
     "sphinx_copybutton",
+    "sphinx_gallery.gen_gallery",
 ]
+
+from mpl_playback.scraper import matplotlib_scraper
+
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples/gallery",  # path to your example scripts
+    "gallery_dirs": "gallery",  # path to where to save gallery generated output
+    "filename_pattern": "/.*",
+    "ignore_pattern": "/^_.*",  # https://www.debuggex.com/
+    "image_scrapers": (matplotlib_scraper),
+}
+
 
 # prolog taken nearly verbatim from https://github.com/spatialaudio/nbsphinx/blob/98005a9d6b331b7d6d14221539154df69f7ae51a/doc/conf.py#L38
 nbsphinx_prolog = r"""

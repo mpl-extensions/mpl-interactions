@@ -47,11 +47,6 @@ jobs:
           pip install matplotlib==${{ matrix.matplotlib-version}}.*
           pip install ".[jupyter, test]"
 
-      - name: Check Formatting
-        run: |
-          black mpl_interactions --check
-          black examples --check
-
       - name: Tests
         run: |
           pytest --color=yes

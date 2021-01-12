@@ -89,7 +89,7 @@ Further discussion of the behavior as a function of backend can be found on the 
    Backends
    compare-to-ipywidgets
    API
-   Gallery
+   gallery/index
    Contributing
 
 .. toctree::

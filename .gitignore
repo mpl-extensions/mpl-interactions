@@ -144,3 +144,4 @@ docs/examples/tidbits/*.ipynb
 docs/examples/*.ipynb
 docs/examples/*.gif
 docs/*.ipynb
+docs/gallery

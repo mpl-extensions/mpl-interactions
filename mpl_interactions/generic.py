@@ -186,12 +186,8 @@ def heatmap_slicer(
         """
         if same_shape:
             data_idx = nearest_idx(orig, event_data)
-            if mpl_gr_33:
-                disp_idx = nearest_idx(orig, event_data)
-                arr = orig
-            else:
-                disp_idx = nearest_idx(centered, event_data)
-                arr = centered
+            disp_idx = nearest_idx(orig, event_data)
+            arr = orig
         else:
             disp_idx = nearest_idx(centered, event_data)
             data_idx = nearest_idx(centered, event_data)
