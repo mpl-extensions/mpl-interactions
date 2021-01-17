@@ -35,8 +35,9 @@ def test_heatmap_slicer():
 
 @pytest.mark.mpl_image_compare(style="default")
 def test_image_segmentation():
-    with cbook.get_sample_data("ada.png") as image_file:
-        image = plt.imread(image_file)
+    image = plt.imread(
+        "https://github.com/matplotlib/matplotlib/raw/v3.3.0/lib/matplotlib/mpl-data/sample_data/ada.png"
+    )
     try:
         mask = np.load("../../examples/ada-mask.npy")
     except FileNotFoundError:
