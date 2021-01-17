@@ -64,7 +64,7 @@ setup_args = dict(
             "sphinx-autobuild",
             "xarray",
             "sphinx_gallery>=0.8.2",
-            "mpl-playback>=0.0.2",
+            "mpl-playback>=0.1.1",
         ],
         "test": [
             "pytest",
