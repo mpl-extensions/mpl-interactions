@@ -3,7 +3,6 @@ from functools import partial
 from numbers import Number
 
 import numpy as np
-from matplotlib.cbook.deprecation import deprecated
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
