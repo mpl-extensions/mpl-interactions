@@ -17,10 +17,6 @@ pip install mpl_interactions["jupyter"] # will install necessary deps for using 
 
 # for use only outside of jupyter:
 pip install mpl_interactions
-
-# if using jupyterlab
-conda install -c conda-forge nodejs=13
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
 ```
 
 If you use JupyterLab, make sure you follow the full instructions in the ipympl [readme](https://github.com/matplotlib/ipympl#install-the-jupyterlab-extension) in particular installing jupyterlab-manager.
