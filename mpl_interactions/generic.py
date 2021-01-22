@@ -670,7 +670,8 @@ def hyperslicer(
 
     if arr_type == "xarray":
         slider_format_strings = get_hs_fmts(arr, is_color_image=is_color_image)
-        extent = get_hs_extent(arr, is_color_image=is_color_image)
+        if extent is None:
+            extent = get_hs_extent(arr, is_color_image=is_color_image)
     else:
         if "extent" not in kwargs:
             extent = None
