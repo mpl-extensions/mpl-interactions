@@ -259,7 +259,7 @@ class Controls:
             valstep argument. This will only be relevant if you passed your own matplotlib
             slider as a kwarg when plotting. If needed but not given it will default to
             a value of 200.
-        **kwargs :
+        **kwargs
             Passed through to anim.save
 
         Returns

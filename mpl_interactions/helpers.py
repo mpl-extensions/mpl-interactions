@@ -228,7 +228,7 @@ def eval_xy(x_, y_, params, cache=None):
     for when y requires x as an argument and either, neither or both
     of x and y may be a function.
 
-    returns
+    Returns
     -------
     x, y
         as numpy arrays
@@ -258,7 +258,7 @@ def eval_xy(x_, y_, params, cache=None):
 
 def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None):
     """
-    parameters
+    Parameters
     ----------
     slider_returns_index : bool
         If True then the slider will return it's index rather
@@ -266,7 +266,7 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
     -------
     init_val, control
     control is None is fixed, else it is something that is ready to have display called on it
-    to check if its fixed you can do `if control:`
+    to check if its fixed you can do `if control : `
     """
 
     init_val = 0
@@ -409,7 +409,7 @@ def changeify_radio(val, labels, update):
 
 def create_mpl_controls_fig(kwargs):
     """
-    returns
+    Returns
     -------
     fig : matplotlib figure
     slider_height : float
@@ -417,8 +417,8 @@ def create_mpl_controls_fig(kwargs):
     radio_height : float
         Height of radio buttons in figure coordinates
 
-    note
-    ----
+    Notes
+    -----
     figure out how many inches we shoudl devote to figure of the controls
     this is a bunch of hacky nonsense
     making it involved me holding a ruler up to my monitor
@@ -698,15 +698,13 @@ def choose_fmt_str(dtype=None):
     """
     Choose the appropriate string formatting for different dtypes.
 
-    Paramters
-    ---------
-
+    Parameters
+    ----------
     dtype : np.dtye
     dtype of array containing values to be formatted.
 
     Returns
     -------
-
     fmt : str
     Format string
     """
