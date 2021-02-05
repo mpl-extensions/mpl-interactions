@@ -31,7 +31,6 @@ def heatmap_slicer(
     heatmaps,
     slices="horizontal",
     heatmap_names=None,
-    max_cols=None,
     cmap=None,
     vmin=None,
     vmax=None,
@@ -50,42 +49,34 @@ def heatmap_slicer(
     X,Y : 1D array
     heatmaps : array_like
         must be 2-D or 3-D. If 3-D the last two axes should be (X,Y)
-    slice : {'horizontal', 'vertical', 'both'}
-        Direction to draw slice on heatmap. both will draw horizontal and vertical traces on the same
-        plot, while both_separate will make a line plot for each.
+    slices : {'horizontal', 'vertical', 'both'}
+        Direction to draw slice on heatmap. both will draw horizontal and vertical traces on
+        the same plot, while both_separate will make a line plot for each.
     heatmap_names : (String, String, ...)
-        An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
-    max_cols : int, optional - not working yet :(
-        Maximum number of columns to allow
+        An iterable with the names of the heatmaps. If provided it must have as many names
+        as there are heatmaps
     cmap : str or Colormap, optional
-        A Colormap instance or registered colormap name. The colormap maps the C values to colors.
+        A Colormap instance or registered colormap name.
     vmin, vmax : float, optional
-        The colorbar range. If None, suitable min/max values are automatically chosen by the Normalize instance.
-    ax : matplolibt.Axes or None
-        axes on which to
-    y_scale : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_ylim. Other options are:
-        'auto': rescale the y axis for every redraw
-        'stretch': only ever expand the ylims.
-    slider_format_string : string
-        A valid format string, this will be used to render
-        the current value of the parameter
-    plot_kwargs : None, dict, or iterable of dicts
-        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
-        None or be iterable.l
-        figure size to pass to `plt.subplots`
-    labels : (string, string), optional
+        The colorbar range. If None, suitable min/max values are automatically chosen
+        by the Normalize instance.
+    figsize : tuple of number, default: (18, 9)
+        The size of the created figure. Ignored if *fig* is not None.
+    linecolor : colorlike, default: 'k'
+        The color of the cursor showing the slices. Must be a valid Matplotlib linecolor.
+    labels : (string, string), default: ("X", "Y")
+        The labels for the x and y axes.
     interaction_type : str
         Update on mouse movement or mouse click. Options are {'move','click'}
     fig : matplotlib figure, optional
-        figure to use for the heatmap_slicer. Useful when embedding into a gui.
+        The figure to use for the heatmap_slicer. Useful when embedding into a gui.
         If you are embedding into a gui make sure you set up the gui canvas first
         and then pass the figure to this function
 
     Returns
     -------
-    fig : matplotlib figure
-    ax : tuple of axes
+    fig : matplotlib.Figure.figure
+    ax : tuple of matplotlib.axes.Axes
     """
     horiz = vert = False
     if slices == "both":

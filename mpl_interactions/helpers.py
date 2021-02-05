@@ -260,13 +260,26 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
     """
     Parameters
     ----------
-    slider_returns_index : bool
-        If True then the slider will return it's index rather
-    returns
+    key : str
+    val : str or number or tuple, or set or array-like
+        The value to be interpreted and possibly transformed into an ipywidget
+    update : callable
+        The function to be called when the value of the generated widget changes.
+        Must accept a dictionary *change* and an array-like *values*
+    slider_format_string : str
+        The format string to use for slider labels
+    play_button : bool or None or str, default: None
+        If true and the output widget is a slider then added a play button widget
+        on the left. Also accepts 'left' or 'right' to specify the play button position.
+
+    Returns
     -------
-    init_val, control
-    control is None is fixed, else it is something that is ready to have display called on it
-    to check if its fixed you can do `if control : `
+    init_val
+        The initial value of the widget.
+    control
+        The generated widget. This may be the raw widget or a higher level container
+        widget (e.g. HBox) depending on what widget was generated. If a fixed value is
+        returned then control will be *None*
     """
 
     init_val = 0
@@ -700,13 +713,13 @@ def choose_fmt_str(dtype=None):
 
     Parameters
     ----------
-    dtype : np.dtye
-    dtype of array containing values to be formatted.
+    dtype : np.dtype
+        dtype of array containing values to be formatted.
 
     Returns
     -------
     fmt : str
-    Format string
+        Bracket style format string.
     """
     if np.issubdtype(dtype, "float"):
         fmt = r"{:0.2f}"

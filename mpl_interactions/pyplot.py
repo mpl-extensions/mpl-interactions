@@ -41,7 +41,6 @@ __all__ = [
 def interactive_plot(
     *args,
     parametric=False,
-    multiline=False,
     ax=None,
     slider_formats=None,
     xlim="stretch",
@@ -940,7 +939,7 @@ def interactive_axvline(
 
 
 def interactive_title(
-    label,
+    title,
     controls=None,
     ax=None,
     *,
@@ -1010,7 +1009,7 @@ def interactive_title(
 
     def update(params, indices, cache):
         ax.set_title(
-            callable_else_value_no_cast(label, params, cache).format(**params),
+            callable_else_value_no_cast(title, params, cache).format(**params),
             fontdict=fontdict,
             loc=loc,
             pad=pad,
@@ -1020,7 +1019,7 @@ def interactive_title(
 
     controls._register_function(update, fig, params)
     ax.set_title(
-        callable_else_value_no_cast(label, params, None).format(**params),
+        callable_else_value_no_cast(title, params, None).format(**params),
         fontdict=fontdict,
         loc=loc,
         pad=pad,
