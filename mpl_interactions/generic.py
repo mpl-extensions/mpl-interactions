@@ -31,7 +31,6 @@ def heatmap_slicer(
     heatmaps,
     slices="horizontal",
     heatmap_names=None,
-    max_cols=None,
     cmap=None,
     vmin=None,
     vmax=None,
@@ -49,43 +48,35 @@ def heatmap_slicer(
     ----------
     X,Y : 1D array
     heatmaps : array_like
-       must be 2-D or 3-D. If 3-D the last two axes should be (X,Y)
-    slice : {'horizontal', 'vertical', 'both'}
-        Direction to draw slice on heatmap. both will draw horizontal and vertical traces on the same
-        plot, while both_separate will make a line plot for each.
+        must be 2-D or 3-D. If 3-D the last two axes should be (X,Y)
+    slices : {'horizontal', 'vertical', 'both'}
+        Direction to draw slice on heatmap. both will draw horizontal and vertical traces on
+        the same plot, while both_separate will make a line plot for each.
     heatmap_names : (String, String, ...)
-        An iterable with the names of the heatmaps. If provided it must have as many names as there are heatmaps
-    max_cols : int, optional - not working yet :(
-        Maximum number of columns to allow
+        An iterable with the names of the heatmaps. If provided it must have as many names
+        as there are heatmaps
     cmap : str or Colormap, optional
-        A Colormap instance or registered colormap name. The colormap maps the C values to colors.
+        A Colormap instance or registered colormap name.
     vmin, vmax : float, optional
-        The colorbar range. If None, suitable min/max values are automatically chosen by the Normalize instance.
-    ax : matplolibt.Axes or None
-        axes on which to
-    y_scale : string or tuple of floats, optional
-        If a tuple it will be passed to ax.set_ylim. Other options are:
-        'auto': rescale the y axis for every redraw
-        'stretch': only ever expand the ylims.
-    slider_format_string : string
-        A valid format string, this will be used to render
-        the current value of the parameter
-    plot_kwargs : None, dict, or iterable of dicts
-        Keyword arguments to pass to plot. If using multiple f's then plot_kwargs must be either
-        None or be iterable.l
-        figure size to pass to `plt.subplots`
-    labels : (string, string), optional
+        The colorbar range. If None, suitable min/max values are automatically chosen
+        by the Normalize instance.
+    figsize : tuple of number, default: (18, 9)
+        The size of the created figure. Ignored if *fig* is not None.
+    linecolor : colorlike, default: 'k'
+        The color of the cursor showing the slices. Must be a valid Matplotlib linecolor.
+    labels : (string, string), default: ("X", "Y")
+        The labels for the x and y axes.
     interaction_type : str
         Update on mouse movement or mouse click. Options are {'move','click'}
     fig : matplotlib figure, optional
-        figure to use for the heatmap_slicer. Useful when embedding into a gui.
+        The figure to use for the heatmap_slicer. Useful when embedding into a gui.
         If you are embedding into a gui make sure you set up the gui canvas first
         and then pass the figure to this function
 
     Returns
     -------
-    fig : matplotlib figure
-    ax  : tuple of axes
+    fig : matplotlib.Figure.figure
+    ax : tuple of matplotlib.axes.Axes
     """
     horiz = vert = False
     if slices == "both":
@@ -227,14 +218,14 @@ def zoom_factory(ax, base_scale=1.1):
     """
     Add ability to zoom with the scroll wheel.
 
-    parameters
+    Parameters
     ----------
     ax : matplotlib axes object
         axis on which to implement scroll to zoom
     base_scale : float
         how much zoom on each tick of scroll wheel
 
-    returns
+    Returns
     -------
     disconnect_zoom : function
         call this to disconnect the scroll listener
@@ -392,12 +383,12 @@ class image_segmenter:
         Create an image segmenter. Any ``kwargs`` will be passed through to the ``imshow``
         call that displays *img*.
 
-        parameters
+        Parameters
         ----------
         img : array_like
             A valid argument to imshow
         nclasses : int, default 1
-        mask: arraylike, optional
+        mask : arraylike, optional
             If you want to pre-seed the mask
         mask_colors : None, color, or array of colors, optional
             the colors to use for each class. Unselected regions will always be totally transparent
@@ -409,7 +400,7 @@ class image_segmenter:
             {"color": "black", "linewidth": 1, "alpha": 0.8}
         figsize : (float, float), optional
             passed to plt.figure
-        **kwargs:
+        **kwargs
             All other kwargs will passed to the imshow command for the image
         """
         # ensure mask colors is iterable and the same length as the number of classes
@@ -516,17 +507,16 @@ def hyperslicer(
     View slices from a hyperstack of images selected by sliders. Also accepts Xarray.DataArrays
     in which case the axes names and coordinates will be inferred from the xarray dims and coords.
 
-    parameters
+    Parameters
     ----------
     arr : arraylike or xarray
         Hyperstack of images. The last 2 or 3 dimensions will be treated as individiual images.
         If an xarray.DataArray then the dimensions will be automatically inferred.
-
     cmap : str or `~matplotlib.colors.Colormap`
         The Colormap instance or registered colormap name used to map
         scalar data to colors. This parameter is ignored for RGB(A) data.
         forwarded to matplotlib
-    norm: `~matplotlib.colors.Normalize`, optional
+    norm : `~matplotlib.colors.Normalize`, optional
         The `.Normalize` instance used to scale scalar data to the [0, 1]
         range before mapping to colors using *cmap*. By default, a linear
         scaling mapping the lowest value to 0 and the highest to 1 is used.
@@ -548,9 +538,9 @@ def hyperslicer(
         If a string then you can have it update automatically using string formatting of the names
         of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
     force_ipywidgets : boolean
-         If True ipywidgets will always be used, even if not using the ipympl backend.
-         If False the function will try to detect if it is ok to use ipywidgets
-         If ipywidgets are not used the function will fall back on matplotlib widgets
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
     play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
@@ -568,7 +558,7 @@ def hyperslicer(
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
 
-    returns
+    Returns
     -------
     controls
     """

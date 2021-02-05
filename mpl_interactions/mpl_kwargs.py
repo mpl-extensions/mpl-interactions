@@ -129,9 +129,8 @@ def kwarg_popper(kwargs, mpl_kwargs):
     """
     This will not modify kwargs for you.
 
-    Usage
-    -----
-
+    Examples
+    --------
     kwargs, plot_kwargs = kwarg_popper(kwargs, plot_kwargs_list)
     """
     kwargs = dict(kwargs)

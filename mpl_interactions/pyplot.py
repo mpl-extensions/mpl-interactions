@@ -41,7 +41,6 @@ __all__ = [
 def interactive_plot(
     *args,
     parametric=False,
-    multiline=False,
     ax=None,
     slider_formats=None,
     xlim="stretch",
@@ -60,7 +59,7 @@ def interactive_plot(
     where x/y is are either arraylike or a function that returns arrays. Any kwargs accepted by
     matplotlib.pyplot.plot will be passed through, other kwargs will be intrepreted as controls
 
-    parameters
+    Parameters
     ----------
     x, y : array-like or scalar or function
         The horizontal / vertical coordinates of the data points.
@@ -103,13 +102,12 @@ def interactive_plot(
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
 
-    returns
+    Returns
     -------
     controls
 
     Examples
     --------
-
     With numpy arrays::
 
         x = np.linspace(0,2*np.pi)
@@ -312,7 +310,7 @@ def interactive_hist(
     of the limitations of this function. These limitations will be improved once
     https://github.com/matplotlib/matplotlib/pull/18275 has been merged.
 
-    parameters
+    Parameters
     ----------
     arr : arraylike or function
         The array or the funciton that returns an array that is to be histogrammed
@@ -345,13 +343,12 @@ def interactive_hist(
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
 
-    returns
+    Returns
     -------
     controls
 
     Examples
     --------
-
     With numpy arrays::
 
         loc = np.linspace(-5, 5, 500)
@@ -422,7 +419,7 @@ def interactive_scatter(
     """
     Control a scatter plot using widgets.
 
-    parameters
+    Parameters
     ----------
     x, y : function or float or array-like
         shape (n, ) for array-like. Functions must return the correct shape as well. If y is None
@@ -471,7 +468,7 @@ def interactive_scatter(
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
 
-    returns
+    Returns
     -------
     controls
     """
@@ -621,7 +618,7 @@ def interactive_imshow(
     """
     Control an image using widgets.
 
-    parameters
+    Parameters
     ----------
     X : function or image like
         If a function it must return an image-like object. See matplotlib.pyplot.imshow for the
@@ -667,7 +664,7 @@ def interactive_imshow(
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
 
-    returns
+    Returns
     -------
     controls
     """
@@ -762,7 +759,7 @@ def interactive_axhline(
     """
     Control an horizontal line using widgets.
 
-    parameters
+    Parameters
     ----------
     y : float or function
         y position in data coordinates of the horizontal line.
@@ -794,11 +791,11 @@ def interactive_axhline(
         controls
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
-    **kwargs :
+    **kwargs
         Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
         extracted and passed through to the creation of the line.
 
-    returns
+    Returns
     -------
     controls
     """
@@ -859,7 +856,7 @@ def interactive_axvline(
     """
     Control a vertical line using widgets.
 
-    parameters
+    Parameters
     ----------
     x : float or function
         x position in data coordinates of the horizontal line.
@@ -891,11 +888,11 @@ def interactive_axvline(
         controls
     display_controls : boolean
         Whether the controls should display themselve on creation. Ignored if controls is specified.
-    **kwargs :
+    **kwargs
         Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
         extracted and passed through to the creation of the line.
 
-    returns
+    Returns
     -------
     controls
     """
@@ -942,7 +939,7 @@ def interactive_axvline(
 
 
 def interactive_title(
-    label,
+    title,
     controls=None,
     ax=None,
     *,
@@ -1012,7 +1009,7 @@ def interactive_title(
 
     def update(params, indices, cache):
         ax.set_title(
-            callable_else_value_no_cast(label, params, cache).format(**params),
+            callable_else_value_no_cast(title, params, cache).format(**params),
             fontdict=fontdict,
             loc=loc,
             pad=pad,
@@ -1022,7 +1019,7 @@ def interactive_title(
 
     controls._register_function(update, fig, params)
     ax.set_title(
-        callable_else_value_no_cast(label, params, None).format(**params),
+        callable_else_value_no_cast(title, params, None).format(**params),
         fontdict=fontdict,
         loc=loc,
         pad=pad,

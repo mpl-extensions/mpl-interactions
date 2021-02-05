@@ -46,7 +46,6 @@ def figure(figsize=1, *args, **kwargs):
 
     Examples
     --------
-
     The figure size of the two figures will be equivalent::
 
         plt.rcParams['figure.figsize'] = [6.4, 4.8]
@@ -67,7 +66,7 @@ def nearest_idx(array, value, axis=None):
     ----------
     array : arraylike
     value : Scalar
-    axis  : int, optional
+    axis : int, optional
         From np.argmin: "By default, the index is into the flattened array, otherwise
         along the specified axis."
 

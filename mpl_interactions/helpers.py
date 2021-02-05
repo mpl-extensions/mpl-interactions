@@ -228,7 +228,7 @@ def eval_xy(x_, y_, params, cache=None):
     for when y requires x as an argument and either, neither or both
     of x and y may be a function.
 
-    returns
+    Returns
     -------
     x, y
         as numpy arrays
@@ -258,15 +258,28 @@ def eval_xy(x_, y_, params, cache=None):
 
 def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None):
     """
-    parameters
+    Parameters
     ----------
-    slider_returns_index : bool
-        If True then the slider will return it's index rather
-    returns
+    key : str
+    val : str or number or tuple, or set or array-like
+        The value to be interpreted and possibly transformed into an ipywidget
+    update : callable
+        The function to be called when the value of the generated widget changes.
+        Must accept a dictionary *change* and an array-like *values*
+    slider_format_string : str
+        The format string to use for slider labels
+    play_button : bool or None or str, default: None
+        If true and the output widget is a slider then added a play button widget
+        on the left. Also accepts 'left' or 'right' to specify the play button position.
+
+    Returns
     -------
-    init_val, control
-    control is None is fixed, else it is something that is ready to have display called on it
-    to check if its fixed you can do `if control:`
+    init_val
+        The initial value of the widget.
+    control
+        The generated widget. This may be the raw widget or a higher level container
+        widget (e.g. HBox) depending on what widget was generated. If a fixed value is
+        returned then control will be *None*
     """
 
     init_val = 0
@@ -409,7 +422,7 @@ def changeify_radio(val, labels, update):
 
 def create_mpl_controls_fig(kwargs):
     """
-    returns
+    Returns
     -------
     fig : matplotlib figure
     slider_height : float
@@ -417,8 +430,8 @@ def create_mpl_controls_fig(kwargs):
     radio_height : float
         Height of radio buttons in figure coordinates
 
-    note
-    ----
+    Notes
+    -----
     figure out how many inches we shoudl devote to figure of the controls
     this is a bunch of hacky nonsense
     making it involved me holding a ruler up to my monitor
@@ -698,17 +711,15 @@ def choose_fmt_str(dtype=None):
     """
     Choose the appropriate string formatting for different dtypes.
 
-    Paramters
-    ---------
-
-    dtype : np.dtye
-    dtype of array containing values to be formatted.
+    Parameters
+    ----------
+    dtype : np.dtype
+        dtype of array containing values to be formatted.
 
     Returns
     -------
-
     fmt : str
-    Format string
+        Bracket style format string.
     """
     if np.issubdtype(dtype, "float"):
         fmt = r"{:0.2f}"

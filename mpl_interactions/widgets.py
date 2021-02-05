@@ -239,36 +239,26 @@ class RangeSlider(SliderBase):
         ----------
         ax : Axes
             The Axes to put the slider in.
-
         label : str
             Slider label.
-
         valmin : float
             The minimum value of the slider.
-
         valmax : float
             The maximum value of the slider.
-
         valinit : tuple of float or None, default: None
             The initial positions of the slider. If None the initial positions
             will be at the 25th and 75th percentiles of the range.
-
         valfmt : str, default: None
             %-format string used to format the slider values.  If None, a
             `.ScalarFormatter` is used instead.
-
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
-
         closedmax : bool, default: True
             Whether the slider interval is closed on the top.
-
         dragging : bool, default: True
             If True the slider can be dragged by the mouse.
-
         valstep : float, default: None
             If given, the slider will snap to multiples of *valstep*.
-
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
 
