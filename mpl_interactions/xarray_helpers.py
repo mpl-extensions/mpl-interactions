@@ -60,7 +60,7 @@ def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
 
 def get_hs_extent(xarr, is_color_image=False):
     """
-    Read the "XY" coordinates of an xarray.DataArray to set extent of image for
+    Read the "YX" coordinates of an xarray.DataArray to set extent of image for
     imshow.
 
     Parameters
@@ -81,6 +81,9 @@ def get_hs_extent(xarr, is_color_image=False):
         dims = xarr.dims[-2:]
     else:
         dims = xarr.dims[-3:-1]
+
+    # the reversal is because imshow transposes the array it receives
+    dims = dims[::-1]
     extent = []
     for d in dims:
         vals = xarr[d].values
