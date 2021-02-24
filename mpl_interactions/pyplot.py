@@ -100,7 +100,7 @@ def interactive_plot(
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
 
     Returns
     -------
@@ -313,7 +313,7 @@ def interactive_hist(
     Parameters
     ----------
     arr : arraylike or function
-        The array or the funciton that returns an array that is to be histogrammed
+        The array or the function that returns an array that is to be histogrammed
     density : bool, optional
         whether to plot as a probability density. Passed to np.histogram
     bins : int or sequence of scalars or str, optional
@@ -341,7 +341,7 @@ def interactive_hist(
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
 
     Returns
     -------
@@ -466,7 +466,7 @@ def interactive_scatter(
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
 
     Returns
     -------
@@ -662,7 +662,7 @@ def interactive_imshow(
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
 
     Returns
     -------
@@ -790,7 +790,7 @@ def interactive_axhline(
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
     **kwargs
         Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
         extracted and passed through to the creation of the line.
@@ -887,7 +887,7 @@ def interactive_axvline(
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
     **kwargs
         Kwargs will be used to create control widgets. Except kwargs that are valid for Line2D are
         extracted and passed through to the creation of the line.
@@ -977,7 +977,7 @@ def interactive_title(
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses {} style formatting
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
     play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
@@ -1065,7 +1065,7 @@ def interactive_xlabel(
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses {} style formatting
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
     play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
@@ -1150,7 +1150,7 @@ def interactive_ylabel(
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses {} style formatting
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
     play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you

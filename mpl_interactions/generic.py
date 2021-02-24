@@ -42,7 +42,7 @@ def heatmap_slicer(
 ):
 
     """
-    Compare horizontal and/or vertical slices accross multiple arrays.
+    Compare horizontal and/or vertical slices across multiple arrays.
 
     Parameters
     ----------
@@ -122,7 +122,7 @@ def heatmap_slicer(
     axes[0].set_ylabel(labels[1])
     X = asarray(X)
     Y = asarray(Y)
-    # mpl pcolormesh from verison 3.3+ handles len(X), len(Y) equal to Z shape
+    # mpl pcolormesh from version 3.3+ handles len(X), len(Y) equal to Z shape
     # differently than <2. (Unquestionably better, but different enough to justify a shim)
     # https://github.com/matplotlib/matplotlib/pull/16258
     shading = "auto"
@@ -556,7 +556,7 @@ def hyperslicer(
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
-        Whether the controls should display themselve on creation. Ignored if controls is specified.
+        Whether the controls should display on creation. Ignored if controls is specified.
 
     Returns
     -------
@@ -708,7 +708,7 @@ def hyperslicer(
             try:
                 slices[name_to_dim[k]] = v
             except KeyError:
-                # this is necssary to allow things
+                # this is necessary to allow things
                 # like vmax = (240, 250)
                 pass
 

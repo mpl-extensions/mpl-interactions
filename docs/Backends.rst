@@ -42,7 +42,7 @@ This will result in sliders in the notebook, but the plot will be in a ``qt`` wi
 
 
 * You can also explicitly set whether to use Matplotlib sliders or not with the ``use_ipywidgets`` 
-argument :meth:`~mpl_interactions.interactive_plot`. If ``None`` then the funciton will try to infer whether
+argument :meth:`~mpl_interactions.interactive_plot`. If ``None`` then the function will try to infer whether
 to use ipywidgets or not. By setting the argument to ``False`` then you will be able to use Matplotlib sliders in the notebook.
 
 

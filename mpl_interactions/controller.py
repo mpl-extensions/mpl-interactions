@@ -34,7 +34,7 @@ class Controls:
     ):
         # it might make sense to also accept kwargs as a straight up arg
         # to allow for passing the dictionary, but then it would need a different name
-        # and we'd have to combine dicitonarys whihc looks like a hassle
+        # and we'd have to combine dicitonarys which looks like a hassle
 
         if use_ipywidgets is None:
             # if this ends up being true we are garunteed
@@ -210,7 +210,7 @@ class Controls:
         if params is None:
             params = self.params.keys()
         # listify to ensure it's not a reference to dicts keys
-        # bc thats mutable
+        # bc that's mutable
         params = list(params)
         for p in params:
             if fig is None:

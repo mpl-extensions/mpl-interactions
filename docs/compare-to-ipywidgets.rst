@@ -12,7 +12,7 @@ Performance
 
 The ipywidgets functions expect the entire output to be regenerated every time a slider value changes. This means ipywidgets functions will work best with 
 the ``inline`` backend. In fact, some `special casing <https://github.com/jupyter-widgets/ipywidgets/blob/6be18d9b75353f7b4a1c328c6ea06d8959f978f6/ipywidgets/widgets/interaction.py#L230>`_
-is even available to better support the inline backend. Unfortunately this process does not work well with the interacive ``ipympl`` backend. The ``ipympl`` backend 
+is even available to better support the inline backend. Unfortunately this process does not work well with the interactive ``ipympl`` backend. The ``ipympl`` backend 
 expects to be shown only once, then updated with Matplotlib methods as controls change. What results is you needing to make
 multiple new figures---or recreate the entire plot---every time a slider value changes. 
 
@@ -68,7 +68,7 @@ Here is a comparison of the generated widget for ``two_tuple = (1., 5)`` and ``t
     from ipywidgets import interact
 
     # this isn't quite what is actually done
-    # but mpl-interactions requries a kernel to update the label
+    # but mpl-interactions requires a kernel to update the label
     # so faking this here
     param1 = np.linspace(1, 5)
     slider1 = widgets.SelectionSlider(options = [("{:.2f}".format(i), i) for i in param1], description = 'two_tuple')

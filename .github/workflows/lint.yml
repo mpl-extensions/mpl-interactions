@@ -11,4 +11,13 @@ jobs:
       - uses: psf/black@stable
         with:
           black_args: ". --check --line-length=100"
-
+  codespell:
+    name: Check for spelling errors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: codespell-project/actions-codespell@master
+        with:
+          check_filenames: true
+          # When using this Action in other repos, the --skip option below can be removed
+          ignore_words_list: devlop,hist
