@@ -148,8 +148,8 @@ def broadcast_to(arr, to_shape, names):
 
 def broadcast_arrays(*args):
     """
-    This is a modifed version the numpy `broadcast_arrays` function
-    that uses a verion of _broadcast_to that only considers the first axis
+    This is a modified version the numpy `broadcast_arrays` function
+    that uses a version of _broadcast_to that only considers the first axis
     """
 
     shapes = [array.shape[0] for (array, name) in args]
@@ -414,7 +414,7 @@ def changeify_radio(val, labels, update):
     made a whole function bc its easier to use with partial then
 
     There doesn't seem to be a good way to determine which one was clicked if the
-    radio button has multiple indentical values but that's wildly niche
+    radio button has multiple identical values but that's wildly niche
     and also probably means they're doing something they shouldn't. So: ¯\_(ツ)_/¯
     """
     update({"new": labels.index(value)})
@@ -432,7 +432,7 @@ def create_mpl_controls_fig(kwargs):
 
     Notes
     -----
-    figure out how many inches we shoudl devote to figure of the controls
+    figure out how many inches we should devote to figure of the controls
     this is a bunch of hacky nonsense
     making it involved me holding a ruler up to my monitor
     if you have a better solution I would love to hear about it :)
@@ -530,7 +530,7 @@ def process_mpl_widget(val, update):
     a widget like scatter_selector without having to create a control figure
     """
     if isinstance(val, mwidgets.RadioButtons):
-        # gotta set it to the zeroth index bc theres no reasonable way to determine the current value
+        # gotta set it to the zeroth index bc there's no reasonable way to determine the current value
         # the only way the current value is stored is through the color of the circles.
         # so could query that an extract but oh boy do I ever not want to
         val.set_active(0)

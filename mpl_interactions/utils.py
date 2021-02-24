@@ -18,7 +18,7 @@ class _ioff_class:
     """
     A context manager for turning interactive mode off. Now
     that https://github.com/matplotlib/matplotlib/pull/17371 has been merged this will
-    be availiable via ``plt.ioff`` starting in Matplotlib 3.4
+    be available via ``plt.ioff`` starting in Matplotlib 3.4
     """
 
     def __call__(self):
