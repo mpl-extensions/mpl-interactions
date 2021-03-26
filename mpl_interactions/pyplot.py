@@ -807,8 +807,7 @@ def interactive_axhline(
     extra_ctrls = []
     args = []
     # fmt: off
-    y, ec = prep_scalar(x)
-    extra_ctrls.append(ec)
+    y, ec, arg = prep_scalar(y, 'y'); extra_ctrls.append(ec); args.append(arg)
     xmin, ec, arg = prep_scalar(xmin, "xmin"); extra_ctrls.append(ec);  args.append(arg)
     xmax, ec, arg = prep_scalar(xmax, "xmax"); extra_ctrls.append(ec); args.append(arg)
     # fmt: on
