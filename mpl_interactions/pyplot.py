@@ -804,6 +804,9 @@ def interactive_axhline(
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
+    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
+    line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
+
     extra_ctrls = []
     args = []
     # fmt: off
@@ -817,9 +820,6 @@ def interactive_axhline(
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
-
-    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
-    line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
 
     def update(params, indices, cache):
         y_ = callable_else_value(y, params, cache).item()
