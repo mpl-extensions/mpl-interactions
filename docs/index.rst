@@ -51,9 +51,9 @@ To control a plot with a slider:
    tau = np.linspace(0.5, 10, 100)
 
    def f1(x, tau, beta):
-      return np.sin(x * tau) * x * beta
+       return np.sin(x * tau) * x * beta
    def f2(x, tau, beta):
-      return np.sin(x * beta) * x * tau
+       return np.sin(x * beta) * x * tau
 
 
    fig, ax = plt.subplots()
@@ -65,7 +65,7 @@ To control a plot with a slider:
 
 **If you are in a Jupyter Notebook the output will look like this:**
 
-.. image:: _static/images/basic-example.gif
+.. image:: _static/images/font-page.gif
 
 **and from a script or ipython the output will use Matplotlib sliders:**
 
