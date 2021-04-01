@@ -97,23 +97,33 @@ Further discussion of the behavior as a function of backend can be found on the 
    :caption: Tutorials
    
    examples/Usage-Guide.ipynb
+   examples/mpl-sliders.ipynb
    examples/custom-callbacks.ipynb
+   examples/animations.ipynb
+   examples/range-sliders.ipynb
+   examples/scalar-arguments.ipynb
+   examples/tidbits.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Specific Functions
+
+   examples/hyperslicer.ipynb
    examples/plot.ipynb
    examples/scatter.ipynb
    examples/imshow.ipynb
    examples/hist.ipynb
-   examples/mpl-sliders.ipynb
    examples/scatter-selector.ipynb
-   examples/animations.ipynb
-   examples/range-sliders.ipynb
-   examples/scalar-arguments.ipynb
    examples/image-segmentation.ipynb
    examples/zoom-factory.ipynb
    examples/heatmap-slicer.ipynb
-   examples/hyperslicer.ipynb
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Showcase
+
    examples/Lotka-Volterra.ipynb
    examples/rossler-attractor.ipynb
-   examples/tidbits.rst
 
 Indices and Tables
 ------------------
