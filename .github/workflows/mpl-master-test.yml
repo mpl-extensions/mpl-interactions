@@ -28,7 +28,7 @@ jobs:
       - name: Install
         run: |
           pip install wheel
-          pip install git+https://github.com/tacaswell/matplotlib/@fix_default_backend
+          pip install git+https://github.com/tacaswell/matplotlib.git/@fix_default_backend
           pip install ".[jupyter, test]"
 
       - name: Tests
