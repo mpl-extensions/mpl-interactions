@@ -191,16 +191,21 @@ class Controls:
         Parameters
         ----------
         callback : callable
-            a function called
-        params : list of str, str, or None
-            the params to be passed to the callback
-        eager : bool
-            Whether to call the callback immediately upon registration
+            A function called. Should accept all of the parameters specified by *params*
+            as a kwargs.
+        params : str, list of str, or None
+            The params to be passed to the callback. If *None* then all params
+            currently registered with this controls object will be used.
+        eager : bool, default: False
+            If True, call the callback immediately upon registration
         """
         if isinstance(params, str):
             params = [params]
         if eager:
-            callback(**{key: self.params[key] for key in params})
+            if params is None:
+                callback(**self.params)
+            else:
+                callback(**{key: self.params[key] for key in params})
         self._register_function(callback, fig=None, params=params)
 
     def _register_function(self, f, fig=None, params=None):

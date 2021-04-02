@@ -1,4 +1,6 @@
 {
-    "python.pythonPath": "/home/ian/anaconda3/envs/mpl-inter/bin/python",
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "python.languageServer": "Pylance",
+    "python.linting.enabled": false,
+    "python.analysis.completeFunctionParens": true
 }
