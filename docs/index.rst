@@ -65,7 +65,7 @@ To control a plot with a slider:
 
 **If you are in a Jupyter Notebook the output will look like this:**
 
-.. image:: _static/images/font-page.gif
+.. image:: _static/images/front-page.gif
 
 **and from a script or ipython the output will use Matplotlib sliders:**
 
