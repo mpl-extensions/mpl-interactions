@@ -672,7 +672,7 @@ def interactive_imshow(
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
-    kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
+    kwargs, imshow_kwargs = kwarg_popper(kwargs, imshow_kwargs_list)
 
     args = []
     extra_ctrls = []
@@ -736,6 +736,7 @@ def interactive_imshow(
         filterrad=filterrad,
         resample=resample,
         url=url,
+        **imshow_kwargs,
     )
 
     # i know it's bad news to use private methods :(

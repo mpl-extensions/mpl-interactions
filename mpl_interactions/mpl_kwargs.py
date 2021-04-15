@@ -1,3 +1,6 @@
+from matplotlib.artist import ArtistInspector
+from matplotlib.image import AxesImage
+
 # this is a list of options to Line2D partially taken from
 # https://github.com/matplotlib/matplotlib/blob/f9d29189507cfe4121a231f6ab63539d216c37bd/lib/matplotlib/lines.py#L271
 # many of these can also be made into functions
@@ -57,21 +60,8 @@ Line2D_kwargs_list = [
     "zorder",
 ]
 
-imshow_kwargs_list = [
-    "cmap",
-    "norm",
-    "aspect",
-    "interpolation",
-    "alpha",
-    "vmin",
-    "vmax",
-    "origin",
-    "extent",
-    "filternorm",
-    "filterrad",
-    "resample",
-    "url",
-]
+imshow_kwargs_list = ArtistInspector(AxesImage).get_setters()
+
 Text_kwargs_list = [
     "agg_filter",
     "alpha",
