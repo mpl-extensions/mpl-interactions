@@ -1,6 +1,8 @@
 try:
     from ipywidgets import widgets
     from IPython.display import display as ipy_display
+    from ipywidgets.widgets.widget_float import FloatSlider
+    from ipywidgets.widgets.widget_int import IntSlider
 
     _not_ipython = False
 except ImportError:
@@ -291,6 +293,16 @@ class Controls:
             else:
                 N = int((max_ - min_) / slider.valstep)
                 step = slider.valstep
+        elif not _not_ipython and isinstance(slider, (FloatSlider, IntSlider)):
+            ipywidgets_slider = True
+            min_ = slider.min
+            max_ = slider.max
+            step = slider.step
+            N = int((max_ - min_) / step)
+        else:
+            raise NotImplementedError(
+                "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
+            )
 
         def f(i):
             val = min_ + step * i
