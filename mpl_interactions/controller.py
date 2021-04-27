@@ -1,8 +1,6 @@
 try:
     from ipywidgets import widgets
     from IPython.display import display as ipy_display
-    from ipywidgets.widgets.widget_float import FloatSlider
-    from ipywidgets.widgets.widget_int import IntSlider
 
     _not_ipython = False
 except ImportError:
@@ -273,14 +271,15 @@ class Controls:
         -------
         anim : matplotlib.animation.FuncAniation
         """
-        slider = self.controls[param]
         ipywidgets_slider = False
+        slider = self.controls[param]
         if "Box" in str(slider.__class__):
-            ipywidgets_slider = True
             for obj in slider.children:
                 if "Slider" in str(obj.__class__):
                     slider = obj
-            N = int((slider.max - slider.min) / slider.step)
+
+        if "Slider" in str(obj.__class__):
+            ipywidgets_slider = True
             min_ = slider.min
             max_ = slider.max
             step = slider.step
@@ -288,21 +287,19 @@ class Controls:
             min_ = slider.valmin
             max_ = slider.valmax
             if slider.valstep is None:
-                N = N_frames if N_frames else 200
-                step = (max_ - min_) / N
+                n_steps = N_frames if N_frames else 200
+                step = (max_ - min_) / n_steps
             else:
-                N = int((max_ - min_) / slider.valstep)
                 step = slider.valstep
-        elif not _not_ipython and isinstance(slider, (FloatSlider, IntSlider)):
-            ipywidgets_slider = True
-            min_ = slider.min
-            max_ = slider.max
-            step = slider.step
-            N = int((max_ - min_) / step)
         else:
             raise NotImplementedError(
                 "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
             )
+
+        if step is None:
+            N = N_frames if N_frames else 200
+        else:
+            N = int((max_ - min_) / step)
 
         def f(i):
             val = min_ + step * i
