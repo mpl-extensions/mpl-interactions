@@ -281,11 +281,7 @@ class Controls:
         if isinstance(slider, mSlider):
             min_ = slider.valmin
             max_ = slider.valmax
-            if slider.valstep is None:
-                n_steps = N_frames if N_frames else 200
-                step = (max_ - min_) / n_steps
-            else:
-                step = slider.valstep
+            step = slider.valstep
         elif "Slider" in str(slider.__class__):
             ipywidgets_slider = True
             min_ = slider.min
