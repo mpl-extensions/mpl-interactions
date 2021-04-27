@@ -271,19 +271,14 @@ class Controls:
         -------
         anim : matplotlib.animation.FuncAniation
         """
-        ipywidgets_slider = False
         slider = self.controls[param]
+        ipywidgets_slider = False
         if "Box" in str(slider.__class__):
             for obj in slider.children:
                 if "Slider" in str(obj.__class__):
                     slider = obj
 
-        if "Slider" in str(obj.__class__):
-            ipywidgets_slider = True
-            min_ = slider.min
-            max_ = slider.max
-            step = slider.step
-        elif isinstance(slider, mSlider):
+        if isinstance(slider, mSlider):
             min_ = slider.valmin
             max_ = slider.valmax
             if slider.valstep is None:
@@ -291,6 +286,11 @@ class Controls:
                 step = (max_ - min_) / n_steps
             else:
                 step = slider.valstep
+        elif "Slider" in str(slider.__class__):
+            ipywidgets_slider = True
+            min_ = slider.min
+            max_ = slider.max
+            step = slider.step
         else:
             raise NotImplementedError(
                 "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
