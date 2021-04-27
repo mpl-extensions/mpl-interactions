@@ -281,7 +281,11 @@ class Controls:
         if isinstance(slider, mSlider):
             min_ = slider.valmin
             max_ = slider.valmax
-            step = slider.valstep
+            if slider.valstep is None:
+                n_steps = N_frames if N_frames else 200
+                step = (max_ - min_) / n_steps
+            else:
+                step = slider.valstep
         elif "Slider" in str(slider.__class__):
             ipywidgets_slider = True
             min_ = slider.min
@@ -292,10 +296,7 @@ class Controls:
                 "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
             )
 
-        if step is None:
-            N = N_frames if N_frames else 200
-        else:
-            N = int((max_ - min_) / step)
+        N = int((max_ - min_) / step)
 
         def f(i):
             val = min_ + step * i
