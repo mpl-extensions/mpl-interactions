@@ -18,6 +18,8 @@ from traittypes import Array
 
 try:
     import ipywidgets as widgets
+    from ipywidgets.widgets.widget_link import jslink
+    from IPython.display import display
 except ImportError:
     widgets = None
 from matplotlib import widgets as mwidgets
@@ -202,7 +204,6 @@ class SliderWrapper(HasTraits):
     max = Union([Int(), Float(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
     value = Union([Float(), Int(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
     step = Union([Int(), Float(allow_none=True)])
-    index = Int(allow_none=True)
     label = Unicode()
     readout_format = Unicode("{:.2f}")
 
@@ -249,7 +250,7 @@ class SliderWrapper(HasTraits):
         if self._mpl:
             pass
         else:
-            return self._get_widget_for_display()
+            display(self._get_widget_for_display())
 
     def __dir__(self):
         # hide all the cruft from traitlets for shfit+Tab
@@ -284,8 +285,6 @@ class IndexSlider(IntSlider):
         mpl_slider_ax : matplotlib.axes or None
             If *None* an ipywidgets slider will be created
         """
-        if play_button is not False:
-            raise ValueError("play buttons not yet implemented fool!")
         self.values = np.atleast_1d(values)
         self.readout_format = "{:.2f}"
         if mpl_slider_ax is not None:
@@ -315,6 +314,15 @@ class IndexSlider(IntSlider):
                 (self._readout, "value"),
                 transform=lambda x: self.readout_format.format(self.values[x]),
             )
+            self._play_button = None
+            if play_button:
+                self._play_button = widgets.Play(step=1)
+                self._play_button_on_left = not (
+                    isinstance(play_button, str) and play_button == "right"
+                )
+                jslink((slider, "value"), (self._play_button, "value"))
+                jslink((slider, "min"), (self._play_button, "min"))
+                jslink((slider, "max"), (self._play_button, "max"))
             link((slider, "value"), (self, "index"))
             link((slider, "max"), (self, "max_index"))
         else:
@@ -323,6 +331,11 @@ class IndexSlider(IntSlider):
         self.value = self.values[self.index]
 
     def _get_widget_for_display(self):
+        if self._play_button:
+            if self._play_button_on_left:
+                return widgets.HBox([self._play_button, self._raw_slider, self._readout])
+            else:
+                return widgets.HBox([self._raw_slider, self._readout, self._play_button])
         return widgets.HBox([self._raw_slider, self._readout])
 
     @validate("value")

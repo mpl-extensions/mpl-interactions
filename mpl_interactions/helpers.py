@@ -258,7 +258,7 @@ def eval_xy(x_, y_, params, cache=None):
     return np.asanyarray(x), np.asanyarray(y)
 
 
-def kwarg_to_widget(key, val, mpl_widget_ax=None):
+def kwarg_to_widget(key, val, mpl_widget_ax=None, play_button=False):
     """
     Parameters
     ----------
@@ -267,6 +267,8 @@ def kwarg_to_widget(key, val, mpl_widget_ax=None):
         The value to be interpreted and possibly transformed into an ipywidget
     mpl_widget_ax : matplotlib axis, optional
         If given then create a matplotlib widget instead of an ipywidget.
+    play_button : bool or "left" or "right"
+        Whether to create a play button and where to put it.
 
     Returns
     -------
@@ -355,7 +357,7 @@ def kwarg_to_widget(key, val, mpl_widget_ax=None):
             # TODO: make fixed available for mpl as well.
             return widgets.fixed(val)
         else:
-            return IndexSlider(val, key, mpl_widget_ax)
+            return IndexSlider(val, key, mpl_widget_ax, play_button=play_button)
 
 
 def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None):
