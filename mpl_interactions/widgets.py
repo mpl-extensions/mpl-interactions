@@ -294,6 +294,11 @@ class IndexSlider(IntSlider):
         self._scalar_formatter.create_dummy_axis()
         if mpl_slider_ax is not None:
             # make mpl_slider
+            if play_button:
+                raise ValueError(
+                    "Play Buttons not yet available for matplotlib sliders "
+                    "see https://github.com/ianhi/mpl-interactions/issues/144"
+                )
             slider = mwidgets.Slider(
                 mpl_slider_ax,
                 label=label,
