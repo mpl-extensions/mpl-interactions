@@ -3,6 +3,7 @@ Implementing matplotlib widgets for back compat
 """
 from matplotlib.widgets import AxesWidget
 from matplotlib import cbook, ticker
+import numpy as np
 
 # slider widgets are taken almost verbatim from https://github.com/matplotlib/matplotlib/pull/18829/files
 # which was written by me - but incorporates much of the existing matplotlib slider infrastructure
