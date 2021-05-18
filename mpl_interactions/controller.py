@@ -50,7 +50,6 @@ class Controls:
             self.vbox = widgets.VBox([])
         else:
             self.control_figures = []  # storage for figures made of matplotlib sliders
-
         self.use_cache = use_cache
         self.kwargs = kwargs
         self.slider_format_strings = create_slider_format_dict(slider_formats)
@@ -69,6 +68,7 @@ class Controls:
         play_buttons=None,
         allow_duplicates=False,
         index_kwargs=None,
+        use_ipywidgets=True,
     ):
         """
         If you pass a redundant kwarg it will just be overwritten
@@ -100,9 +100,14 @@ class Controls:
             slider_formats = create_slider_format_dict(slider_formats)
             for k, v in slider_formats.items():
                 self.slider_format_strings[k] = v
-        axes, fig = maybe_create_mpl_controls_axes(kwargs)
-        if fig is not None:
-            self.control_figures.append((fig))
+
+        if not use_ipywidgets:
+            axes, fig = maybe_create_mpl_controls_axes(kwargs)
+            if fig is not None:
+                self.control_figures.append((fig))
+        else:
+            axes = [None] * len(kwargs)
+
         for k, v in kwargs.items():
             if k in self.params:
                 if allow_duplicates:
