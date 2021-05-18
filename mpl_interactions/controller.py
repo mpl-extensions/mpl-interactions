@@ -11,7 +11,8 @@ from .helpers import (
     create_slider_format_dict,
     kwarg_to_ipywidget,
     kwarg_to_mpl_widget,
-    create_mpl_controls_fig,
+    maybe_create_mpl_controls_axes,
+    kwarg_to_widget,
     notebook_backend,
     process_mpl_widget,
 )
@@ -61,14 +62,28 @@ class Controls:
         self._user_callbacks = defaultdict(list)
         self.add_kwargs(kwargs, slider_formats, play_buttons)
 
-    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None, allow_duplicates=False):
+    def add_kwargs(
+        self,
+        kwargs,
+        slider_formats=None,
+        play_buttons=None,
+        allow_duplicates=False,
+        index_kwargs=None,
+    ):
         """
         If you pass a redundant kwarg it will just be overwritten
         maybe should only raise a warning rather than an error?
 
         need to implement matplotlib widgets
         also a big question is how to dynamically update the display of matplotlib widgets.
+
+        Parameters
+        ----------
+        index_kwargs : list of str or None
+            A list of which sliders should use an index for their callbacks.
         """
+        if not index_kwargs:
+            index_kwargs = []
         if isinstance(play_buttons, bool) or isinstance(play_buttons, str) or play_buttons is None:
             _play_buttons = defaultdict(lambda: play_buttons)
         elif isinstance(play_buttons, defaultdict):
@@ -85,76 +100,48 @@ class Controls:
             slider_formats = create_slider_format_dict(slider_formats)
             for k, v in slider_formats.items():
                 self.slider_format_strings[k] = v
-        if self.use_ipywidgets:
-            for k, v in kwargs.items():
-                if k in self.params:
-                    if allow_duplicates:
-                        continue
-                    else:
-                        raise ValueError("can't overwrite an existing param in the controller")
-                if isinstance(v, AxesWidget):
-                    self.params[k], self.controls[k], _ = process_mpl_widget(
-                        v, partial(self.slider_updated, key=k)
-                    )
+        axes, fig = maybe_create_mpl_controls_axes(kwargs)
+        if fig is not None:
+            self.control_figures.append((fig))
+        for k, v in kwargs.items():
+            if k in self.params:
+                if allow_duplicates:
+                    continue
                 else:
-                    self.params[k], control = kwarg_to_ipywidget(
-                        k,
-                        v,
-                        partial(self.slider_updated, key=k),
-                        self.slider_format_strings[k],
-                        play_button=_play_buttons[k],
-                    )
-                    if control:
-                        self.controls[k] = control
-                        self.vbox.children = list(self.vbox.children) + [control]
-                if k == "vmin_vmax":
-                    self.params["vmin"] = self.params["vmin_vmax"][0]
-                    self.params["vmax"] = self.params["vmin_vmax"][1]
-        else:
-            if len(kwargs) > 0:
-                mpl_layout = create_mpl_controls_fig(kwargs)
-                self.control_figures.append(mpl_layout[0])
-                widget_y = 0.05
-                for k, v in kwargs.items():
-                    if k in self.params:
-                        if allow_duplicates:
-                            continue
-                        else:
-                            raise ValueError("Can't overwrite an existing param in the controller")
-                    self.params[k], control, cb, widget_y = kwarg_to_mpl_widget(
-                        mpl_layout[0],
-                        mpl_layout[1:],
-                        widget_y,
-                        k,
-                        v,
-                        partial(self.slider_updated, key=k),
-                        self.slider_format_strings[k],
-                    )
-                    if control:
-                        self.controls[k] = control
-                    if k == "vmin_vmax":
-                        self.params["vmin"] = self.params["vmin_vmax"][0]
-                        self.params["vmax"] = self.params["vmin_vmax"][1]
+                    raise ValueError("can't overwrite an existing param in the controller")
+            # TODO: accept existing mpl widget
+            # if isinstance(v, AxesWidget):
+            #     self.params[k], self.controls[k], _ = process_mpl_widget(
+            #         v, partial(self.slider_updated, key=k)
+            #     )
+            # else:
+            ax = axes.pop()
+            control = kwarg_to_widget(k, v, ax, play_button=_play_buttons[k])
+            if k in index_kwargs:
+                self.params[k] = control.index
+                control.observe(partial(self._slider_updated, key=k), names="index")
+            else:
+                self.params[k] = control.value
+                control.observe(partial(self._slider_updated, key=k), names="value")
 
-    def _slider_updated(self, change, key, values):
+            if control:
+                self.controls[k] = control
+                if ax is None:
+                    self.vbox.children = list(self.vbox.children) + [
+                        control._get_widget_for_display()
+                    ]
+            if k == "vmin_vmax":
+                self.params["vmin"] = self.params["vmin_vmax"][0]
+                self.params["vmax"] = self.params["vmin_vmax"][1]
+
+    def _slider_updated(self, change, key):
         """
         gotta also give the indices in order to support hyperslicer without horrifying contortions
         """
-        if values is None:
-            self.params[key] = change["new"]
-        else:
-            c = change["new"]
-            if isinstance(c, tuple):
-                # This is for range sliders which return 2 indices
-                self.params[key] = values[[*change["new"]]]
-                if key == "vmin_vmax":
-                    self.params["vmin"] = self.params[key][0]
-                    self.params["vmax"] = self.params[key][1]
-            else:
-                # int casting due to a bug in numpy < 1.19
-                # see https://github.com/ianhi/mpl-interactions/pull/155
-                self.params[key] = values[int(change["new"])]
-        self.indices[key] = change["new"]
+        self.params[key] = change["new"]
+        if key == "vmin_vmax":
+            self.params["vmin"] = self.params[key][0]
+            self.params["vmax"] = self.params[key][1]
         if self.use_cache:
             cache = {}
         else:
@@ -162,14 +149,12 @@ class Controls:
 
         for f, params in self._update_funcs[key]:
             ps = {}
-            idxs = {}
             for k in params:
                 ps[k] = self.params[k]
-                idxs[k] = self.indices[k]
-            f(params=ps, indices=idxs, cache=cache)
+            f(params=ps, cache=cache)
+        # TODO: see if can combine these with update_funcs for only one loop
         for f, params in self._user_callbacks[key]:
             f(**{key: self.params[key] for key in params})
-
         for f in self.figs[key]:
             f.canvas.draw_idle()
 
@@ -255,7 +240,7 @@ class Controls:
         fig : figure
         param : str
             the name of the kwarg to use to animate
-        interval : int, default: 2o
+        interval : int, default: 20
             interval between frames in ms
         func_anim_kwargs : dict
             kwargs to pass the creation of the underlying FuncAnimation

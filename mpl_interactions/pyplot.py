@@ -155,8 +155,9 @@ def interactive_plot(
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
     )
+    print(params)
 
-    def update(params, indices, cache):
+    def update(params, cache):
         if x_and_y:
             x_, y_ = eval_xy(x, y, params, cache)
             # broadcast so that we can always index
@@ -374,7 +375,7 @@ def interactive_hist(
     pc = PatchCollection([])
     ax.add_collection(pc, autolim=True)
 
-    def update(params, indices, cache):
+    def update(params, cache):
         arr_ = callable_else_value(arr, params, cache)
         new_x, new_y, new_patches = simple_hist(arr_, density=density, bins=bins, weights=weights)
         stretch(ax, new_x, new_y)
@@ -501,7 +502,7 @@ def interactive_scatter(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
-    def update(params, indices, cache):
+    def update(params, cache):
         if parametric:
             out = callable_else_value_no_cast(x, params)
             if not isinstance(out, tuple):
@@ -702,7 +703,7 @@ def interactive_imshow(
         def vmax(**kwargs):
             return kwargs["vmax"]
 
-    def update(params, indices, cache):
+    def update(params, cache):
         if isinstance(X, Callable):
             # check this here to avoid setting the data if we don't need to
             # use the callable_else_value fxn to make use of easy caching
@@ -822,7 +823,7 @@ def interactive_axhline(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
-    def update(params, indices, cache):
+    def update(params, cache):
         y_ = callable_else_value(y, params, cache).item()
         line.set_ydata([y_, y_])
         xmin_ = callable_else_value(xmin, params, cache).item()
@@ -919,7 +920,7 @@ def interactive_axvline(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
-    def update(params, indices, cache):
+    def update(params, cache):
         x_ = callable_else_value(x, params, cache).item()
         line.set_xdata([x_, x_])
         ymin_ = callable_else_value(ymin, params, cache).item()
@@ -1007,7 +1008,7 @@ def interactive_title(
         kwargs, controls, display_controls, slider_formats, play_buttons
     )
 
-    def update(params, indices, cache):
+    def update(params, cache):
         ax.set_title(
             callable_else_value_no_cast(title, params, cache).format(**params),
             fontdict=fontdict,
@@ -1094,7 +1095,7 @@ def interactive_xlabel(
         kwargs, controls, display_controls, slider_formats, play_buttons
     )
 
-    def update(params, indices, cache):
+    def update(params, cache):
         ax.set_xlabel(
             callable_else_value_no_cast(xlabel, params, cache).format(**params),
             fontdict=fontdict,
@@ -1179,7 +1180,7 @@ def interactive_ylabel(
         kwargs, controls, display_controls, slider_formats, play_buttons
     )
 
-    def update(params, indices, cache):
+    def update(params, cache):
         ax.set_ylabel(
             callable_else_value_no_cast(ylabel, params, cache).format(**params),
             fontdict=fontdict,
