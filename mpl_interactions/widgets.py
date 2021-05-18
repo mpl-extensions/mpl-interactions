@@ -1,4 +1,5 @@
 import numpy as np
+from numbers import Number
 
 from traitlets import (
     HasTraits,
@@ -25,6 +26,7 @@ except ImportError:
 from matplotlib import widgets as mwidgets
 from matplotlib.cbook import CallbackRegistry
 from matplotlib.widgets import AxesWidget
+from matplotlib.ticker import ScalarFormatter
 
 try:
     from matplotlib.widgets import RangeSlider, SliderBase
@@ -205,7 +207,6 @@ class SliderWrapper(HasTraits):
     value = Union([Float(), Int(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
     step = Union([Int(), Float(allow_none=True)])
     label = Unicode()
-    readout_format = Unicode("{:.2f}")
 
     def __init__(self, slider, readout_format=None, setup_value_callbacks=True):
         super().__init__()
@@ -274,7 +275,9 @@ class IndexSlider(IntSlider):
     values = Array()
     # gotta make values traitlike - traittypes?
 
-    def __init__(self, values, label="", mpl_slider_ax=None, play_button=False):
+    def __init__(
+        self, values, label="", mpl_slider_ax=None, readout_format=None, play_button=False
+    ):
         """
         Parameters
         ----------
@@ -286,7 +289,9 @@ class IndexSlider(IntSlider):
             If *None* an ipywidgets slider will be created
         """
         self.values = np.atleast_1d(values)
-        self.readout_format = "{:.2f}"
+        self.readout_format = readout_format
+        self._scalar_formatter = ScalarFormatter(useOffset=False)
+        self._scalar_formatter.create_dummy_axis()
         if mpl_slider_ax is not None:
             # make mpl_slider
             slider = mwidgets.Slider(
@@ -300,7 +305,7 @@ class IndexSlider(IntSlider):
 
             def onchange(val):
                 self.index = int(val)
-                slider.valtext.set_text(self.readout_format.format(self.values[int(val)]))
+                slider.valtext.set_text(self._format_value(self.values[int(val)]))
 
             slider.on_changed(onchange)
             self.values
@@ -312,7 +317,7 @@ class IndexSlider(IntSlider):
             widgets.dlink(
                 (slider, "value"),
                 (self._readout, "value"),
-                transform=lambda x: self.readout_format.format(self.values[x]),
+                transform=lambda x: self._format_value(self.values[x]),
             )
             self._play_button = None
             if play_button:
@@ -330,6 +335,14 @@ class IndexSlider(IntSlider):
         super().__init__(slider, setup_value_callbacks=False)
         self.value = self.values[self.index]
 
+    def _format_value(self, value):
+        if self.readout_format is None:
+            if isinstance(value, Number):
+                return self._scalar_formatter.format_data_short(value)
+            else:
+                return str(value)
+        return self.readout_format.format(value)
+
     def _get_widget_for_display(self):
         if self._play_button:
             if self._play_button_on_left:
@@ -346,8 +359,7 @@ class IndexSlider(IntSlider):
                 " To see or change the set of valid values use the `.values` attribute"
             )
         # call `int` because traitlets can't handle np int64
-        index = int(np.argmin(np.abs(self.values - proposal["value"])))
-        self.index = index
+        self.index = int(np.where(self.values == proposal["value"])[0][0])
 
         return proposal["value"]
 
