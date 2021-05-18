@@ -155,7 +155,6 @@ def interactive_plot(
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
     )
-    print(params)
 
     def update(params, cache):
         if x_and_y:
