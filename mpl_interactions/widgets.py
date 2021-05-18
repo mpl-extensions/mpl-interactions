@@ -1,3 +1,26 @@
+import numpy as np
+
+from traitlets import (
+    HasTraits,
+    Int,
+    Float,
+    Union,
+    observe,
+    dlink,
+    link,
+    Tuple,
+    Unicode,
+    validate,
+    TraitError,
+    Any,
+)
+from traittypes import Array
+
+try:
+    import ipywidgets as widgets
+except ImportError:
+    widgets = None
+from matplotlib import widgets as mwidgets
 from matplotlib.cbook import CallbackRegistry
 from matplotlib.widgets import AxesWidget
 
@@ -11,6 +34,9 @@ __all__ = [
     "scatter_selector_index",
     "scatter_selector_value",
     "RangeSlider",
+    "SliderWrapper",
+    "IntSlider",
+    "IndexSlider",
 ]
 
 
@@ -141,3 +167,186 @@ class scatter_selector_value(scatter_selector):
             Connection id (which can be used to disconnect *func*)
         """
         return self._observers.connect("picked", lambda val: func(val))
+
+
+_gross_traits = [
+    "add_traits",
+    "class_own_trait_events",
+    "class_own_traits",
+    "class_trait_names",
+    "class_traits",
+    "cross_validation_lock",
+    "has_trait",
+    "hold_trait_notifications",
+    "notify_change",
+    "on_trait_change",
+    "set_trait",
+    "setup_instance",
+    "trait_defaults",
+    "trait_events",
+    "trait_has_value",
+    "trait_metadata",
+    "trait_names",
+    "trait_values",
+    "traits",
+]
+
+
+class SliderWrapper(HasTraits):
+    """
+    A warpper class that provides a consistent interface for both
+    ipywidgets and matplotlib sliders.
+    """
+
+    min = Union([Int(), Float(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
+    max = Union([Int(), Float(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
+    value = Union([Float(), Int(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
+    step = Union([Int(), Float(allow_none=True)])
+    index = Int(allow_none=True)
+    label = Unicode()
+    readout_format = Unicode("{:.2f}")
+
+    def __init__(self, slider, readout_format=None, setup_value_callbacks=True):
+        super().__init__()
+        self._raw_slider = slider
+        # eventually we can just rely on SliderBase here
+        # for now keep both for compatibility with mpl < 3.4
+        self._mpl = isinstance(slider, (mwidgets.Slider, SliderBase))
+        if self._mpl:
+            self.observe(lambda change: setattr(self._raw_slider, "valmin", change["new"]), "min")
+            self.observe(lambda change: setattr(self._raw_slider, "valmax", change["new"]), "max")
+            self.observe(lambda change: self._raw_slider.label.set_text(change["new"]), "label")
+            if setup_value_callbacks:
+                self.observe(lambda change: self._raw_slider.set_val(change["new"]), "value")
+                self._raw_slider.on_changed(lambda val: setattr(self, "value", val))
+                self.value = self._raw_slider.val
+            self.min = self._raw_slider.valmin
+            self.max = self._raw_slider.valmax
+            self.step = self._raw_slider.valstep
+            self.label = self._raw_slider.label.get_text()
+        else:
+            if setup_value_callbacks:
+                link((slider, "value"), (self, "value"))
+            link((slider, "min"), (self, "min"))
+            link((slider, "max"), (self, "max"))
+            link((slider, "step"), (self, "step"))
+            link((slider, "description"), (self, "label"))
+        self._callbacks = []
+
+    @observe("value")
+    def _on_changed(self, change):
+        for c in self._callbacks:
+            c(change["new"])
+
+    def on_changed(self, callback):
+        # callback registry?
+        self._callbacks.append(callback)
+
+    def _get_widget_for_display(self):
+        return self._raw_slider
+
+    def _ipython_display_(self):
+        if self._mpl:
+            pass
+        else:
+            return self._get_widget_for_display()
+
+    def __dir__(self):
+        # hide all the cruft from traitlets for shfit+Tab
+        return [i for i in super().__dir__() if i not in _gross_traits]
+
+
+class IntSlider(SliderWrapper):
+    min = Int()
+    max = Int()
+    value = Int()
+
+
+class IndexSlider(IntSlider):
+    """
+    A slider class to index through an array of values.
+    """
+
+    index = Int()
+    max_index = Int()
+    value = Any()
+    values = Array()
+    # gotta make values traitlike - traittypes?
+
+    def __init__(self, values, label="", mpl_slider_ax=None, play_button=False):
+        """
+        Parameters
+        ----------
+        values : 1D arraylike
+            The values to index over
+        label : str
+            The slider label
+        mpl_slider_ax : matplotlib.axes or None
+            If *None* an ipywidgets slider will be created
+        """
+        if play_button is not False:
+            raise ValueError("play buttons not yet implemented fool!")
+        self.values = np.atleast_1d(values)
+        self.readout_format = "{:.2f}"
+        if mpl_slider_ax is not None:
+            # make mpl_slider
+            slider = mwidgets.Slider(
+                mpl_slider_ax,
+                label=label,
+                valinit=0,
+                valmin=0,
+                valmax=self.values.shape[0] - 1,
+                valstep=1,
+            )
+
+            def onchange(val):
+                self.index = int(val)
+                slider.valtext.set_text(self.readout_format.format(self.values[int(val)]))
+
+            slider.on_changed(onchange)
+            self.values
+        elif widgets:
+            slider = widgets.IntSlider(
+                0, 0, self.values.shape[0] - 1, step=1, readout=False, description=label
+            )
+            self._readout = widgets.Label(value=str(self.values[0]))
+            widgets.dlink(
+                (slider, "value"),
+                (self._readout, "value"),
+                transform=lambda x: self.readout_format.format(self.values[x]),
+            )
+            link((slider, "value"), (self, "index"))
+            link((slider, "max"), (self, "max_index"))
+        else:
+            raise ValueError("mpl_slider_ax cannot be None if ipywidgets is not available")
+        super().__init__(slider, setup_value_callbacks=False)
+        self.value = self.values[self.index]
+
+    def _get_widget_for_display(self):
+        return widgets.HBox([self._raw_slider, self._readout])
+
+    @validate("value")
+    def _validate_value(self, proposal):
+        if not proposal["value"] in self.values:
+            raise TraitError(
+                f"{proposal['value']} is not in the set of values for this index slider."
+                " To see or change the set of valid values use the `.values` attribute"
+            )
+        # call `int` because traitlets can't handle np int64
+        index = int(np.argmin(np.abs(self.values - proposal["value"])))
+        self.index = index
+
+        return proposal["value"]
+
+    @observe("index")
+    def _obs_index(self, change):
+        # call .item because traitlets is unhappy with numpy types
+        self.value = self.values[change["new"]].item()
+
+    @validate("values")
+    def _validate_values(self, proposal):
+        values = proposal["value"]
+        if values.ndim > 1:
+            raise TraitError("Expected 1d array but got an array with shape %s" % (values.shape))
+        self.max_index = values.shape[0]
+        return values
