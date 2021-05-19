@@ -688,6 +688,7 @@ def hyperslicer(
         play_buttons,
         extra_ctrls,
         allow_dupes=True,
+        index_kwargs=list(kwargs.keys()),
     )
     if vmin_vmax is not None:
         params.pop("vmin_vmax")
@@ -700,7 +701,8 @@ def hyperslicer(
         def vmax(**kwargs):
             return kwargs["vmax"]
 
-    def update(params, indices, cache):
+    def update(params, cache):
+        indices = params
         if title is not None:
             ax.set_title(title.format(**params))
 

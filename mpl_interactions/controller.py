@@ -7,13 +7,14 @@ except ImportError:
     _not_ipython = True
     pass
 from collections import defaultdict
+from mpl_interactions.widgets import IndexSlider, SliderWrapper
+
 from .helpers import (
     create_slider_format_dict,
-    kwarg_to_ipywidget,
-    kwarg_to_mpl_widget,
-    create_mpl_controls_fig,
+    maybe_create_mpl_controls_axes,
+    kwarg_to_widget,
+    maybe_get_widget_for_display,
     notebook_backend,
-    process_mpl_widget,
 )
 from functools import partial
 from collections.abc import Iterable
@@ -30,6 +31,7 @@ class Controls:
         play_button_pos="right",
         use_ipywidgets=None,
         use_cache=True,
+        index_kwargs=[],
         **kwargs
     ):
         # it might make sense to also accept kwargs as a straight up arg
@@ -49,7 +51,8 @@ class Controls:
             self.vbox = widgets.VBox([])
         else:
             self.control_figures = []  # storage for figures made of matplotlib sliders
-
+        if widgets:
+            self.vbox = widgets.VBox([])
         self.use_cache = use_cache
         self.kwargs = kwargs
         self.slider_format_strings = create_slider_format_dict(slider_formats)
@@ -59,16 +62,30 @@ class Controls:
         self.indices = defaultdict(lambda: 0)
         self._update_funcs = defaultdict(list)
         self._user_callbacks = defaultdict(list)
-        self.add_kwargs(kwargs, slider_formats, play_buttons)
+        self.add_kwargs(kwargs, slider_formats, play_buttons, index_kwargs=index_kwargs)
 
-    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None, allow_duplicates=False):
+    def add_kwargs(
+        self,
+        kwargs,
+        slider_formats=None,
+        play_buttons=None,
+        allow_duplicates=False,
+        index_kwargs=None,
+    ):
         """
         If you pass a redundant kwarg it will just be overwritten
         maybe should only raise a warning rather than an error?
 
         need to implement matplotlib widgets
         also a big question is how to dynamically update the display of matplotlib widgets.
+
+        Parameters
+        ----------
+        index_kwargs : list of str or None
+            A list of which sliders should use an index for their callbacks.
         """
+        if not index_kwargs:
+            index_kwargs = []
         if isinstance(play_buttons, bool) or isinstance(play_buttons, str) or play_buttons is None:
             _play_buttons = defaultdict(lambda: play_buttons)
         elif isinstance(play_buttons, defaultdict):
@@ -85,76 +102,68 @@ class Controls:
             slider_formats = create_slider_format_dict(slider_formats)
             for k, v in slider_formats.items():
                 self.slider_format_strings[k] = v
-        if self.use_ipywidgets:
-            for k, v in kwargs.items():
-                if k in self.params:
-                    if allow_duplicates:
-                        continue
-                    else:
-                        raise ValueError("can't overwrite an existing param in the controller")
-                if isinstance(v, AxesWidget):
-                    self.params[k], self.controls[k], _ = process_mpl_widget(
-                        v, partial(self.slider_updated, key=k)
-                    )
-                else:
-                    self.params[k], control = kwarg_to_ipywidget(
-                        k,
-                        v,
-                        partial(self.slider_updated, key=k),
-                        self.slider_format_strings[k],
-                        play_button=_play_buttons[k],
-                    )
-                    if control:
-                        self.controls[k] = control
-                        self.vbox.children = list(self.vbox.children) + [control]
-                if k == "vmin_vmax":
-                    self.params["vmin"] = self.params["vmin_vmax"][0]
-                    self.params["vmax"] = self.params["vmin_vmax"][1]
-        else:
-            if len(kwargs) > 0:
-                mpl_layout = create_mpl_controls_fig(kwargs)
-                self.control_figures.append(mpl_layout[0])
-                widget_y = 0.05
-                for k, v in kwargs.items():
-                    if k in self.params:
-                        if allow_duplicates:
-                            continue
-                        else:
-                            raise ValueError("Can't overwrite an existing param in the controller")
-                    self.params[k], control, cb, widget_y = kwarg_to_mpl_widget(
-                        mpl_layout[0],
-                        mpl_layout[1:],
-                        widget_y,
-                        k,
-                        v,
-                        partial(self.slider_updated, key=k),
-                        self.slider_format_strings[k],
-                    )
-                    if control:
-                        self.controls[k] = control
-                    if k == "vmin_vmax":
-                        self.params["vmin"] = self.params["vmin_vmax"][0]
-                        self.params["vmax"] = self.params["vmin_vmax"][1]
 
-    def _slider_updated(self, change, key, values):
+        if not self.use_ipywidgets:
+            axes, fig = maybe_create_mpl_controls_axes(kwargs)
+            if fig is not None:
+                self.control_figures.append((fig))
+        else:
+            axes = [None] * len(kwargs)
+
+        for k, v in kwargs.items():
+            if k in self.params:
+                if allow_duplicates:
+                    continue
+                else:
+                    raise ValueError("can't overwrite an existing param in the controller")
+            # TODO: accept existing mpl widget
+            # if isinstance(v, AxesWidget):
+            #     self.params[k], self.controls[k], _ = process_mpl_widget(
+            #         v, partial(self.slider_updated, key=k)
+            #     )
+            # else:
+            ax = axes.pop()
+            control = kwarg_to_widget(k, v, ax, play_button=_play_buttons[k])
+            # TODO: make the try except silliness less ugly
+            # the complexity of hiding away the val vs value vs whatever needs to
+            # be hidden away somewhere - but probably not here
+            if k in index_kwargs:
+                self.params[k] = control.index
+                try:
+                    control.observe(partial(self._slider_updated, key=k), names="index")
+                except AttributeError:
+                    self._setup_mpl_widget_callback(control, k)
+            else:
+                self.params[k] = control.value
+                try:
+                    control.observe(partial(self._slider_updated, key=k), names="value")
+                except AttributeError:
+                    self._setup_mpl_widget_callback(control, k)
+
+            if control:
+                self.controls[k] = control
+                if ax is None:
+                    disp = maybe_get_widget_for_display(control)
+                    if disp is not None:
+                        self.vbox.children = list(self.vbox.children) + [disp]
+            if k == "vmin_vmax":
+                self.params["vmin"] = self.params["vmin_vmax"][0]
+                self.params["vmax"] = self.params["vmin_vmax"][1]
+
+    def _setup_mpl_widget_callback(self, widget, key):
+        def on_changed(val):
+            self._slider_updated({"new": val}, key=key)
+
+        widget.on_changed(on_changed)
+
+    def _slider_updated(self, change, key):
         """
         gotta also give the indices in order to support hyperslicer without horrifying contortions
         """
-        if values is None:
-            self.params[key] = change["new"]
-        else:
-            c = change["new"]
-            if isinstance(c, tuple):
-                # This is for range sliders which return 2 indices
-                self.params[key] = values[[*change["new"]]]
-                if key == "vmin_vmax":
-                    self.params["vmin"] = self.params[key][0]
-                    self.params["vmax"] = self.params[key][1]
-            else:
-                # int casting due to a bug in numpy < 1.19
-                # see https://github.com/ianhi/mpl-interactions/pull/155
-                self.params[key] = values[int(change["new"])]
-        self.indices[key] = change["new"]
+        self.params[key] = change["new"]
+        if key == "vmin_vmax":
+            self.params["vmin"] = self.params[key][0]
+            self.params["vmax"] = self.params[key][1]
         if self.use_cache:
             cache = {}
         else:
@@ -162,14 +171,12 @@ class Controls:
 
         for f, params in self._update_funcs[key]:
             ps = {}
-            idxs = {}
             for k in params:
                 ps[k] = self.params[k]
-                idxs[k] = self.indices[k]
-            f(params=ps, indices=idxs, cache=cache)
+            f(params=ps, cache=cache)
+        # TODO: see if can combine these with update_funcs for only one loop
         for f, params in self._user_callbacks[key]:
             f(**{key: self.params[key] for key in params})
-
         for f in self.figs[key]:
             f.canvas.draw_idle()
 
@@ -255,7 +262,7 @@ class Controls:
         fig : figure
         param : str
             the name of the kwarg to use to animate
-        interval : int, default: 2o
+        interval : int, default: 20
             interval between frames in ms
         func_anim_kwargs : dict
             kwargs to pass the creation of the underlying FuncAnimation
@@ -272,39 +279,32 @@ class Controls:
         anim : matplotlib.animation.FuncAniation
         """
         slider = self.controls[param]
-        ipywidgets_slider = False
-        if "Box" in str(slider.__class__):
-            for obj in slider.children:
-                if "Slider" in str(obj.__class__):
-                    slider = obj
+        # at this point every slider should be wrapped by at least a .widgets.WidgetWrapper
+        if isinstance(slider, IndexSlider):
+            N = len(slider.values)
 
-        if isinstance(slider, mSlider):
-            min_ = slider.valmin
-            max_ = slider.valmax
-            if slider.valstep is None:
+            def f(i):
+                slider.index = i
+                return []
+
+        elif isinstance(slider, SliderWrapper):
+            min = slider.min
+            max = slider.max
+            if slider.step is None:
                 n_steps = N_frames if N_frames else 200
-                step = (max_ - min_) / n_steps
+                step = (max - min) / n_steps
             else:
                 step = slider.valstep
-        elif "Slider" in str(slider.__class__):
-            ipywidgets_slider = True
-            min_ = slider.min
-            max_ = slider.max
-            step = slider.step
+            N = int((max - min) / step)
+
+            def f(i):
+                slider.value = min + step * i
+                return []
+
         else:
             raise NotImplementedError(
-                "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
+                "Cannot save animation for param of type %s".format(type(slider))
             )
-
-        N = int((max_ - min_) / step)
-
-        def f(i):
-            val = min_ + step * i
-            if ipywidgets_slider:
-                slider.value = val
-            else:
-                slider.set_val(val)
-            return []
 
         repeat = func_anim_kwargs.pop("repeat", False)
         anim = FuncAnimation(fig, f, frames=N, interval=interval, repeat=repeat, **func_anim_kwargs)
@@ -344,6 +344,7 @@ def gogogo_controls(
     play_buttons,
     extra_controls=None,
     allow_dupes=False,
+    index_kwargs=[],
 ):
     if controls or (extra_controls and not all([e is None for e in extra_controls])):
         if extra_controls is not None:
@@ -358,7 +359,13 @@ def gogogo_controls(
             # it was indexed by the user when passed in
             extra_keys = controls[1]
             controls = controls[0]
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            controls.add_kwargs(
+                kwargs,
+                slider_formats,
+                play_buttons,
+                allow_duplicates=allow_dupes,
+                index_kwargs=index_kwargs,
+            )
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         elif isinstance(controls, list):
             # collected from extra controls
@@ -377,14 +384,31 @@ def gogogo_controls(
                 raise ValueError("Only one controls object may be used per function")
             # now we are garunteed to only have a single entry in controls, so it's ok to pop
             controls = controls.pop()
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            controls.add_kwargs(
+                kwargs,
+                slider_formats,
+                play_buttons,
+                allow_duplicates=allow_dupes,
+                index_kwargs=index_kwargs,
+            )
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         else:
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            controls.add_kwargs(
+                kwargs,
+                slider_formats,
+                play_buttons,
+                allow_duplicates=allow_dupes,
+                index_kwargs=index_kwargs,
+            )
             params = controls.params
         return controls, params
     else:
-        controls = Controls(slider_formats=slider_formats, play_buttons=play_buttons, **kwargs)
+        controls = Controls(
+            slider_formats=slider_formats,
+            play_buttons=play_buttons,
+            index_kwargs=index_kwargs,
+            **kwargs
+        )
         params = controls.params
         if display_controls:
             controls.display()

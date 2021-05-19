@@ -1,13 +1,48 @@
+import numpy as np
+from numbers import Number
+
+from traitlets import (
+    HasTraits,
+    Int,
+    Float,
+    Union,
+    observe,
+    dlink,
+    link,
+    Tuple,
+    Unicode,
+    validate,
+    TraitError,
+    Any,
+)
+from traittypes import Array
+
+try:
+    import ipywidgets as widgets
+    from ipywidgets.widgets.widget_link import jslink
+    from IPython.display import display
+except ImportError:
+    widgets = None
+from matplotlib import widgets as mwidgets
 from matplotlib.cbook import CallbackRegistry
 from matplotlib.widgets import AxesWidget
-from matplotlib import cbook, ticker
-import numpy as np
+from matplotlib.ticker import ScalarFormatter
+
+try:
+    from matplotlib.widgets import RangeSlider, SliderBase
+except ImportError:
+    from ._widget_backfill import RangeSlider, SliderBase
+import matplotlib.widgets as mwidgets
 
 __all__ = [
     "scatter_selector",
     "scatter_selector_index",
     "scatter_selector_value",
     "RangeSlider",
+    "SliderWrapper",
+    "IntSlider",
+    "IndexSlider",
+    "CategoricalWrapper",
 ]
 
 
@@ -49,6 +84,7 @@ class scatter_selector(AxesWidget):
 
     def _init_val(self):
         self.val = (0, (self._x[0], self._y[0]))
+        self.value = (0, (self._x[0], self._y[0]))
 
     def _on_pick(self, event):
         if event.mouseevent.button == self._button:
@@ -57,7 +93,7 @@ class scatter_selector(AxesWidget):
             y = self._y[idx]
             self._process(idx, (x, y))
 
-    def _process(idx, val):
+    def _process(self, idx, val):
         self._observers.process("picked", idx, val)
 
     def on_changed(self, func):
@@ -86,6 +122,7 @@ class scatter_selector_index(scatter_selector):
 
     def _init_val(self):
         self.val = 0
+        self.value = 0
 
     def _process(self, idx, val):
         self._observers.process("picked", idx)
@@ -117,6 +154,7 @@ class scatter_selector_value(scatter_selector):
 
     def _init_val(self):
         self.val = (self._x[0], self._y[0])
+        self.value = (self._x[0], self._y[0])
 
     def _process(self, idx, val):
         self._observers.process("picked", val)
@@ -140,336 +178,266 @@ class scatter_selector_value(scatter_selector):
         return self._observers.connect("picked", lambda val: func(val))
 
 
-# slider widgets are taken almost verbatim from https://github.com/matplotlib/matplotlib/pull/18829/files
-# which was written by me - but incorporates much of the existing matplotlib slider infrastructure
-class SliderBase(AxesWidget):
-    def __init__(
-        self, ax, orientation, closedmin, closedmax, valmin, valmax, valfmt, dragging, valstep
-    ):
-        if ax.name == "3d":
-            raise ValueError("Sliders cannot be added to 3D Axes")
+_gross_traits = [
+    "add_traits",
+    "class_own_trait_events",
+    "class_own_traits",
+    "class_trait_names",
+    "class_traits",
+    "cross_validation_lock",
+    "has_trait",
+    "hold_trait_notifications",
+    "notify_change",
+    "on_trait_change",
+    "set_trait",
+    "setup_instance",
+    "trait_defaults",
+    "trait_events",
+    "trait_has_value",
+    "trait_metadata",
+    "trait_names",
+    "trait_values",
+    "traits",
+]
 
-        super().__init__(ax)
 
-        self.orientation = orientation
-        self.closedmin = closedmin
-        self.closedmax = closedmax
-        self.valmin = valmin
-        self.valmax = valmax
-        self.valstep = valstep
-        self.drag_active = False
-        self.valfmt = valfmt
+class HasTraitsSmallShiftTab(HasTraits):
+    def __dir__(self):
+        # hide all the cruft from traitlets for shift+Tab
+        return [i for i in super().__dir__() if i not in _gross_traits]
 
-        if orientation == "vertical":
-            ax.set_ylim((valmin, valmax))
-            axis = ax.yaxis
+
+class WidgetWrapper(HasTraitsSmallShiftTab):
+    value = Any()
+
+    def __init__(self, mpl_widget, **kwargs) -> None:
+        super().__init__(self)
+        self._mpl = mpl_widget
+        self._callbacks = []
+
+    def on_changed(self, callback):
+        # callback registry?
+        self._callbacks.append(callback)
+
+    def _get_widget_for_display(self):
+        if self._mpl:
+            return None
         else:
-            ax.set_xlim((valmin, valmax))
-            axis = ax.xaxis
+            return self._raw_widget
 
-        self._fmt = axis.get_major_formatter()
-        if not isinstance(self._fmt, ticker.ScalarFormatter):
-            self._fmt = ticker.ScalarFormatter()
-            self._fmt.set_axis(axis)
-        self._fmt.set_useOffset(False)  # No additive offset.
-        self._fmt.set_useMathText(True)  # x sign before multiplicative offset.
+    def _ipython_display_(self):
+        if self._mpl:
+            pass
+        else:
+            display(self._get_widget_for_display())
 
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_navigate(False)
-        self.connect_event("button_press_event", self._update)
-        self.connect_event("button_release_event", self._update)
-        if dragging:
-            self.connect_event("motion_notify_event", self._update)
-        self._observers = cbook.CallbackRegistry()
-
-    def _stepped_value(self, val):
-        if self.valstep:
-            return self.valmin + round((val - self.valmin) / self.valstep) * self.valstep
-        return val
-
-    def disconnect(self, cid):
-        """
-        Remove the observer with connection id *cid*
-
-        Parameters
-        ----------
-        cid : int
-            Connection id of the observer to be removed
-        """
-        self._observers.disconnect(cid)
-
-    def reset(self):
-        """Reset the slider to the initial value"""
-        if self.val != self.valinit:
-            self.set_val(self.valinit)
+    @observe("value")
+    def _on_changed(self, change):
+        for c in self._callbacks:
+            c(change["new"])
 
 
-class RangeSlider(SliderBase):
+class SliderWrapper(WidgetWrapper):
     """
-    A slider representing a floating point range.
+    A warpper class that provides a consistent interface for both
+    ipywidgets and matplotlib sliders.
+    """
 
-    Create a slider from *valmin* to *valmax* in axes *ax*. For the slider to
-    remain responsive you must maintain a reference to it. Call
-    :meth:`on_changed` to connect to the slider event.
+    min = Union([Int(), Float(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
+    max = Union([Int(), Float(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
+    value = Union([Float(), Int(), Tuple([Int(), Int()]), Tuple(Float(), Float())])
+    step = Union([Int(), Float(allow_none=True)])
+    label = Unicode()
 
-    Attributes
-    ----------
-    val : tuple of float
-        Slider value.
+    def __init__(self, slider, readout_format=None, setup_value_callbacks=True, **kwargs):
+        self._mpl = isinstance(slider, (mwidgets.Slider, SliderBase))
+        super().__init__(self, **kwargs)
+        self._raw_widget = slider
+
+        # eventually we can just rely on SliderBase here
+        # for now keep both for compatibility with mpl < 3.4
+        if self._mpl:
+            self.observe(lambda change: setattr(self._raw_widget, "valmin", change["new"]), "min")
+            self.observe(lambda change: setattr(self._raw_widget, "valmax", change["new"]), "max")
+            self.observe(lambda change: self._raw_widget.label.set_text(change["new"]), "label")
+            if setup_value_callbacks:
+                self.observe(lambda change: self._raw_widget.set_val(change["new"]), "value")
+                self._raw_widget.on_changed(lambda val: setattr(self, "value", val))
+                self.value = self._raw_widget.val
+            self.min = self._raw_widget.valmin
+            self.max = self._raw_widget.valmax
+            self.step = self._raw_widget.valstep
+            self.label = self._raw_widget.label.get_text()
+        else:
+            if setup_value_callbacks:
+                link((slider, "value"), (self, "value"))
+            link((slider, "min"), (self, "min"))
+            link((slider, "max"), (self, "max"))
+            link((slider, "step"), (self, "step"))
+            link((slider, "description"), (self, "label"))
+
+
+class IntSlider(SliderWrapper):
+    min = Int()
+    max = Int()
+    value = Int()
+
+
+class SelectionWrapper(WidgetWrapper):
+    index = Int()
+    values = Array()
+    max_index = Int()
+
+    def __init__(self, values, mpl_ax=None, **kwargs) -> None:
+        super().__init__(mpl_ax is not None, **kwargs)
+        self.values = values
+        self.value = self.values[self.index]
+
+    @validate("value")
+    def _validate_value(self, proposal):
+        if not proposal["value"] in self.values:
+            raise TraitError(
+                f"{proposal['value']} is not in the set of values for this index slider."
+                " To see or change the set of valid values use the `.values` attribute"
+            )
+        # call `int` because traitlets can't handle np int64
+        self.index = int(np.where(self.values == proposal["value"])[0][0])
+
+        return proposal["value"]
+
+    @observe("index")
+    def _obs_index(self, change):
+        # call .item because traitlets is unhappy with numpy types
+        self.value = self.values[change["new"]].item()
+
+    @validate("values")
+    def _validate_values(self, proposal):
+        values = proposal["value"]
+        if values.ndim > 1:
+            raise TraitError("Expected 1d array but got an array with shape %s" % (values.shape))
+        self.max_index = values.shape[0]
+        return values
+
+
+class IndexSlider(SelectionWrapper):
+    """
+    A slider class to index through an array of values.
     """
 
     def __init__(
-        self,
-        ax,
-        label,
-        valmin,
-        valmax,
-        valinit=None,
-        valfmt=None,
-        closedmin=True,
-        closedmax=True,
-        dragging=True,
-        valstep=None,
-        orientation="horizontal",
-        **kwargs,
+        self, values, label="", mpl_slider_ax=None, readout_format=None, play_button=False
     ):
         """
         Parameters
         ----------
-        ax : Axes
-            The Axes to put the slider in.
+        values : 1D arraylike
+            The values to index over
         label : str
-            Slider label.
-        valmin : float
-            The minimum value of the slider.
-        valmax : float
-            The maximum value of the slider.
-        valinit : tuple of float or None, default: None
-            The initial positions of the slider. If None the initial positions
-            will be at the 25th and 75th percentiles of the range.
-        valfmt : str, default: None
-            %-format string used to format the slider values.  If None, a
-            `.ScalarFormatter` is used instead.
-        closedmin : bool, default: True
-            Whether the slider interval is closed on the bottom.
-        closedmax : bool, default: True
-            Whether the slider interval is closed on the top.
-        dragging : bool, default: True
-            If True the slider can be dragged by the mouse.
-        valstep : float, default: None
-            If given, the slider will snap to multiples of *valstep*.
-        orientation : {'horizontal', 'vertical'}, default: 'horizontal'
-            The orientation of the slider.
-
-        Notes
-        -----
-        Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
-        `.Rectangle` documentation for valid property names (``facecolor``,
-        ``edgecolor``, ``alpha``, etc.).
+            The slider label
+        mpl_slider_ax : matplotlib.axes or None
+            If *None* an ipywidgets slider will be created
         """
-        super().__init__(
-            ax, orientation, closedmin, closedmax, valmin, valmax, valfmt, dragging, valstep
-        )
-
-        self.val = valinit
-        if valinit is None:
-            valinit = np.array([valmin + 0.25 * valmax, valmin + 0.75 * valmax])
-        else:
-            valinit = self._value_in_bounds(valinit)
-        self.val = valinit
-        self.valinit = valinit
-        if orientation == "vertical":
-            self.poly = ax.axhspan(valinit[0], valinit[1], 0, 1, **kwargs)
-        else:
-            self.poly = ax.axvspan(valinit[0], valinit[1], 0, 1, **kwargs)
-
-        if orientation == "vertical":
-            self.label = ax.text(
-                0.5,
-                1.02,
-                label,
-                transform=ax.transAxes,
-                verticalalignment="bottom",
-                horizontalalignment="center",
+        super().__init__(values, mpl_ax=mpl_slider_ax)
+        self.values = np.atleast_1d(values)
+        self.readout_format = readout_format
+        self._scalar_formatter = ScalarFormatter(useOffset=False)
+        self._scalar_formatter.create_dummy_axis()
+        if mpl_slider_ax is not None:
+            # make mpl_slider
+            if play_button:
+                raise ValueError(
+                    "Play Buttons not yet available for matplotlib sliders "
+                    "see https://github.com/ianhi/mpl-interactions/issues/144"
+                )
+            slider = mwidgets.Slider(
+                mpl_slider_ax,
+                label=label,
+                valinit=0,
+                valmin=0,
+                valmax=self.values.shape[0] - 1,
+                valstep=1,
             )
 
-            self.valtext = ax.text(
-                0.5,
-                -0.02,
-                self._format(valinit),
-                transform=ax.transAxes,
-                verticalalignment="top",
-                horizontalalignment="center",
+            def onchange(val):
+                self.index = int(val)
+                slider.valtext.set_text(self._format_value(self.values[int(val)]))
+
+            slider.on_changed(onchange)
+        elif widgets:
+            # i've basically recreated the ipywidgets.SelectionSlider here.
+            slider = widgets.IntSlider(
+                0, 0, self.values.shape[0] - 1, step=1, readout=False, description=label
             )
-        else:
-            self.label = ax.text(
-                -0.02,
-                0.5,
-                label,
-                transform=ax.transAxes,
-                verticalalignment="center",
-                horizontalalignment="right",
+            self._readout = widgets.Label(value=str(self.values[0]))
+            widgets.dlink(
+                (slider, "value"),
+                (self._readout, "value"),
+                transform=lambda x: self._format_value(self.values[x]),
             )
-
-            self.valtext = ax.text(
-                1.02,
-                0.5,
-                self._format(valinit),
-                transform=ax.transAxes,
-                verticalalignment="center",
-                horizontalalignment="left",
-            )
-
-        self.set_val(valinit)
-
-    def _min_in_bounds(self, min):
-        """
-        Ensure the new min value is between valmin and self.val[1]
-        """
-        if min <= self.valmin:
-            if not self.closedmin:
-                return self.val[0]
-            min = self.valmin
-
-        if min > self.val[1]:
-            min = self.val[1]
-        return self._stepped_value(min)
-
-    def _max_in_bounds(self, max):
-        """
-        Ensure the new max value is between valmax and self.val[0]
-        """
-        if max >= self.valmax:
-            if not self.closedmax:
-                return self.val[1]
-            max = self.valmax
-
-        if max <= self.val[0]:
-            max = self.val[0]
-        return self._stepped_value(max)
-
-    def _value_in_bounds(self, val):
-        return (self._min_in_bounds(val[0]), self._max_in_bounds(val[1]))
-
-    def _update_val_from_pos(self, pos):
-        """
-        Given a position update the *val*
-        """
-        idx = np.argmin(np.abs(self.val - pos))
-        if idx == 0:
-            val = self._min_in_bounds(pos)
-            self.set_min(val)
+            self._play_button = None
+            if play_button:
+                self._play_button = widgets.Play(step=1)
+                self._play_button_on_left = not (
+                    isinstance(play_button, str) and play_button == "right"
+                )
+                jslink((slider, "value"), (self._play_button, "value"))
+                jslink((slider, "min"), (self._play_button, "min"))
+                jslink((slider, "max"), (self._play_button, "max"))
+            link((slider, "value"), (self, "index"))
+            link((slider, "max"), (self, "max_index"))
         else:
-            val = self._max_in_bounds(pos)
-            self.set_max(val)
+            raise ValueError("mpl_slider_ax cannot be None if ipywidgets is not available")
+        self._raw_widget = slider
 
-    def _update(self, event):
-        """Update the slider position."""
-        if self.ignore(event) or event.button != 1:
-            return
+    def _format_value(self, value):
+        if self.readout_format is None:
+            if isinstance(value, Number):
+                return self._scalar_formatter.format_data_short(value)
+            else:
+                return str(value)
+        return self.readout_format.format(value)
 
-        if event.name == "button_press_event" and event.inaxes == self.ax:
-            self.drag_active = True
-            event.canvas.grab_mouse(self.ax)
+    def _get_widget_for_display(self):
+        if self._mpl:
+            return None
+        if self._play_button:
+            if self._play_button_on_left:
+                return widgets.HBox([self._play_button, self._raw_widget, self._readout])
+            else:
+                return widgets.HBox([self._raw_widget, self._readout, self._play_button])
+        return widgets.HBox([self._raw_widget, self._readout])
 
-        if not self.drag_active:
-            return
 
-        elif (event.name == "button_release_event") or (
-            event.name == "button_press_event" and event.inaxes != self.ax
-        ):
-            self.drag_active = False
-            event.canvas.release_mouse(self.ax)
-            return
-        if self.orientation == "vertical":
-            self._update_val_from_pos(event.ydata)
+# A vendored version of ipywidgets.fixed - included so don't need to depend on ipywidgets
+# https://github.com/jupyter-widgets/ipywidgets/blob/e0d41f6f02324596a282bc9e4650fd7ba63c0004/ipywidgets/widgets/interaction.py#L546
+class fixed(HasTraitsSmallShiftTab):
+    """A pseudo-widget whose value is fixed and never synced to the client."""
+
+    value = Any(help="Any Python object")
+    description = Unicode("", help="Any Python object")
+
+    def __init__(self, value, **kwargs):
+        super().__init__(value=value, **kwargs)
+
+    def get_interact_value(self):
+        """Return the value for this widget which should be passed to
+        interactive functions. Custom widgets can change this method
+        to process the raw value ``self.value``.
+        """
+        return self.value
+
+
+class CategoricalWrapper(SelectionWrapper):
+    def __init__(self, values, mpl_ax=None, **kwargs):
+        super().__init__(values, mpl_ax=mpl_ax, **kwargs)
+
+        if mpl_ax is not None:
+            self._raw_widget = mwidgets.RadioButtons(mpl_ax, values)
+
+            def on_changed(label):
+                self.index = self._raw_widget.active
+
+            self._raw_widget.on_changed(on_changed)
         else:
-            self._update_val_from_pos(event.xdata)
-
-    def _format(self, val):
-        """Pretty-print *val*."""
-        if self.valfmt is not None:
-            return (self.valfmt % val[0], self.valfmt % val[1])
-        else:
-            # fmt.get_offset is actually the multiplicative factor, if any.
-            _, s1, s2, _ = self._fmt.format_ticks([self.valmin, *val, self.valmax])
-            # fmt.get_offset is actually the multiplicative factor, if any.
-            s1 += self._fmt.get_offset()
-            s2 += self._fmt.get_offset()
-            # use raw string to avoid issues with backslashes from
-            return rf"({s1}, {s2})"
-
-    def set_min(self, min):
-        """
-        Set the lower value of the slider to *min*
-
-        Parameters
-        ----------
-        min : float
-        """
-        self.set_val((min, self.val[1]))
-
-    def set_max(self, max):
-        """
-        Set the lower value of the slider to *max*
-
-        Parameters
-        ----------
-        max : float
-        """
-        self.set_val((self.val[0], max))
-
-    def set_val(self, val):
-        """
-        Set slider value to *val*
-
-        Parameters
-        ----------
-        val : tuple or arraylike of float
-        """
-        val = np.sort(np.asanyarray(val))
-        if val.shape != (2,):
-            raise ValueError(f"val must have shape (2,) but has shape {val.shape}")
-        val[0] = self._min_in_bounds(val[0])
-        val[1] = self._max_in_bounds(val[1])
-        xy = self.poly.xy
-        if self.orientation == "vertical":
-            xy[0] = 0, val[0]
-            xy[1] = 0, val[1]
-            xy[2] = 1, val[1]
-            xy[3] = 1, val[0]
-            xy[4] = 0, val[0]
-        else:
-            xy[0] = val[0], 0
-            xy[1] = val[0], 1
-            xy[2] = val[1], 1
-            xy[3] = val[1], 0
-            xy[4] = val[0], 0
-        self.poly.xy = xy
-        self.valtext.set_text(self._format(val))
-        if self.drawon:
-            self.ax.figure.canvas.draw_idle()
-        self.val = val
-        if self.eventson:
-            self._observers.process("changed", val)
-
-    def on_changed(self, func):
-        """
-        When the slider value is changed call *func* with the new
-        slider value
-
-        Parameters
-        ----------
-        func : callable
-            Function to call when slider is changed.
-            The function must accept a numpy array with shape (2,) float
-            as its argument.
-
-        Returns
-        -------
-        int
-            Connection id (which can be used to disconnect *func*)
-        """
-        return self._observers.connect("changed", func)
+            self._raw_widget = widgets.Select(options=values)
+            link((self._raw_widget, "index"), (self, "index"))
