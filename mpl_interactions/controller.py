@@ -30,6 +30,7 @@ class Controls:
         play_button_pos="right",
         use_ipywidgets=None,
         use_cache=True,
+        index_kwargs=[],
         **kwargs
     ):
         # it might make sense to also accept kwargs as a straight up arg
@@ -60,7 +61,7 @@ class Controls:
         self.indices = defaultdict(lambda: 0)
         self._update_funcs = defaultdict(list)
         self._user_callbacks = defaultdict(list)
-        self.add_kwargs(kwargs, slider_formats, play_buttons)
+        self.add_kwargs(kwargs, slider_formats, play_buttons, index_kwargs=index_kwargs)
 
     def add_kwargs(
         self,
@@ -349,6 +350,7 @@ def gogogo_controls(
     play_buttons,
     extra_controls=None,
     allow_dupes=False,
+    index_kwargs=[],
 ):
     if controls or (extra_controls and not all([e is None for e in extra_controls])):
         if extra_controls is not None:
@@ -363,7 +365,13 @@ def gogogo_controls(
             # it was indexed by the user when passed in
             extra_keys = controls[1]
             controls = controls[0]
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            controls.add_kwargs(
+                kwargs,
+                slider_formats,
+                play_buttons,
+                allow_duplicates=allow_dupes,
+                index_kwargs=index_kwargs,
+            )
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         elif isinstance(controls, list):
             # collected from extra controls
@@ -382,14 +390,31 @@ def gogogo_controls(
                 raise ValueError("Only one controls object may be used per function")
             # now we are garunteed to only have a single entry in controls, so it's ok to pop
             controls = controls.pop()
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            controls.add_kwargs(
+                kwargs,
+                slider_formats,
+                play_buttons,
+                allow_duplicates=allow_dupes,
+                index_kwargs=index_kwargs,
+            )
             params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
         else:
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+            controls.add_kwargs(
+                kwargs,
+                slider_formats,
+                play_buttons,
+                allow_duplicates=allow_dupes,
+                index_kwargs=index_kwargs,
+            )
             params = controls.params
         return controls, params
     else:
-        controls = Controls(slider_formats=slider_formats, play_buttons=play_buttons, **kwargs)
+        controls = Controls(
+            slider_formats=slider_formats,
+            play_buttons=play_buttons,
+            index_kwargs=index_kwargs,
+            **kwargs
+        )
         params = controls.params
         if display_controls:
             controls.display()
