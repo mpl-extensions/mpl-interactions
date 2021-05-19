@@ -7,6 +7,7 @@ except ImportError:
     _not_ipython = True
     pass
 from collections import defaultdict
+from mpl_interactions.widgets import IndexSlider, SliderWrapper
 
 from .helpers import (
     create_slider_format_dict,
@@ -278,39 +279,32 @@ class Controls:
         anim : matplotlib.animation.FuncAniation
         """
         slider = self.controls[param]
-        ipywidgets_slider = False
-        if "Box" in str(slider.__class__):
-            for obj in slider.children:
-                if "Slider" in str(obj.__class__):
-                    slider = obj
+        # at this point every slider should be wrapped by at least a .widgets.WidgetWrapper
+        if isinstance(slider, IndexSlider):
+            N = len(slider.values)
 
-        if isinstance(slider, mSlider):
-            min_ = slider.valmin
-            max_ = slider.valmax
-            if slider.valstep is None:
+            def f(i):
+                slider.index = i
+                return []
+
+        elif isinstance(slider, SliderWrapper):
+            min = slider.min
+            max = slider.max
+            if slider.step is None:
                 n_steps = N_frames if N_frames else 200
-                step = (max_ - min_) / n_steps
+                step = (max - min) / n_steps
             else:
                 step = slider.valstep
-        elif "Slider" in str(slider.__class__):
-            ipywidgets_slider = True
-            min_ = slider.min
-            max_ = slider.max
-            step = slider.step
+            N = int((max - min) / step)
+
+            def f(i):
+                slider.value = min + step * i
+                return []
+
         else:
             raise NotImplementedError(
-                "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
+                "Cannot save animation for param of type %s".format(type(slider))
             )
-
-        N = int((max_ - min_) / step)
-
-        def f(i):
-            val = min_ + step * i
-            if ipywidgets_slider:
-                slider.value = val
-            else:
-                slider.set_val(val)
-            return []
 
         repeat = func_anim_kwargs.pop("repeat", False)
         anim = FuncAnimation(fig, f, frames=N, interval=interval, repeat=repeat, **func_anim_kwargs)
