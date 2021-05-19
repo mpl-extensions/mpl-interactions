@@ -211,7 +211,7 @@ class WidgetWrapper(HasTraitsSmallShiftTab):
     value = Any()
 
     def __init__(self, mpl_widget, **kwargs) -> None:
-        super().__init__(self, **kwargs)
+        super().__init__(self)
         self._mpl = mpl_widget
         self._callbacks = []
 
