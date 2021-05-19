@@ -7,14 +7,13 @@ except ImportError:
     _not_ipython = True
     pass
 from collections import defaultdict
+
 from .helpers import (
     create_slider_format_dict,
-    kwarg_to_ipywidget,
-    kwarg_to_mpl_widget,
     maybe_create_mpl_controls_axes,
     kwarg_to_widget,
+    maybe_get_widget_for_display,
     notebook_backend,
-    process_mpl_widget,
 )
 from functools import partial
 from collections.abc import Iterable
@@ -50,6 +49,8 @@ class Controls:
             self.vbox = widgets.VBox([])
         else:
             self.control_figures = []  # storage for figures made of matplotlib sliders
+        if widgets:
+            self.vbox = widgets.VBox([])
         self.use_cache = use_cache
         self.kwargs = kwargs
         self.slider_format_strings = create_slider_format_dict(slider_formats)
@@ -68,7 +69,6 @@ class Controls:
         play_buttons=None,
         allow_duplicates=False,
         index_kwargs=None,
-        use_ipywidgets=True,
     ):
         """
         If you pass a redundant kwarg it will just be overwritten
@@ -101,7 +101,7 @@ class Controls:
             for k, v in slider_formats.items():
                 self.slider_format_strings[k] = v
 
-        if not use_ipywidgets:
+        if not self.use_ipywidgets:
             axes, fig = maybe_create_mpl_controls_axes(kwargs)
             if fig is not None:
                 self.control_figures.append((fig))
@@ -122,22 +122,37 @@ class Controls:
             # else:
             ax = axes.pop()
             control = kwarg_to_widget(k, v, ax, play_button=_play_buttons[k])
+            # TODO: make the try except silliness less ugly
+            # the complexity of hiding away the val vs value vs whatever needs to
+            # be hidden away somewhere - but probably not here
             if k in index_kwargs:
                 self.params[k] = control.index
-                control.observe(partial(self._slider_updated, key=k), names="index")
+                try:
+                    control.observe(partial(self._slider_updated, key=k), names="index")
+                except AttributeError:
+                    self._setup_mpl_widget_callback(control, k)
             else:
                 self.params[k] = control.value
-                control.observe(partial(self._slider_updated, key=k), names="value")
+                try:
+                    control.observe(partial(self._slider_updated, key=k), names="value")
+                except AttributeError:
+                    self._setup_mpl_widget_callback(control, k)
 
             if control:
                 self.controls[k] = control
                 if ax is None:
-                    self.vbox.children = list(self.vbox.children) + [
-                        control._get_widget_for_display()
-                    ]
+                    disp = maybe_get_widget_for_display(control)
+                    if disp is not None:
+                        self.vbox.children = list(self.vbox.children) + [disp]
             if k == "vmin_vmax":
                 self.params["vmin"] = self.params["vmin_vmax"][0]
                 self.params["vmax"] = self.params["vmin_vmax"][1]
+
+    def _setup_mpl_widget_callback(self, widget, key):
+        def on_changed(val):
+            self._slider_updated({"new": val}, key=key)
+
+        widget.on_changed(on_changed)
 
     def _slider_updated(self, change, key):
         """

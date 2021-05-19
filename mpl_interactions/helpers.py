@@ -1,7 +1,9 @@
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from functools import partial
-from .widgets import IndexSlider
+
+from ipywidgets.widgets.widget_float import FloatLogSlider
+from .widgets import CategoricalWrapper, IndexSlider, WidgetWrapper, scatter_selector
 from numbers import Number
 
 import matplotlib.widgets as mwidgets
@@ -11,13 +13,28 @@ try:
     import ipywidgets as widgets
     from IPython.display import display as ipy_display
 except ImportError:
-    pass
+    widgets = None
 from matplotlib import get_backend
 from matplotlib.pyplot import gca, gcf, figure
 from numpy.distutils.misc_util import is_sequence
 
-from .widgets import RangeSlider
+try:
+    from matplotlib.widgets import RangeSlider, SliderBase
+except ImportError:
+    from ._widget_backfill import RangeSlider, SliderBase
+from .widgets import RangeSlider, fixed, SliderWrapper
 from .utils import ioff
+
+if widgets:
+    _slider_types = (
+        mwidgets.Slider,
+        widgets.IntSlider,
+        widgets.FloatSlider,
+        widgets.FloatLogSlider,
+    )
+    # _categorical_types = (mwidgets.RadioButtons, widgets.RadioButtons, widgets.FloatSlider, widgets.FloatLogSlider)
+else:
+    _slider_types = mwidgets.Slider
 
 __all__ = [
     "decompose_bbox",
@@ -39,6 +56,7 @@ __all__ = [
     "gogogo_figure",
     "gogogo_display",
     "maybe_create_mpl_controls_axes",
+    "maybe_get_widget_for_display",
     "eval_xy",
     "choose_fmt_str",
     "kwarg_to_widget",
@@ -287,25 +305,37 @@ def kwarg_to_widget(key, val, mpl_widget_ax=None, play_button=False):
             else:
                 # fixed parameter
                 # TODO: for mpl as well
-                return widgets.fixed(val)
+                return fixed(val)
         else:
             val = list(val)
 
-        # TODO: categorical - Make wrappers here!
+        return CategoricalWrapper(val, mpl_widget_ax)
+        # # TODO: categorical - Make wrappers here!
         # if len(val) <= 3:
         #     selector = widgets.RadioButtons(options=val)
         # else:
         #     selector = widgets.Select(options=val)
         # selector.observe(partial(update, values=val), names="index")
         # return val[0], selector
-    if isinstance(val, widgets.Widget) or isinstance(val, widgets.fixed):
+    if isinstance(val, WidgetWrapper):
+        return val
+    elif isinstance(val, scatter_selector):
+        return val
+    elif isinstance(val, _slider_types):
+        return SliderWrapper(val)
+    # TODO: categorical types
+    # elif isinstance(val, _categorical_types):
+    #     return CategoricalWrapper(val)
+    # TODO: add a _range_slider_types
+    elif widgets and isinstance(val, (widgets.Widget, widgets.fixed, fixed)):
         if not hasattr(val, "value"):
             raise TypeError(
                 "widgets passed as parameters must have the `value` trait."
                 "But the widget passed for {key} does not have a `.value` attribute"
             )
-        if isinstance(val, widgets.fixed):
-            return val
+        return val
+        # if isinstance(val, widgets.fixed):
+        #     return val
         # TODO: elif (
         #     isinstance(val, widgets.Select)
         #     or isinstance(val, widgets.SelectionSlider)
@@ -353,11 +383,21 @@ def kwarg_to_widget(key, val, mpl_widget_ax=None, play_button=False):
         if val.ndim > 1:
             raise ValueError(f"{key} is {val.ndim}D but can only be 1D or a scalar")
         if len(val) == 1:
-            # don't need to create a slider
-            # TODO: make fixed available for mpl as well.
-            return widgets.fixed(val)
+            return fixed(val)
         else:
             return IndexSlider(val, key, mpl_widget_ax, play_button=play_button)
+
+
+def maybe_get_widget_for_display(w):
+    """
+    Check if an object can be included in an ipywidgets HBox and if so return
+    the approriate object
+    """
+    if isinstance(w, WidgetWrapper):
+        return w._get_widget_for_display()
+    elif widgets and isinstance(w, widgets.Widget):
+        return w
+    return None
 
 
 def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None):
