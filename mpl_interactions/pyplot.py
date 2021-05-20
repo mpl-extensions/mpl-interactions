@@ -431,7 +431,8 @@ def interactive_scatter(
     s : float, array-like, function, or index controls object
         valid input to plt.scatter, or a function
     marker : MarkerStyle, default: rcParams["scatter.marker"] (default: 'o')
-       The marker style. marker can be either an instance of the class or the text shorthand for a particular marker. See matplotlib.markers for more information about marker styles.
+        The marker style. marker can be either an instance of the class or the text shorthand for a particular marker.
+        See matplotlib.markers for more information about marker styles.
     alpha : float, None, or function(s), broadcastable
         Affects all scatter points. This will compound with any alpha introduced by
         the ``c`` argument
