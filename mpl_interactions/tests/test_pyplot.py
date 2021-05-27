@@ -111,3 +111,12 @@ def test_styling():
     )
     plt.legend()
     return fig
+
+
+def test_imshow_scalars():
+    # and by proxy all the scalar handling
+    def mask(min_distance):
+        return np.random.randn(10, 10)
+
+    fig, ax = plt.subplots()
+    iplt.imshow(mask, min_distance=(1, 10), alpha=(0, 1))

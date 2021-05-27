@@ -8,7 +8,7 @@ from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
 from matplotlib.pyplot import sca
 
-from .controller import Controls, gogogo_controls, prep_scalar
+from .controller import Controls, gogogo_controls, prep_scalars
 
 from .helpers import (
     broadcast_many,
@@ -488,32 +488,28 @@ def interactive_scatter(
     use_ipywidgets = ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
-    args = []
     extra_ctrls = []
-    # fmt: off
-    s, ec, arg = prep_scalar(s, name='s'); extra_ctrls.append(ec); args.append(arg)
-    alpha, ec, arg = prep_scalar(alpha, name='alpha'); extra_ctrls.append(ec); args.append(arg)
-    # fmt: on
-    for a in args:
-        if a is not None:
-            kwargs[a[0]] = a[1]
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, s=s, alpha=alpha)
+    s = funcs["s"]
+    alpha = funcs["alpha"]
+
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
     def update(params, indices, cache):
         if parametric:
-            out = callable_else_value_no_cast(x, params)
+            out = callable_else_value_no_cast(x, param_excluder(params))
             if not isinstance(out, tuple):
                 out = np.asanyarray(out).T
             x_, y_ = out
         else:
-            x_, y_ = eval_xy(x, y, params, cache)
+            x_, y_ = eval_xy(x, y, param_excluder(params), cache)
         scatter.set_offsets(np.column_stack([x_, y_]))
-        c_ = check_callable_xy(c, x_, y_, params, cache)
-        s_ = check_callable_xy(s, x_, y_, params, cache)
-        ec_ = check_callable_xy(edgecolors, x_, y_, params, cache)
-        a_ = check_callable_alpha(alpha, params, cache)
+        c_ = check_callable_xy(c, x_, y_, param_excluder(params), cache)
+        s_ = check_callable_xy(s, x_, y_, param_excluder(params, "s"), cache)
+        ec_ = check_callable_xy(edgecolors, x_, y_, param_excluder(params), cache)
+        a_ = check_callable_alpha(alpha, param_excluder(params, "alpha"), cache)
         if c_ is not None:
             try:
                 c_ = to_rgba_array(c_)
@@ -553,21 +549,22 @@ def interactive_scatter(
     def check_callable_alpha(alpha_, params, cache):
         if isinstance(alpha_, Callable):
             if not alpha_ in cache:
-                cache[alpha_] = alpha_(**params)
+                cache[alpha_] = alpha_(**param_excluder(params, "alpha"))
             return cache[alpha_]
         else:
             return alpha_
 
+    p = param_excluder(params)
     if parametric:
-        out = callable_else_value_no_cast(x, params)
+        out = callable_else_value_no_cast(x, p)
         if not isinstance(out, tuple):
             out = np.asanyarray(out).T
         x_, y_ = out
     else:
-        x_, y_ = eval_xy(x, y, params)
-    c_ = check_callable_xy(c, x_, y_, params, {})
-    s_ = check_callable_xy(s, x_, y_, params, {})
-    ec_ = check_callable_xy(edgecolors, x_, y_, params, {})
+        x_, y_ = eval_xy(x, y, p)
+    c_ = check_callable_xy(c, x_, y_, p, {})
+    s_ = check_callable_xy(s, x_, y_, param_excluder(params, "s"), {})
+    ec_ = check_callable_xy(edgecolors, x_, y_, p, {})
     a_ = check_callable_alpha(alpha, params, {})
     scatter = ax.scatter(
         x_,
@@ -641,6 +638,11 @@ def interactive_imshow(
         forwarded to matplotlib
     interpolation : str
         forwarded to matplotlib
+    alpha : float, callable, shorthand for slider or indexed controls
+        The alpha value of the image. Can accept a float for a fixed value,
+        or any slider shorthand to control with a slider, or an indexed controls
+        object to use an existing slider, or an arbitrary function of the other
+        parameters.
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
@@ -674,15 +676,11 @@ def interactive_imshow(
     slider_formats = create_slider_format_dict(slider_formats)
     kwargs, imshow_kwargs = kwarg_popper(kwargs, imshow_kwargs_list)
 
-    args = []
-    extra_ctrls = []
-    # fmt: off
-    vmin, ec, arg = prep_scalar(vmin, name='vmin'); extra_ctrls.append(ec); args.append(arg)
-    vmax, ec, arg = prep_scalar(vmax, name='vmax'); extra_ctrls.append(ec); args.append(arg)
-    # fmt: on
-    for a in args:
-        if a is not None:
-            kwargs[a[0]] = a[1]
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, vmin=vmin, vmax=vmax, alpha=alpha)
+    vmin = funcs["vmin"]
+    vmax = funcs["vmax"]
+    alpha = funcs["alpha"]
+
     if vmin_vmax is not None:
         if isinstance(vmin_vmax, tuple) and not isinstance(vmin_vmax[0], str):
             vmin_vmax = ("r", *vmin_vmax)
@@ -704,22 +702,31 @@ def interactive_imshow(
 
     def update(params, indices, cache):
         if isinstance(X, Callable):
+            # ignore anything that we added directly to kwargs in prep_scalar
+            # if we don't do this then we might pass the user a kwarg their function
+            # didn't expect and things may break
             # check this here to avoid setting the data if we don't need to
             # use the callable_else_value fxn to make use of easy caching
-            new_data = callable_else_value(X, params, cache)
+            new_data = callable_else_value(X, param_excluder(params), cache)
             im.set_data(new_data)
             if autoscale_cmap and (new_data.ndim != 3) and vmin is None and vmax is None:
                 im.norm.autoscale(new_data)
         # caching for these?
         if isinstance(vmin, Callable):
-            im.norm.vmin = vmin(**params)
+            im.norm.vmin = callable_else_value(vmin, param_excluder(params, "vmin"), cache)
         if isinstance(vmax, Callable):
-            im.norm.vmax = vmax(**params)
+            im.norm.vmax = callable_else_value(vmax, param_excluder(params, "vmax"), cache)
+        # Don't use callable_else_value to avoid unnecessary updates
+        # Seems as though set_alpha doesn't short circuit if the value
+        # hasn't been changed
+        if isinstance(alpha, Callable):
+            im.set_alpha(callable_else_value_no_cast(alpha, param_excluder(params, "alpha"), cache))
 
     controls._register_function(update, fig, params.keys())
 
     # make it once here so we can use the dims in update
-    new_data = callable_else_value(X, params)
+    # see explanation for excluded_params in the update function
+    new_data = callable_else_value(X, param_excluder(params))
     sca(ax)
     im = ax.imshow(
         new_data,
@@ -727,9 +734,9 @@ def interactive_imshow(
         norm=norm,
         aspect=aspect,
         interpolation=interpolation,
-        alpha=alpha,
-        vmin=callable_else_value(vmin, params),
-        vmax=callable_else_value(vmax, params),
+        alpha=callable_else_value_no_cast(alpha, param_excluder(params, "alpha")),
+        vmin=callable_else_value(vmin, param_excluder(params, "vmin")),
+        vmax=callable_else_value(vmax, param_excluder(params, "vmax")),
         origin=origin,
         extent=extent,
         filternorm=filternorm,
@@ -809,33 +816,28 @@ def interactive_axhline(
     line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
 
     extra_ctrls = []
-    args = []
-    # fmt: off
-    y, ec, arg = prep_scalar(y, 'y'); extra_ctrls.append(ec); args.append(arg)
-    xmin, ec, arg = prep_scalar(xmin, "xmin"); extra_ctrls.append(ec);  args.append(arg)
-    xmax, ec, arg = prep_scalar(xmax, "xmax"); extra_ctrls.append(ec); args.append(arg)
-    # fmt: on
-    for a in args:
-        if a is not None:
-            kwargs[a[0]] = a[1]
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, y=y, xmin=xmin, xmax=xmax)
+    y = funcs["y"]
+    xmin = funcs["xmin"]
+    xmax = funcs["xmax"]
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
     def update(params, indices, cache):
-        y_ = callable_else_value(y, params, cache).item()
+        y_ = callable_else_value(y, param_excluder(params, 'y'), cache).item()
         line.set_ydata([y_, y_])
-        xmin_ = callable_else_value(xmin, params, cache).item()
-        xmax_ = callable_else_value(xmax, params, cache).item()
+        xmin_ = callable_else_value(xmin, param_excluder(params, 'xmin'), cache).item()
+        xmax_ = callable_else_value(xmax, param_excluder(params, 'xmin'), cache).item()
         line.set_xdata([xmin_, xmax_])
         # TODO consider updating just the ydatalim here
 
     controls._register_function(update, fig, params)
     sca(ax)
     line = ax.axhline(
-        callable_else_value(y, params).item(),
-        callable_else_value(xmin, params).item(),
-        callable_else_value(xmax, params).item(),
+        callable_else_value(y, param_excluder(params, 'y')).item(),
+        callable_else_value(xmin, param_excluder(params, 'xmin')).item(),
+        callable_else_value(xmax, param_excluder(params, 'xmin')).item()
         **line_kwargs,
     )
     return controls
@@ -905,34 +907,29 @@ def interactive_axvline(
     line_kwargs.pop("transform", None)  # transform is not a valid kwarg for ax{v,h}line
 
     extra_ctrls = []
-    args = []
-    # fmt: off
-    x, ec, arg = prep_scalar(x, 'x'); extra_ctrls.append(ec); args.append(arg)
-    ymin, ec,arg = prep_scalar(ymin, 'ymin'); extra_ctrls.append(ec); args.append(arg)
-    ymax, ec,arg  = prep_scalar(ymax, 'ymax'); extra_ctrls.append(ec); args.append(arg)
-    # fmt: on
-    for a in args:
-        if a is not None:
-            kwargs[a[0]] = a[1]
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, x=x, ymin=ymin, ymax=ymax)
+    x = funcs["x"]
+    ymin = funcs["ymin"]
+    ymax = funcs["ymax"]
 
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
     )
 
     def update(params, indices, cache):
-        x_ = callable_else_value(x, params, cache).item()
+        x_ = callable_else_value(x, param_excluder(params, 'x'), cache).item()
         line.set_xdata([x_, x_])
-        ymin_ = callable_else_value(ymin, params, cache).item()
-        ymax_ = callable_else_value(ymax, params, cache).item()
+        ymin_ = callable_else_value(ymin, param_excluder(params, 'ymin'), cache).item()
+        ymax_ = callable_else_value(ymax, param_excluder(params, 'ymax'), cache).item()
         line.set_ydata([ymin_, ymax_])
         # TODO consider updating just the ydatalim here
 
     controls._register_function(update, fig, params)
     sca(ax)
     line = ax.axvline(
-        callable_else_value(x, params).item(),
-        callable_else_value(ymin, params).item(),
-        callable_else_value(ymax, params).item(),
+        callable_else_value(x, param_excluder(params, 'x')).item(),
+        callable_else_value(ymin, param_excluder(params, 'ymin')).item(),
+        callable_else_value(ymax, param_excluder(params, 'ymax')).item(),
         **line_kwargs,
     )
     return controls

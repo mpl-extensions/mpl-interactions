@@ -12,7 +12,7 @@ from numpy import asanyarray, asarray, max, min, swapaxes
 
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
-from .controller import gogogo_controls, prep_scalar
+from .controller import gogogo_controls, prep_scalars
 from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
 # functions that are methods
@@ -666,15 +666,11 @@ def hyperslicer(
         if "extent" not in kwargs:
             extent = None
 
-    args = []
     extra_ctrls = []
-    # fmt: off
-    vmin, ec, arg = prep_scalar(vmin, name='vmin'); extra_ctrls.append(ec); args.append(arg)
-    vmax, ec, arg = prep_scalar(vmax, name='vmax'); extra_ctrls.append(ec); args.append(arg)
-    # fmt: on
-    for a in args:
-        if a is not None:
-            kwargs[a[0]] = a[1]
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, vmin=vmin, vmax=vmax, alpha=alpha)
+    vmin = funcs["vmin"]
+    vmax = funcs["vmax"]
+    alpha = funcs["alpha"]
     if vmin_vmax is not None:
         if isinstance(vmin_vmax, tuple) and not isinstance(vmin_vmax[0], str):
             vmin_vmax = ("r", *vmin_vmax)
@@ -719,9 +715,11 @@ def hyperslicer(
             im.norm.autoscale(new_data)
 
         if isinstance(vmin, Callable):
-            im.norm.vmin = vmin(**params)
+            im.norm.vmin = vmin(**param_excluder(params, "vmin"))
         if isinstance(vmax, Callable):
-            im.norm.vmax = vmax(**params)
+            im.norm.vmax = vmax(**param_excluder(params, "vmax"))
+        if isinstance(alpha, Callable):
+            im.set_alpha(callable_else_value_no_cast(alpha, param_excluder(params, "alpha"), cache))
 
     controls._register_function(update, fig, params.keys())
     # make it once here so we can use the dims in update
