@@ -144,16 +144,19 @@ class Controls:
             self.params[key] = change["new"]
         else:
             c = change["new"]
-            if isinstance(c, tuple):
-                # This is for range sliders which return 2 indices
-                self.params[key] = values[[*change["new"]]]
+            # int casting due to a bug in numpy < 1.19
+            # see https://github.com/ianhi/mpl-interactions/pull/155
+            if isinstance(c, Iterable):
+                # range sliders return two indices
+                # check for iterable as mpl and ipywidgets sliders don't both use
+                # tuples - https://github.com/ianhi/mpl-interactions/issues/195
+                self.params[key] = values[[int(c) for c in change["new"]]]
                 if key == "vmin_vmax":
                     self.params["vmin"] = self.params[key][0]
                     self.params["vmax"] = self.params[key][1]
             else:
-                # int casting due to a bug in numpy < 1.19
-                # see https://github.com/ianhi/mpl-interactions/pull/155
                 self.params[key] = values[int(change["new"])]
+
         self.indices[key] = change["new"]
         if self.use_cache:
             cache = {}
