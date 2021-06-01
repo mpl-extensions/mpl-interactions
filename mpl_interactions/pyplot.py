@@ -825,19 +825,19 @@ def interactive_axhline(
     )
 
     def update(params, indices, cache):
-        y_ = callable_else_value(y, param_excluder(params, 'y'), cache).item()
+        y_ = callable_else_value(y, param_excluder(params, "y"), cache).item()
         line.set_ydata([y_, y_])
-        xmin_ = callable_else_value(xmin, param_excluder(params, 'xmin'), cache).item()
-        xmax_ = callable_else_value(xmax, param_excluder(params, 'xmin'), cache).item()
+        xmin_ = callable_else_value(xmin, param_excluder(params, "xmin"), cache).item()
+        xmax_ = callable_else_value(xmax, param_excluder(params, "xmax"), cache).item()
         line.set_xdata([xmin_, xmax_])
         # TODO consider updating just the ydatalim here
 
     controls._register_function(update, fig, params)
     sca(ax)
     line = ax.axhline(
-        callable_else_value(y, param_excluder(params, 'y')).item(),
-        callable_else_value(xmin, param_excluder(params, 'xmin')).item(),
-        callable_else_value(xmax, param_excluder(params, 'xmin')).item()
+        callable_else_value(y, param_excluder(params, "y")).item(),
+        callable_else_value(xmin, param_excluder(params, "xmin")).item(),
+        callable_else_value(xmax, param_excluder(params, "xmax")).item(),
         **line_kwargs,
     )
     return controls
@@ -917,19 +917,19 @@ def interactive_axvline(
     )
 
     def update(params, indices, cache):
-        x_ = callable_else_value(x, param_excluder(params, 'x'), cache).item()
+        x_ = callable_else_value(x, param_excluder(params, "x"), cache).item()
         line.set_xdata([x_, x_])
-        ymin_ = callable_else_value(ymin, param_excluder(params, 'ymin'), cache).item()
-        ymax_ = callable_else_value(ymax, param_excluder(params, 'ymax'), cache).item()
+        ymin_ = callable_else_value(ymin, param_excluder(params, "ymin"), cache).item()
+        ymax_ = callable_else_value(ymax, param_excluder(params, "ymax"), cache).item()
         line.set_ydata([ymin_, ymax_])
         # TODO consider updating just the ydatalim here
 
     controls._register_function(update, fig, params)
     sca(ax)
     line = ax.axvline(
-        callable_else_value(x, param_excluder(params, 'x')).item(),
-        callable_else_value(ymin, param_excluder(params, 'ymin')).item(),
-        callable_else_value(ymax, param_excluder(params, 'ymax')).item(),
+        callable_else_value(x, param_excluder(params, "x")).item(),
+        callable_else_value(ymin, param_excluder(params, "ymin")).item(),
+        callable_else_value(ymax, param_excluder(params, "ymax")).item(),
         **line_kwargs,
     )
     return controls
