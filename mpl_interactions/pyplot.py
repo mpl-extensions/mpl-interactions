@@ -7,6 +7,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
 from matplotlib.pyplot import sca
+import matplotlib.markers as mmarkers
 
 from .controller import Controls, gogogo_controls, prep_scalars
 
@@ -409,6 +410,7 @@ def interactive_scatter(
     vmin=None,
     vmax=None,
     alpha=None,
+    marker=None,
     edgecolors=None,
     facecolors=None,
     label=None,
@@ -438,6 +440,8 @@ def interactive_scatter(
     alpha : float, None, or function(s), broadcastable
         Affects all scatter points. This will compound with any alpha introduced by
         the ``c`` argument
+    marker : MarkerStyle, or Callable, optional
+        The marker style or a function returning marker styles.
     edgecolor[s] : callable or valid argument to scatter
         passed through to scatter.
     facecolor[s] : callable or valid argument to scatter
@@ -503,9 +507,10 @@ def interactive_scatter(
     slider_formats = create_slider_format_dict(slider_formats)
 
     extra_ctrls = []
-    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, s=s, alpha=alpha)
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, s=s, alpha=alpha, marker=marker)
     s = funcs["s"]
     alpha = funcs["alpha"]
+    marker = funcs["marker"]
 
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
@@ -525,6 +530,14 @@ def interactive_scatter(
         ec_ = check_callable_xy(edgecolors, x_, y_, param_excluder(params), cache)
         fc_ = check_callable_xy(facecolors, x_, y_, param_excluder(params), cache)
         a_ = check_callable_alpha(alpha, param_excluder(params, "alpha"), cache)
+        marker_ = callable_else_value_no_cast(marker, param_excluder(params), cache)
+
+        if marker_ is not None:
+            if not isinstance(marker_, mmarkers.MarkerStyle):
+                marker_ = mmarkers.MarkerStyle(marker_)
+            path = marker_.get_path().transformed(marker_.get_transform())
+            scatter.set_paths((path,))
+
         if c_ is not None:
             try:
                 c_ = to_rgba_array(c_)
@@ -584,6 +597,7 @@ def interactive_scatter(
     ec_ = check_callable_xy(edgecolors, x_, y_, p, {})
     fc_ = check_callable_xy(facecolors, x_, y_, p, {})
     a_ = check_callable_alpha(alpha, params, {})
+    marker_ = callable_else_value_no_cast(marker, p, {})
     scatter = ax.scatter(
         x_,
         y_,
@@ -592,6 +606,7 @@ def interactive_scatter(
         vmin=vmin,
         vmax=vmax,
         cmap=cmap,
+        marker=marker_,
         alpha=a_,
         edgecolors=ec_,
         facecolors=fc_,
