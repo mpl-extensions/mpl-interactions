@@ -1,0 +1,42 @@
+body {
+    background: #fafafa;
+    font-family: "Georgia", Times, serif;
+    font-size: 14px;
+    color: black;
+}
+
+.wy-nav-side {
+    font-family: "Georgia", Times, serif;
+    font-size: 13px;
+    color: black;
+    background: #fafafa;
+}
+
+.wy-side-nav-search, .wy-nav-top {
+    background: #fafafa;
+    color: black
+}
+
+a.icon.icon-home {
+    color: #11557C;
+}
+
+a.reference.internal {
+    font-size: 13px;
+}
+
+.wy-nav-content {
+    background: #fafafa;
+}
+
+.wy-content-wrap {
+    background: #fafafa;
+}
+
+.wy-menu-vertical a {
+    color: #43464b;
+}
+
+a:hover {
+    color: lightgrey;
+}
