@@ -23,7 +23,13 @@ from .helpers import (
     notebook_backend,
     update_datalim_from_bbox,
 )
-from .mpl_kwargs import Line2D_kwargs_list, imshow_kwargs_list, Text_kwargs_list, kwarg_popper
+from .mpl_kwargs import (
+    Line2D_kwargs_list,
+    imshow_kwargs_list,
+    Text_kwargs_list,
+    collection_kwargs_list,
+    kwarg_popper,
+)
 
 __all__ = [
     "interactive_plot",
@@ -404,6 +410,7 @@ def interactive_scatter(
     vmax=None,
     alpha=None,
     edgecolors=None,
+    facecolors=None,
     label=None,
     parametric=False,
     ax=None,
@@ -424,18 +431,19 @@ def interactive_scatter(
     x, y : function or float or array-like
         shape (n, ) for array-like. Functions must return the correct shape as well. If y is None
         then parametric must be True and the function for x must return x, y
-    c : array-like or list of colors or color, broadcastable
-        Must be broadcastable to x,y and any other plotting kwargs.
-        valid input to plt.scatter
+    c : array-like or list of colors or color or Callable
+        Valid input to plt.scatter or a function
     s : float, array-like, function, or index controls object
         valid input to plt.scatter, or a function
     alpha : float, None, or function(s), broadcastable
         Affects all scatter points. This will compound with any alpha introduced by
         the ``c`` argument
-    edgecolors : colorlike, broadcastable
+    edgecolor[s] : callable or valid argument to scatter
         passed through to scatter.
-    label : string(s) broadcastable
-        labels for the functions being plotted.
+    facecolor[s] : callable or valid argument to scatter
+        Valid input to plt.scatter, or a function
+    label : string
+        Passed through to Matplotlib
     parametric : boolean
         If True then the function expects to have only received a value for y and that that function will
         return an array for both x and y, or will return an array with shape (N, 2)
@@ -483,6 +491,12 @@ def interactive_scatter(
     else:
         stretch_y = False
 
+    # yanked from https://github.com/matplotlib/matplotlib/blob/bcc1ce8461f5b6e874baaaa02ef776d0243a4abe/lib/matplotlib/axes/_axes.py#L4271-L4273
+    facecolors = kwargs.pop("facecolor", facecolors)
+    edgecolors = kwargs.pop("edgecolor", edgecolors)
+
+    kwargs, collection_kwargs = kwarg_popper(kwargs, collection_kwargs_list)
+
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
     use_ipywidgets = ipympl or force_ipywidgets
@@ -509,6 +523,7 @@ def interactive_scatter(
         c_ = check_callable_xy(c, x_, y_, param_excluder(params), cache)
         s_ = check_callable_xy(s, x_, y_, param_excluder(params, "s"), cache)
         ec_ = check_callable_xy(edgecolors, x_, y_, param_excluder(params), cache)
+        fc_ = check_callable_xy(facecolors, x_, y_, param_excluder(params), cache)
         a_ = check_callable_alpha(alpha, param_excluder(params, "alpha"), cache)
         if c_ is not None:
             try:
@@ -524,6 +539,8 @@ def interactive_scatter(
             scatter.set_facecolor(c_)
         if ec_ is not None:
             scatter.set_edgecolor(ec_)
+        if fc_ is not None:
+            scatter.set_facecolor(c_)
         if s_ is not None:
             if isinstance(s_, Number):
                 s_ = np.broadcast_to(s_, (len(x_),))
@@ -565,6 +582,7 @@ def interactive_scatter(
     c_ = check_callable_xy(c, x_, y_, p, {})
     s_ = check_callable_xy(s, x_, y_, param_excluder(params, "s"), {})
     ec_ = check_callable_xy(edgecolors, x_, y_, p, {})
+    fc_ = check_callable_xy(facecolors, x_, y_, p, {})
     a_ = check_callable_alpha(alpha, params, {})
     scatter = ax.scatter(
         x_,
@@ -576,7 +594,9 @@ def interactive_scatter(
         cmap=cmap,
         alpha=a_,
         edgecolors=ec_,
+        facecolors=fc_,
         label=label,
+        **collection_kwargs,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
     sca(ax)

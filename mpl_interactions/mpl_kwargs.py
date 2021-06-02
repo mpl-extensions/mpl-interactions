@@ -1,4 +1,5 @@
 from matplotlib.artist import ArtistInspector
+from matplotlib.collections import Collection
 from matplotlib.image import AxesImage
 
 # this is a list of options to Line2D partially taken from
@@ -61,6 +62,7 @@ Line2D_kwargs_list = [
 ]
 
 imshow_kwargs_list = ArtistInspector(AxesImage).get_setters()
+collection_kwargs_list = ArtistInspector(Collection).get_setters()
 
 Text_kwargs_list = [
     "agg_filter",
