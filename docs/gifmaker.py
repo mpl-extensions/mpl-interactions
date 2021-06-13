@@ -33,7 +33,7 @@ def gogogo_gif(notebook_from, notebook_to):
         where to put the rendered notebook
     """
     with open(notebook_from) as f:
-        nb = nbformat.read(f, as_version=4)
+        nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
     for i, cell in enumerate(nb["cells"]):
         if "gif" in cell["metadata"]:
             gif = cell["metadata"]["gif"]
