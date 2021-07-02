@@ -3,6 +3,7 @@ import base64
 import os
 import glob
 import shutil
+import nbformat
 
 
 def gogogo_all(source_dir, dest_dir):
@@ -32,7 +33,7 @@ def gogogo_gif(notebook_from, notebook_to):
         where to put the rendered notebook
     """
     with open(notebook_from) as f:
-        nb = json.load(f)
+        nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
     for i, cell in enumerate(nb["cells"]):
         if "gif" in cell["metadata"]:
             gif = cell["metadata"]["gif"]
@@ -46,4 +47,4 @@ def gogogo_gif(notebook_from, notebook_to):
                 }
             ]
     with open(notebook_to, "w") as f:
-        json.dump(nb, f, indent=2)
+        nbformat.write(nb, f)
