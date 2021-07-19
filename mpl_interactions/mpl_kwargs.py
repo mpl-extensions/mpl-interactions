@@ -1,6 +1,8 @@
 from matplotlib.artist import ArtistInspector
 from matplotlib.collections import Collection
 from matplotlib.image import AxesImage
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
 
 # this is a list of options to Line2D partially taken from
 # https://github.com/matplotlib/matplotlib/blob/f9d29189507cfe4121a231f6ab63539d216c37bd/lib/matplotlib/lines.py#L271
@@ -63,6 +65,7 @@ Line2D_kwargs_list = [
 
 imshow_kwargs_list = ArtistInspector(AxesImage).get_setters()
 collection_kwargs_list = ArtistInspector(Collection).get_setters()
+Poly3D_collection_kwargs_list = ArtistInspector(Poly3DCollection).get_setters()
 
 Text_kwargs_list = [
     "agg_filter",

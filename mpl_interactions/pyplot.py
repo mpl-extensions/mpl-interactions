@@ -17,6 +17,7 @@ from .helpers import (
     callable_else_value_no_cast,
     eval_xy,
     create_slider_format_dict,
+    eval_xyz,
     gogogo_display,
     gogogo_figure,
     kwarg_to_ipywidget,
@@ -29,6 +30,7 @@ from .mpl_kwargs import (
     imshow_kwargs_list,
     Text_kwargs_list,
     collection_kwargs_list,
+    Poly3D_collection_kwargs_list,
     kwarg_popper,
 )
 
@@ -42,6 +44,7 @@ __all__ = [
     "interactive_title",
     "interactive_xlabel",
     "interactive_ylabel",
+    "interactive_plot_surface",
 ]
 
 
@@ -1229,3 +1232,81 @@ def interactive_ylabel(
         **text_kwargs,
     )
     return controls
+
+
+def interactive_plot_surface(
+    X,
+    Y,
+    Z,
+    *args,
+    norm=None,
+    vmin=None,
+    vmax=None,
+    vmin_vmax=None,
+    lightsource=None,
+    ax=None,
+    controls=None,
+    slider_formats=None,
+    display_controls=True,
+    play_buttons=False,
+    force_ipywidgets=False,
+    **kwargs,
+):
+    """
+    beep boop docstrings are for future ian
+    """
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, ax)
+    use_ipywidgets = ipympl or force_ipywidgets
+    slider_formats = create_slider_format_dict(slider_formats)
+    kwargs, poly3d_kwargs = kwarg_popper(kwargs, Poly3D_collection_kwargs_list)
+
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, vmin=vmin, vmax=vmax)
+    vmin = funcs["vmin"]
+    vmax = funcs["vmax"]
+
+    if vmin_vmax is not None:
+        if isinstance(vmin_vmax, tuple) and not isinstance(vmin_vmax[0], str):
+            vmin_vmax = ("r", *vmin_vmax)
+        kwargs["vmin_vmax"] = vmin_vmax
+
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
+    )
+
+    if vmin_vmax is not None:
+        params.pop("vmin_vmax")
+        params["vmin"] = controls.params["vmin"]
+        params["vmax"] = controls.params["vmax"]
+
+        def vmin(**kwargs):
+            return kwargs["vmin"]
+
+        def vmax(**kwargs):
+            return kwargs["vmax"]
+        
+    if "color" not in poly3d_kwargs:
+        # Call ourselves and keep around in order
+        # to avoid modifying the color-cycle
+        # https://stackoverflow.com/questions/13831549/get-matplotlib-color-cycle-state
+        poly3d_kwargs["color"] = ax._get_lines.get_next_color()
+
+    def update(params, indices, cache):
+        nonlocal artist
+        artist.remove()
+        artist = make_new_surface()
+
+    controls._register_function(update, fig, params)
+
+    def make_new_surface():
+        X_, Y_, Z_ = eval_xyz(X, Y, Z, params)
+        return ax.plot_surface(
+            X=X_,
+            Y=Y_,
+            Z=Z_,
+            vmin=callable_else_value(vmin, param_excluder(params, "vmin")),
+            vmax=callable_else_value(vmax, param_excluder(params, "vmax")),
+            **poly3d_kwargs
+        )
+
+    artist = make_new_surface()
