@@ -39,6 +39,7 @@ __all__ = [
     "gogogo_display",
     "create_mpl_controls_fig",
     "eval_xy",
+    "eval_xyz",
     "choose_fmt_str",
 ]
 
@@ -254,6 +255,23 @@ def eval_xy(x_, y_, params, cache=None):
     else:
         y = y_
     return np.asanyarray(x), np.asanyarray(y)
+
+def eval_xyz(x, y, z, params, cache=None):
+    # maybe should allow for `y` to not need `x`
+    x_, y_ = eval_xy(x, y, params, cache)
+    
+    if isinstance(z, Callable):
+        if cache is not None:
+            if z in cache:
+                z_ = cache[z]
+            else:
+                z_ = z(x, y, **params)
+        else:
+            z_ = z(x, y, **params)
+    else:
+        z_ = z
+    return x_, y_, np.asanyarray(z_)
+
 
 
 def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None):
