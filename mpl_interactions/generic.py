@@ -517,7 +517,7 @@ def hyperslicer(
         scalar data to colors. This parameter is ignored for RGB(A) data.
         forwarded to matplotlib
     norm : `~matplotlib.colors.Normalize`, optional
-        The `.Normalize` instance used to scale scalar data to the [0, 1]
+        The `~matplotlib.colors.Normalize` instance used to scale scalar data to the [0, 1]
         range before mapping to colors using *cmap*. By default, a linear
         scaling mapping the lowest value to 0 and the highest to 1 is used.
         This parameter is ignored for RGB(A) data.

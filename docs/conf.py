@@ -114,6 +114,8 @@ napoleon_use_rtype = False
 numpydoc_show_class_members = False
 
 # Cross-referencing configuration
+default_role = "py:obj"
+primary_domain = "py"
 nitpicky = True  # warn if cross-references are missing
 nitpick_ignore = [
     # missing inherited methods -- better to use apidoc instead of autogenerate

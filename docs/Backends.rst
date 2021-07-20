@@ -42,7 +42,7 @@ If you want to use a non-ipympl backend in a Jupyter Notebook but still want ``i
 
 
 * You can also explicitly set whether to use Matplotlib sliders or not with the ``use_ipywidgets`` 
-  argument :meth:`~mpl_interactions.interactive_plot`. If ``None`` then the function will try to infer whether
+  argument :func:`.interactive_plot`. If ``None`` then the function will try to infer whether
   to use ipywidgets or not. By setting the argument to ``False`` then you will be able to use Matplotlib sliders in the notebook.
 
 

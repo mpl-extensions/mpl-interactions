@@ -51,7 +51,7 @@ Also feel free to ask for help/advice on the relevant Github `issue <https://git
 Documentation
 -------------
 
-For the most part the Documentation is generated from the Notebooks in the `examples` folder. So to write new
+For the most part the Documentation is generated from the Notebooks in the ``examples`` folder. So to write new
 examples work in a notebook in the ``examples`` directory. When the docs are generated then they will be
 converted to html via `nbsphinx <https://nbsphinx.readthedocs.io/en/latest/>`_. 
 
