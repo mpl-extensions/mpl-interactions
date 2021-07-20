@@ -10,7 +10,7 @@ To install simply run:
 
    pip install mpl-interactions
 
-The above only has Matplotlib as a dependency. If you plan on using ``mpl_interactions`` in a Jupyter Notebook or JupyterLab then you should install with
+The above only has Matplotlib as a dependency. If you plan on using `mpl_interactions` in a Jupyter Notebook or JupyterLab then you should install with
 
 .. code-block::
 

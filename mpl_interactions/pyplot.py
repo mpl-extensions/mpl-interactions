@@ -1,3 +1,9 @@
+"""Control the output of standard plotting functions such as :func:`~matplotlib.pyplot.plot` and
+:func:`~matplotlib.pyplot.hist` using sliders and other widgets. When using the ``ipympl`` backend
+these functions will leverage ipywidgets for the controls, otherwise they will use the built-in
+Matplotlib widgets."""
+
+
 from collections.abc import Callable, Iterable
 from functools import partial
 from numbers import Number

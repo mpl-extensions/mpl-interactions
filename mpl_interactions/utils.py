@@ -1,3 +1,5 @@
+"""Functions that make some features in Matplotlib a bit more convenient."""
+
 from collections.abc import Iterable
 
 from matplotlib import interactive, is_interactive

@@ -1,3 +1,5 @@
+"""Functions that will be useful irrespective of backend."""
+
 import warnings
 from collections.abc import Callable, Iterable
 

@@ -1,14 +1,9 @@
+"""Custom matplotlib widgets made for use in this library."""
+
 from matplotlib.cbook import CallbackRegistry
 from matplotlib.widgets import AxesWidget
 from matplotlib import cbook, ticker
 import numpy as np
-
-__all__ = [
-    "scatter_selector",
-    "scatter_selector_index",
-    "scatter_selector_value",
-    "RangeSlider",
-]
 
 
 class scatter_selector(AxesWidget):

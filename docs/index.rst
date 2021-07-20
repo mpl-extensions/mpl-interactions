@@ -34,7 +34,7 @@ Further instructions for installation from JupyterLab can be found on the :doc:`
 Getting Help
 ^^^^^^^^^^^^
 
-If you have a question on how to do something with ``mpl_interactions`` a great place
+If you have a question on how to do something with `mpl_interactions` a great place
 to ask it is: https://discourse.matplotlib.org/c/3rdparty/18. Feel free to mention  ``@ianhi`` in your
 post there.
 
@@ -95,7 +95,7 @@ Further discussion of the behavior as a function of backend can be found on the 
    Installation
    Backends
    compare-to-ipywidgets
-   API
+   API <autoapi/mpl_interactions>
    gallery/index
    Contributing
 
