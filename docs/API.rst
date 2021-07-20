@@ -6,9 +6,10 @@ API
 pyplot
 ------
 
-Control the output of standard plotting functions such as ``plot`` and ``hist`` using sliders and other
-widgets. When using the ``ipympl`` backend these functions will leverage ipywidgets for the controls, otherwise they
-will use the built-in Matplotlib widgets.
+Control the output of standard plotting functions such as :func:`~matplotlib.pyplot.plot` and
+:func:`~matplotlib.pyplot.hist` using sliders and other widgets. When using the ``ipympl`` backend
+these functions will leverage ipywidgets for the controls, otherwise they will use the built-in
+Matplotlib widgets."
 
 .. currentmodule:: mpl_interactions
 .. autosummary::

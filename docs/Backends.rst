@@ -19,9 +19,9 @@ the `Jupyter Magic <https://ipython.readthedocs.io/en/stable/interactive/magics.
 Further options
 ---------------
 
-If you want to use a non-ipympl backend in a Jupyter Notebook but still want ``ipywidgets`` style sliders then you have a few options.
+If you want to use a non-ipympl backend in a Jupyter Notebook but still want :doc:`ipywidgets <ipywidgets:index>` style sliders then you have a few options.
 
-* With ``interactive_plot`` and ``interactive_hist`` you can pass ``force_ipywidgets=True``
+* With :func:`.interactive_plot` and :func:`.interactive_hist` you can pass ``force_ipywidgets=True``
 
     .. code-block:: python
 
@@ -42,8 +42,8 @@ If you want to use a non-ipympl backend in a Jupyter Notebook but still want ``i
 
 
 * You can also explicitly set whether to use Matplotlib sliders or not with the ``use_ipywidgets`` 
-  argument :func:`.interactive_plot`. If ``None`` then the function will try to infer whether
-  to use ipywidgets or not. By setting the argument to ``False`` then you will be able to use Matplotlib sliders in the notebook.
+  argument :func:`.interactive_plot`. If `None` then the function will try to infer whether
+  to use ipywidgets or not. By setting the argument to `False`, you will be able to use Matplotlib sliders in the notebook.
 
 
 .. code-block:: python

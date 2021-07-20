@@ -60,7 +60,7 @@ def figure(figsize=1, *args, **kwargs):
 def nearest_idx(array, value, axis=None):
     """
     Return the index of the array that is closest to value. Equivalent to
-    ``np.argmin(np.abs(array-value), axis=axis)``
+    `np.argmin(np.abs(array-value), axis=axis) <numpy.argmin>`.
 
     Parameters
     ----------

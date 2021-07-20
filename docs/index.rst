@@ -9,7 +9,7 @@ In particular, you can:
 
 To achieve this, mpl_interactions provides:
 
-* A way to control the output of pyplot functions (e.g. ``plot`` and ``hist``) with sliders
+* A way to control the output of pyplot functions (e.g. :func:`~matplotlib.pyplot.plot` and :func:`~matplotlib.pyplot.hist`) with sliders.
 * A function to compare horizontal and vertical slices of heatmaps.
 * A function allowing zooming using the scroll wheel.
 
@@ -17,10 +17,17 @@ To achieve this, mpl_interactions provides:
 Installation
 ^^^^^^^^^^^^^
 
-To install, simply run: ``pip install mpl_interactions``
+To install, simply run:
 
-To also install version of ``ipympl`` and ``ipywidgets`` that are known to work install the optional
-jupyter dependencies by running ``pip install mpl_interactions[jupyter]``
+.. code-block::
+
+   pip install mpl_interactions
+
+To also install version of ``ipympl`` and :doc:`ipywidgets <ipywidgets:index>` that are known to work install the optional jupyter dependencies by running:
+
+.. code-block::
+
+   pip install mpl_interactions[jupyter]
 
 Further instructions for installation from JupyterLab can be found on the :doc:`Installation` page. 
 

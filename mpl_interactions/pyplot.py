@@ -64,7 +64,7 @@ def interactive_plot(
     interactive_plot([x], y, [fmt])
 
     where x/y is are either arraylike or a function that returns arrays. Any kwargs accepted by
-    matplotlib.pyplot.plot will be passed through, other kwargs will be intrepreted as controls
+    `matplotlib.pyplot.plot` will be passed through, other kwargs will be intrepreted as controls
 
     Parameters
     ----------
@@ -324,11 +324,11 @@ def interactive_hist(
     arr : arraylike or function
         The array or the function that returns an array that is to be histogrammed
     density : bool, optional
-        whether to plot as a probability density. Passed to np.histogram
+        whether to plot as a probability density. Passed to `numpy.histogram`
     bins : int or sequence of scalars or str, optional
-        bins argument to np.histogram
+        bins argument to `numpy.histogram`
     weights : array_like, optional
-        passed to np.histogram
+        passed to `numpy.histogram`
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
@@ -998,7 +998,7 @@ def interactive_title(
     **kwargs,
 ):
     """
-    Set an title that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    Set an title that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
     other kwargs will be used to create interactive controls.
 
     Parameters
@@ -1008,15 +1008,15 @@ def interactive_title(
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
-    ax : matplotlib axis, optional
+    ax : `matplotlib.axes.Axes`, optional
         The axis on which to plot. If none the current axis will be used.
-    loc : {'center', 'left', 'right'}, default: `axes.titlelocation`
+    loc : {'center', 'left', 'right'}, default: `axes.titlelocation <matplotlib.rcParams>`
         Which title to set.
-    y : float, default: `axes.titley`
+    y : float, default: `axes.titley <matplotlib.rcParams>`
         Vertical axes loation for the title (1.0 is the top).  If
         None (the default), y is determined automatically to avoid
         decorators on the axes.
-    pad : float, default: `axes.titlepad`
+    pad : float, default: `axes.titlepad <matplotlib.rcParams>`
         The offset of the title from the top of the axes, in points.
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses {} style formatting
@@ -1090,7 +1090,7 @@ def interactive_xlabel(
     **kwargs,
 ):
     """
-    Set an xlabel that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    Set an xlabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
     other kwargs will be used to create interactive controls.
 
     Parameters
@@ -1105,7 +1105,7 @@ def interactive_xlabel(
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
-    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation`
+    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation <matplotlib.rcParams>`
         The label position. This is a high-level alternative for passing
         parameters *y* and *horizontalalignment*.
     slider_formats : None, string, or dict
@@ -1177,7 +1177,7 @@ def interactive_ylabel(
     **kwargs,
 ):
     """
-    Set a ylabel that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    Set a ylabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
     other kwargs will be used to create interactive controls.
 
     Parameters
@@ -1192,7 +1192,7 @@ def interactive_ylabel(
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
-    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation`
+    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation <matplotlib.rcParams>`
         The label position. This is a high-level alternative for passing
         parameters *y* and *horizontalalignment*.
     slider_formats : None, string, or dict

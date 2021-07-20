@@ -5,11 +5,19 @@ Installation
 User install
 ------------
 To install simply run:
-``pip install mpl_interactions``
 
-The above only has Matplotlib as a dependency. If you plan on using ``mpl_interactions`` in a Jupyter Notebook or JupyterLab then you should
-install with ``pip install mpl_interactions[jupyter]`` this will install `ipympl <https://github.com/matplotlib/ipympl>`_ and ipywidgets for you.
-If you use JupyterLab it is significantly easier get working for JupyterLab 3+
+.. code-block::
+
+   pip install mpl-interactions
+
+The above only has Matplotlib as a dependency. If you plan on using ``mpl_interactions`` in a Jupyter Notebook or JupyterLab then you should install with
+
+.. code-block::
+
+   pip install mpl_interactions[jupyter]
+   
+This will install `ipympl <https://github.com/matplotlib/ipympl>`_ and :doc:`ipywidgets <ipywidgets:index>` for you.
+If you use JupyterLab it is significantly easier get working for JupyterLab 3+.
 
 Setup for Jupyterlab 3+
 ----------------------------------
@@ -46,4 +54,4 @@ First create your own fork of https://github.com/ianhi/mpl-interactions.
    
    git clone <your fork>
    cd mpl-interactions
-   pip install -e ".[dev, doc, test]"
+   pip install -e ".[dev]"
