@@ -1010,13 +1010,13 @@ def interactive_title(
         controls
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
-    loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
+    loc : {'center', 'left', 'right'}, default: `axes.titlelocation`
         Which title to set.
-    y : float, default: :rc:`axes.titley`
+    y : float, default: `axes.titley`
         Vertical axes loation for the title (1.0 is the top).  If
         None (the default), y is determined automatically to avoid
         decorators on the axes.
-    pad : float, default: :rc:`axes.titlepad`
+    pad : float, default: `axes.titlepad`
         The offset of the title from the top of the axes, in points.
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses {} style formatting
@@ -1105,7 +1105,7 @@ def interactive_xlabel(
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
-    loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
+    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation`
         The label position. This is a high-level alternative for passing
         parameters *y* and *horizontalalignment*.
     slider_formats : None, string, or dict
@@ -1192,7 +1192,7 @@ def interactive_ylabel(
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
-    loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
+    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation`
         The label position. This is a high-level alternative for passing
         parameters *y* and *horizontalalignment*.
     slider_formats : None, string, or dict
