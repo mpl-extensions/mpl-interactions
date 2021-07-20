@@ -3,10 +3,15 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?= --color
+SPHINXOPTS    ?= -T --color
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
+
+ifdef ignore-warnings
+else
+	SPHINXOPTS += -W --keep-going
+endif
 
 # Put it first so that "make" without argument is like "make help".
 help:
