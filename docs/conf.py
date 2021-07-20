@@ -44,6 +44,7 @@ author = "Ian Hunt-Isaak"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
@@ -111,6 +112,12 @@ napoleon_use_ivar = False
 napoleon_use_param = False
 napoleon_use_rtype = False
 numpydoc_show_class_members = False
+
+# Intersphinx settings
+intersphinx_mapping = {
+    "matplotlib": ("https://matplotlib.org/stable", None),
+    "python": ("https://docs.python.org/3", None),
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
