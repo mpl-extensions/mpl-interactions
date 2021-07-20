@@ -113,6 +113,42 @@ napoleon_use_param = False
 napoleon_use_rtype = False
 numpydoc_show_class_members = False
 
+# Cross-referencing configuration
+nitpicky = True  # warn if cross-references are missing
+nitpick_ignore = [
+    # missing inherited methods -- better to use apidoc instead of autogenerate
+    ("py:obj", "mpl_interactions.panhandler.press"),
+    ("py:obj", "mpl_interactions.panhandler.release"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.cids"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.connect_event"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.disconnect_events"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.drawon"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.eventson"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.get_active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.ignore"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector.set_active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.cids"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.connect_event"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.disconnect_events"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.drawon"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.eventson"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.get_active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.ignore"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_index.set_active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.cids"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.connect_event"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.disconnect_events"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.drawon"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.eventson"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.get_active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.ignore"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.set_active"),
+    ("py:obj", "mpl_interactions.widgets.scatter_selector_value.set_active"),
+]
+
 # Intersphinx settings
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable", None),
