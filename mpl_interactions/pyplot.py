@@ -98,11 +98,13 @@ def interactive_plot(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -339,11 +341,13 @@ def interactive_hist(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -469,11 +473,13 @@ def interactive_scatter(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -690,11 +696,13 @@ def interactive_imshow(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -824,11 +832,13 @@ def interactive_axhline(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -915,11 +925,13 @@ def interactive_axvline(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -1014,11 +1026,13 @@ def interactive_title(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -1102,11 +1116,13 @@ def interactive_xlabel(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -1187,11 +1203,13 @@ def interactive_ylabel(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets

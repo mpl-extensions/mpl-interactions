@@ -545,11 +545,13 @@ def hyperslicer(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     is_color_image : boolean
         If True, will treat the last 3 dimensions as comprising a color images and will only set up sliders for the first arr.ndim - 3 dimensions.
     controls : mpl_interactions.controller.Controls
