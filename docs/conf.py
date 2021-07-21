@@ -13,12 +13,12 @@ import inspect
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import shutil
+import subprocess
 import sys
 
 import sphinx_rtd_theme
 
-import shutil
-import subprocess
 import mpl_interactions as mpl_inter
 
 sys.path.insert(0, os.path.abspath("../mpl_interactions"))
