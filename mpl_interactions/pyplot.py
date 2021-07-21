@@ -2,21 +2,20 @@ from collections.abc import Callable, Iterable
 from functools import partial
 from numbers import Number
 
+import matplotlib.markers as mmarkers
 import numpy as np
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
 from matplotlib.pyplot import sca
-import matplotlib.markers as mmarkers
 
 from .controller import Controls, gogogo_controls, prep_scalars
-
 from .helpers import (
     broadcast_many,
     callable_else_value,
     callable_else_value_no_cast,
-    eval_xy,
     create_slider_format_dict,
+    eval_xy,
     gogogo_display,
     gogogo_figure,
     kwarg_to_ipywidget,
@@ -26,9 +25,9 @@ from .helpers import (
 )
 from .mpl_kwargs import (
     Line2D_kwargs_list,
-    imshow_kwargs_list,
     Text_kwargs_list,
     collection_kwargs_list,
+    imshow_kwargs_list,
     kwarg_popper,
 )
 
