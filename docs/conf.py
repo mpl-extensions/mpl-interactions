@@ -13,6 +13,8 @@ import inspect
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import shutil
+import subprocess
 import sys
 
 import sphinx_rtd_theme
@@ -37,6 +39,31 @@ author = "Ian Hunt-Isaak"
 
 # The full version, including alpha/beta/rc tags
 
+# -- Generate API ------------------------------------------------------------
+api_folder_name = "autoapi"
+shutil.rmtree(api_folder_name, ignore_errors=True)
+subprocess.call(
+    " ".join(
+        [
+            "sphinx-apidoc",
+            f"-o {api_folder_name}/",
+            "--force",
+            "--no-toc",
+            "--templatedir _templates",
+            "--separate",
+            "../mpl_interactions/",
+            # excluded modules
+            "../*/controller.py",
+            "../*/helpers.py",
+            "../*/ipyplot.py",
+            "../*/mpl_kwargs.py",
+            "../*/xarray_helpers.py",
+            "../*/tests",
+        ]
+    ),
+    shell=True,
+)
+
 
 # -- General configuration ---------------------------------------------------
 
@@ -44,6 +71,8 @@ author = "Ian Hunt-Isaak"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
@@ -93,22 +122,36 @@ nbsphinx_execute = "never"
 # see https://github.com/spatialaudio/nbsphinx/issues/378
 nbsphinx_widgets_path = ""
 
+# API settings
+autodoc_default_options = {
+    "members": True,
+    "show-inheritance": True,
+    "undoc-members": True,
+}
+add_module_names = False
 napoleon_google_docstring = False
-napoleon_numpy_docstring = True
 napoleon_include_private_with_doc = False
 napoleon_include_special_with_doc = False
+napoleon_numpy_docstring = True
 napoleon_use_admonition_for_examples = False
 napoleon_use_admonition_for_notes = False
 napoleon_use_admonition_for_references = False
 napoleon_use_ivar = False
 napoleon_use_param = False
 napoleon_use_rtype = False
-add_module_names = False
+numpydoc_show_class_members = False
 
-autosummary_generate = True
-autodoc_default_options = {
-    "members": True,
-    "show-inheritance": True,
+# Cross-referencing configuration
+default_role = "py:obj"
+primary_domain = "py"
+nitpicky = True  # warn if cross-references are missing
+
+# Intersphinx settings
+intersphinx_mapping = {
+    "ipywidgets": ("https://ipywidgets.readthedocs.io/en/stable", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "python": ("https://docs.python.org/3", None),
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -122,7 +165,16 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**ipynb_checkpoints"]
+exclude_patterns = [
+    "**ipynb_checkpoints",
+    ".DS_Store",
+    "Thumbs.db",
+    "_build",
+    "examples/non-ipympl-backends.ipynb",
+    "gallery/*.ipynb",
+    "gallery/*.md5",
+    "gallery/*.py",
+]
 
 
 # -- Options for HTML output -------------------------------------------------

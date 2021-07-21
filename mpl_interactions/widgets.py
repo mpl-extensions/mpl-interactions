@@ -1,14 +1,9 @@
+"""Custom matplotlib widgets made for use in this library."""
+
 import numpy as np
 from matplotlib import cbook, ticker
 from matplotlib.cbook import CallbackRegistry
 from matplotlib.widgets import AxesWidget
-
-__all__ = [
-    "scatter_selector",
-    "scatter_selector_index",
-    "scatter_selector_value",
-    "RangeSlider",
-]
 
 
 class scatter_selector(AxesWidget):
@@ -215,7 +210,7 @@ class RangeSlider(SliderBase):
 
     Attributes
     ----------
-    val : tuple of float
+    val : tuple[float]
         Slider value.
     """
 
@@ -245,7 +240,7 @@ class RangeSlider(SliderBase):
             The minimum value of the slider.
         valmax : float
             The maximum value of the slider.
-        valinit : tuple of float or None, default: None
+        valinit : tuple[float] or None, default: None
             The initial positions of the slider. If None the initial positions
             will be at the 25th and 75th percentiles of the range.
         valfmt : str, default: None

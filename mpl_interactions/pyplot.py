@@ -1,3 +1,9 @@
+"""Control the output of standard plotting functions such as :func:`~matplotlib.pyplot.plot` and
+:func:`~matplotlib.pyplot.hist` using sliders and other widgets. When using the ``ipympl`` backend
+these functions will leverage ipywidgets for the controls, otherwise they will use the built-in
+Matplotlib widgets."""
+
+
 from collections.abc import Callable, Iterable
 from functools import partial
 from numbers import Number
@@ -63,7 +69,7 @@ def interactive_plot(
     interactive_plot([x], y, [fmt])
 
     where x/y is are either arraylike or a function that returns arrays. Any kwargs accepted by
-    matplotlib.pyplot.plot will be passed through, other kwargs will be intrepreted as controls
+    `matplotlib.pyplot.plot` will be passed through, other kwargs will be intrepreted as controls
 
     Parameters
     ----------
@@ -97,11 +103,13 @@ def interactive_plot(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -321,11 +329,11 @@ def interactive_hist(
     arr : arraylike or function
         The array or the function that returns an array that is to be histogrammed
     density : bool, optional
-        whether to plot as a probability density. Passed to np.histogram
+        whether to plot as a probability density. Passed to `numpy.histogram`
     bins : int or sequence of scalars or str, optional
-        bins argument to np.histogram
+        bins argument to `numpy.histogram`
     weights : array_like, optional
-        passed to np.histogram
+        passed to `numpy.histogram`
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
@@ -338,11 +346,13 @@ def interactive_hist(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -468,11 +478,13 @@ def interactive_scatter(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -659,7 +671,7 @@ def interactive_imshow(
         scalar data to colors. This parameter is ignored for RGB(A) data.
         forwarded to matplotlib
     norm : `~matplotlib.colors.Normalize`, optional
-        The `.Normalize` instance used to scale scalar data to the [0, 1]
+        The `~matplotlib.colors.Normalize` instance used to scale scalar data to the [0, 1]
         range before mapping to colors using *cmap*. By default, a linear
         scaling mapping the lowest value to 0 and the highest to 1 is used.
         This parameter is ignored for RGB(A) data.
@@ -689,11 +701,13 @@ def interactive_imshow(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -823,11 +837,13 @@ def interactive_axhline(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -914,11 +930,13 @@ def interactive_axvline(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -985,7 +1003,7 @@ def interactive_title(
     **kwargs,
 ):
     """
-    Set an title that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    Set an title that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
     other kwargs will be used to create interactive controls.
 
     Parameters
@@ -995,15 +1013,15 @@ def interactive_title(
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
-    ax : matplotlib axis, optional
+    ax : `matplotlib.axes.Axes`, optional
         The axis on which to plot. If none the current axis will be used.
-    loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
+    loc : {'center', 'left', 'right'}, default: `axes.titlelocation <matplotlib.rcParams>`
         Which title to set.
-    y : float, default: :rc:`axes.titley`
+    y : float, default: `axes.titley <matplotlib.rcParams>`
         Vertical axes loation for the title (1.0 is the top).  If
         None (the default), y is determined automatically to avoid
         decorators on the axes.
-    pad : float, default: :rc:`axes.titlepad`
+    pad : float, default: `axes.titlepad <matplotlib.rcParams>`
         The offset of the title from the top of the axes, in points.
     slider_formats : None, string, or dict
         If None a default value of decimal points will be used. Uses {} style formatting
@@ -1013,11 +1031,13 @@ def interactive_title(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -1075,7 +1095,7 @@ def interactive_xlabel(
     **kwargs,
 ):
     """
-    Set an xlabel that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    Set an xlabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
     other kwargs will be used to create interactive controls.
 
     Parameters
@@ -1090,7 +1110,7 @@ def interactive_xlabel(
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
-    loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
+    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation <matplotlib.rcParams>`
         The label position. This is a high-level alternative for passing
         parameters *y* and *horizontalalignment*.
     slider_formats : None, string, or dict
@@ -1101,11 +1121,13 @@ def interactive_xlabel(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -1160,7 +1182,7 @@ def interactive_ylabel(
     **kwargs,
 ):
     """
-    Set a ylabel that will update interactively. kwargs for `Matplotlib.Text` will be passed through,
+    Set a ylabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
     other kwargs will be used to create interactive controls.
 
     Parameters
@@ -1175,7 +1197,7 @@ def interactive_ylabel(
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
-    loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
+    loc : {'bottom', 'center', 'top'}, default: `yaxis.labellocation <matplotlib.rcParams>`
         The label position. This is a high-level alternative for passing
         parameters *y* and *horizontalalignment*.
     slider_formats : None, string, or dict
@@ -1186,11 +1208,13 @@ def interactive_ylabel(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-            - None: no sliders
-            - True: sliders on the lft
-            - False: no sliders
-            - 'left': sliders on the left
-            - 'right': sliders on the right
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets

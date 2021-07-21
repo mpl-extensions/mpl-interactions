@@ -71,7 +71,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-
 # PyBuilder
 target/
 
@@ -129,11 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-
 *.swp
 
 _build
-
 
 # autoapi stuff - may be bad to ignore this idk
 autoapi
@@ -145,3 +142,6 @@ docs/examples/*.ipynb
 docs/examples/*.gif
 docs/*.ipynb
 docs/gallery
+
+# Test output
+animation-*.gif

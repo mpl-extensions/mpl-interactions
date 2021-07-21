@@ -17,7 +17,7 @@ expects to be shown only once, then updated with Matplotlib methods as controls 
 multiple new figures---or recreate the entire plot---every time a slider value changes. 
 
 It is possible to get around these performance issues by using the ``interact`` function and setting the called function to use Matplotlib updating methods 
-(such as ``line.set_data``). However in this case, not only do you need to remember how to do this, but over time you will find you are repeating yourself.
+(such as :meth:`~matplotlib.lines.Line2D.set_data`). However in this case, not only do you need to remember how to do this, but over time you will find you are repeating yourself.
 Reducing these performance barriers was the initial motivation for the mpl_interactions library, and also brings us to the reason of convenience.
 
 Portability
@@ -51,8 +51,8 @@ Differences in generated widgets
 Tuple of floats
 """""""""""""""""""
 
-Both mpl_interactions and ipywidgets will generate a slider. However, mpl_interactions will use ``np.linspace``
-and ipywidgets will use ``np.arange``.
+Both mpl_interactions and ipywidgets will generate a slider. However, mpl_interactions will use `numpy.linspace`
+and ipywidgets will use `numpy.arange`.
 
 
 Here is a comparison of the generated widget for ``two_tuple = (1., 5)`` and ``three_tuple = (0., 1250, 100)``:
@@ -91,7 +91,7 @@ NumPy array or list
 """""""""""""""""""
 ipywidgets will assume a NumPy array or list are categoricals. mpl_interactions will attempt to make a slider for the values.
 
-For example, here is what ipywidgets and mpl_interactions will create for ``np.linspace(-5,5,100)``:
+For example, here is what ipywidgets and mpl_interactions will create for `np.linspace(-5,5,100) <numpy.linspace>`:
 
 **mpl_interactions**
 

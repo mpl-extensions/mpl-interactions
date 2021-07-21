@@ -1,0 +1,45 @@
+{%- macro automodule(modname, options) -%}
+.. automodule:: {{ modname }}
+{%- for option in options %}
+   :{{ option }}:
+{%- endfor %}
+{%- endmacro %}
+
+{%- macro toctree(docnames) -%}
+.. toctree::
+{% for docname in docnames %}
+   {{ docname }}
+{%- endfor %}
+{%- endmacro %}
+
+{{ pkgname.split(".")[-1] | e | heading }}
+
+{%- if modulefirst and not is_namespace %}
+{{ automodule(pkgname, automodule_options) }}
+{% endif %}
+
+{%- if not modulefirst and not is_namespace %}
+
+{{ automodule(pkgname, automodule_options) }}
+{% endif %}
+
+{%- if submodules or subpackages %}
+.. rubric:: Submodules and Subpackages
+{% endif %}
+
+{%- if subpackages %}
+
+{{ toctree(subpackages) }}
+{% endif %}
+{%- if submodules %}
+{% if separatemodules %}
+{{ toctree(submodules) }}
+{%- else %}
+{%- for submodule in submodules %}
+{% if show_headings %}
+{{- [submodule, "module"] | join(" ") | e | heading(2) }}
+{% endif %}
+{{ automodule(submodule, automodule_options) }}
+{% endfor %}
+{%- endif %}
+{% endif %}
