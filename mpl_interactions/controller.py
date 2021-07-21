@@ -133,7 +133,7 @@ class Controls:
                     if control:
                         self.controls[k] = control
                     if k == "vmin_vmax":
-                        self.params["vmin"] = self.params["vmin_vmax"][0]
+                        self.params["vmin"] = self.params['vmin_vmax'][0]
                         self.params["vmax"] = self.params["vmin_vmax"][1]
 
     def _slider_updated(self, change, key, values):
