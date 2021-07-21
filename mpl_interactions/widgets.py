@@ -1,7 +1,7 @@
+import numpy as np
+from matplotlib import cbook, ticker
 from matplotlib.cbook import CallbackRegistry
 from matplotlib.widgets import AxesWidget
-from matplotlib import cbook, ticker
-import numpy as np
 
 __all__ = [
     "scatter_selector",

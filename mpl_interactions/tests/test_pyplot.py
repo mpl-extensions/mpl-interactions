@@ -3,10 +3,10 @@ import numpy as np
 import pytest
 from matplotlib import __version__ as mpl_version
 from packaging import version
-from mpl_interactions.utils import figure
 
-from mpl_interactions.pyplot import interactive_hist, interactive_plot
 import mpl_interactions.ipyplot as iplt
+from mpl_interactions.pyplot import interactive_hist, interactive_plot
+from mpl_interactions.utils import figure
 
 np.random.seed(1111111121)
 

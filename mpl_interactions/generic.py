@@ -10,9 +10,9 @@ from matplotlib.pyplot import close, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 
+from .controller import gogogo_controls, prep_scalars
 from .helpers import *
 from .utils import figure, ioff, nearest_idx
-from .controller import gogogo_controls, prep_scalars
 from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
 # functions that are methods

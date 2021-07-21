@@ -1,25 +1,27 @@
 try:
-    from ipywidgets import widgets
     from IPython.display import display as ipy_display
+    from ipywidgets import widgets
 
     _not_ipython = False
 except ImportError:
     _not_ipython = True
     pass
 from collections import defaultdict
+from collections.abc import Iterable
+from functools import partial
+
+from matplotlib.animation import FuncAnimation
+from matplotlib.widgets import AxesWidget
+from matplotlib.widgets import Slider as mSlider
+
 from .helpers import (
+    create_mpl_controls_fig,
     create_slider_format_dict,
     kwarg_to_ipywidget,
     kwarg_to_mpl_widget,
-    create_mpl_controls_fig,
     notebook_backend,
     process_mpl_widget,
 )
-from functools import partial
-from collections.abc import Iterable
-from matplotlib.widgets import AxesWidget
-from matplotlib.widgets import Slider as mSlider
-from matplotlib.animation import FuncAnimation
 
 
 class Controls:
