@@ -1,6 +1,12 @@
 {
-    "python.formatting.provider": "black",
-    "python.languageServer": "Pylance",
-    "python.linting.enabled": false,
-    "python.analysis.completeFunctionParens": true
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "editor.formatOnSave": true,
+  "python.formatting.provider": "black",
+  "python.languageServer": "Pylance",
+  "python.linting.enabled": false,
+  "python.analysis.completeFunctionParens": true
 }

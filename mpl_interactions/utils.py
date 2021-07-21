@@ -2,11 +2,11 @@
 
 from collections.abc import Iterable
 
+import numpy as np
 from matplotlib import interactive, is_interactive
 from matplotlib.pyplot import figure as mpl_figure
 from matplotlib.pyplot import install_repl_displayhook, rcParams, uninstall_repl_displayhook
 from numpy import abs, argmin, asarray, take
-import numpy as np
 
 __all__ = [
     "figure",

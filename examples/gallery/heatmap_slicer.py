@@ -9,7 +9,6 @@ import numpy as np
 
 from mpl_interactions import heatmap_slicer
 
-
 x = np.linspace(0, np.pi, 100)
 y = np.linspace(0, 10, 200)
 X, Y = np.meshgrid(x, y)

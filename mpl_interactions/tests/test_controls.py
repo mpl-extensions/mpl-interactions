@@ -1,8 +1,9 @@
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
-import mpl_interactions.ipyplot as iplt
 import numpy as np
 from matplotlib.widgets import Slider
+
+import mpl_interactions.ipyplot as iplt
 from mpl_interactions.controller import Controls
 
 
