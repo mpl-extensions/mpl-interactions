@@ -34,7 +34,7 @@ Further instructions for installation from JupyterLab can be found on the :doc:`
 Getting Help
 ^^^^^^^^^^^^
 
-If you have a question on how to do something with `mpl_interactions` a great place
+If you have a question on using this library a great place
 to ask it is: https://discourse.matplotlib.org/c/3rdparty/18. Feel free to mention  ``@ianhi`` in your
 post there.
 
