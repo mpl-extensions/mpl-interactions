@@ -378,6 +378,7 @@ class image_segmenter:
         mask_colors=None,
         mask_alpha=0.75,
         lineprops=None,
+        ax=None,
         figsize=(10, 10),
         **kwargs,
     ):
@@ -400,8 +401,10 @@ class image_segmenter:
         lineprops : dict, default: None
             lineprops passed to LassoSelector. If None the default values are:
             {"color": "black", "linewidth": 1, "alpha": 0.8}
+        ax : `matplotlib.axes.Axes`, optional
+            The axis on which to plot. If *None* a new figure will be created.
         figsize : (float, float), optional
-            passed to plt.figure
+            passed to plt.figure. Ignored if *ax* is given.
         **kwargs
             All other kwargs will passed to the imshow command for the image
         """
@@ -437,11 +440,15 @@ class image_segmenter:
                 self._overlay[idx] = [0, 0, 0, 0]
             else:
                 self._overlay[idx] = self.mask_colors[i - 1]
-        with ioff:
-            self.fig = figure(figsize=figsize)
-            self.ax = self.fig.gca()
-            self.displayed = self.ax.imshow(self._img, **kwargs)
-            self._mask = self.ax.imshow(self._overlay)
+        if ax is not None:
+            self.ax = ax
+            self.fig = self.ax.figure
+        else:
+            with ioff:
+                self.fig = figure(figsize=figsize)
+                self.ax = self.fig.gca()
+        self.displayed = self.ax.imshow(self._img, **kwargs)
+        self._mask = self.ax.imshow(self._overlay)
 
         if lineprops is None:
             lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
