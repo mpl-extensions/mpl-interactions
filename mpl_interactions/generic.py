@@ -378,6 +378,8 @@ class image_segmenter:
         mask_colors=None,
         mask_alpha=0.75,
         lineprops=None,
+        lasso_mousebutton="left",
+        pan_mousebutton="middle",
         ax=None,
         figsize=(10, 10),
         **kwargs,
@@ -401,6 +403,11 @@ class image_segmenter:
         lineprops : dict, default: None
             lineprops passed to LassoSelector. If None the default values are:
             {"color": "black", "linewidth": 1, "alpha": 0.8}
+        lasso_mousebutton : str, or int, default: "left"
+            The mouse button to use for drawing the selecting lasso.
+        pan_mousebutton : str, or int, default: "middle"
+            The button to use for `~mpl_interactions.generic.panhandler`. One of 'left', 'middle' or
+            'right', or 1, 2, 3 respectively.
         ax : `matplotlib.axes.Axes`, optional
             The axis on which to plot. If *None* a new figure will be created.
         figsize : (float, float), optional
@@ -453,7 +460,15 @@ class image_segmenter:
         if lineprops is None:
             lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
         useblit = False if "ipympl" in get_backend().lower() else True
-        self.lasso = LassoSelector(self.ax, self._onselect, lineprops=lineprops, useblit=useblit)
+        button_dict = {"left": 1, "middle": 2, "right": 3}
+        if isinstance(pan_mousebutton, str):
+            pan_mousebutton = button_dict[pan_mousebutton.lower()]
+        if isinstance(lasso_mousebutton, str):
+            lasso_mousebutton = button_dict[lasso_mousebutton.lower()]
+
+        self.lasso = LassoSelector(
+            self.ax, self._onselect, lineprops=lineprops, useblit=useblit, button=lasso_mousebutton
+        )
         self.lasso.set_visible(True)
 
         pix_x = np.arange(self._img.shape[0])
@@ -461,7 +476,7 @@ class image_segmenter:
         xv, yv = np.meshgrid(pix_y, pix_x)
         self.pix = np.vstack((xv.flatten(), yv.flatten())).T
 
-        self.ph = panhandler(self.fig)
+        self.ph = panhandler(self.fig, button=pan_mousebutton)
         self.disconnect_zoom = zoom_factory(self.ax)
         self.current_class = 1
         self.erasing = False
