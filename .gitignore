@@ -137,10 +137,8 @@ autoapi
 
 # notebooks in the docs folder
 # this is to enable the madness with adding gifs
-docs/examples/tidbits/*.ipynb
-docs/examples/*.ipynb
 docs/examples/*.gif
-docs/*.ipynb
+!docs/examples/freq-plot-*.gif
 docs/gallery
 
 # Test output

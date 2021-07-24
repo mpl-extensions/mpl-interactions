@@ -21,10 +21,6 @@ import mpl_interactions as mpl_inter
 
 sys.path.insert(0, os.path.abspath("../mpl_interactions"))
 sys.path.insert(0, os.path.abspath("."))
-from gifmaker import gogogo_all
-
-gogogo_all("../examples", "examples/")
-gogogo_all("../examples/tidbits", "examples/tidbits/")
 
 release = mpl_inter.__version__
 
@@ -84,7 +80,7 @@ extensions = [
 from mpl_playback.scraper import matplotlib_scraper
 
 sphinx_gallery_conf = {
-    "examples_dirs": "../examples/gallery",  # path to your example scripts
+    "examples_dirs": "examples/gallery",  # path to your example scripts
     "gallery_dirs": "gallery",  # path to where to save gallery generated output
     "filename_pattern": "/.*",
     "ignore_pattern": "/_.*",  # https://www.debuggex.com/
@@ -157,6 +153,8 @@ exclude_patterns = [
     ".DS_Store",
     "Thumbs.db",
     "_build",
+    "examples/devlop",
+    "examples/gallery",
     "examples/non-ipympl-backends.ipynb",
     "gallery/*.ipynb",
     "gallery/*.md5",
