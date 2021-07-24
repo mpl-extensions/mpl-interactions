@@ -74,7 +74,9 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
+    "sphinx_panels",
     "sphinx_thebe",
+    "sphinx_togglebutton",
 ]
 
 from mpl_playback.scraper import matplotlib_scraper
