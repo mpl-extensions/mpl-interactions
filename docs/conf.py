@@ -71,14 +71,14 @@ subprocess.call(
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.linkcode",
-    "sphinx.ext.napoleon",
-    "numpydoc",
     "jupyter_sphinx",
     "nbsphinx",
+    "numpydoc",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.linkcode",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
 ]
