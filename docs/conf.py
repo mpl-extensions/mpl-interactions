@@ -128,7 +128,14 @@ linkcheck_anchors = False
 linkcheck_ignore = []
 
 # Settings for myst-nb
+execution_excludepatterns = [
+    "examples/devlop/*",
+]
+execution_timeout = -1
 jupyter_execute_notebooks = "off"
+if "EXECUTE_NB" in os.environ:
+    print("\033[93;1mWill run Jupyter notebooks!\033[0m")
+    jupyter_execute_notebooks = "force"
 
 # Settings for myst-parser
 myst_enable_extensions = [
