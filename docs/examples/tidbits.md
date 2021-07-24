@@ -1,10 +1,9 @@
-=======
-Tidbits
-=======
+# Tidbits
 
 Smaller tutorials showcasing parts of the library that were difficult to naturally fit into the other tutorials.
 
-.. toctree::
-   :maxdepth: 1
-   
-   tidbits/play-buttons.rst
+```{toctree}
+:maxdepth: 1
+
+tidbits/play-buttons.md
+```

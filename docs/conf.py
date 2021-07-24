@@ -129,6 +129,13 @@ intersphinx_mapping = {
 jupyter_execute_notebooks = "off"
 
 # Settings for myst-parser
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "dollarmath",
+    "smartquotes",
+    "substitution",
+]
 suppress_warnings = [
     "myst.header",
 ]
@@ -152,6 +159,7 @@ exclude_patterns = [
     "examples/non-ipympl-backends.ipynb",
     "gallery/*.ipynb",
     "gallery/*.md5",
+    "gallery/*.md",
     "gallery/*.py",
 ]
 
