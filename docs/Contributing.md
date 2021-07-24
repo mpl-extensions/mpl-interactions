@@ -1,85 +1,74 @@
 # Contributing
 
-Thanks for thinking of a way to help improve this library! Remember that contributions come in all shapes and sizes beyond writing bug fixes. Contributing to documentation, opening new [issues](https://github.com/ianhi/mpl-interactions/issues) for bugs, asking for clarification on things you find unclear, and requesting new features, are all super valuable contributions.
+Thanks for thinking of a way to help improve this library! Remember that contributions come in all shapes and sizes beyond writing bug fixes. Contributing to [documentation](#documentation), opening new [issues](https://github.com/ianhi/mpl-interactions/issues) for bugs, asking for clarification on things you find unclear, and requesting new features, are all super valuable contributions.
 
 ## Code Improvements
 
-All development for this library happens on Github at [mpl_interactions](https://github.com/ianhi/mpl-interactions).
+All development for this library happens on GitHub at [mpl_interactions](https://github.com/ianhi/mpl-interactions). We recommend you work with a [Conda](https://www.anaconda.com/products/individual) environment (or an alternative virtual environment like [`venv`](https://docs.python.org/3/library/venv.html)).
 
 ```bash
 git clone <your fork>
 cd mpl-interactions
-pip install -e ".[dev, doc, test, jupyter]"
+conda env create
+conda activate mpl-interactions
 pre-commit install
 ```
 
+The `conda env create` command installs all Python packages that are useful when working on the source code of `mpl_interactions` and its documentation. You can also install these packages separately:
+
 ```bash
-conda install nodejs=12
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
+pip install -e .[dev]
 ```
+
+The {command}`-e .` flag installs the `mpl_interactions` folder in ["editable" mode](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs) and {command}`[dev]` installs the [optional dependencies](https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#optional-dependencies) you need for developing `mpl_interacions`.
 
 ### Seeing your changes
 
 If you are working in a Jupyter Notebook, then in order to see your code changes you will need to either:
 
 - Restart the Kernel every time you make a change to the code.
-- **Or:** Make the function reload from the source file every time you run it by using [autoreload](https://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html).
+- Make the function reload from the source file every time you run it by using [autoreload](https://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html), e.g.:
 
-```python
-%load_ext autoreload
-%autoreload 2
+  ```python
+  %load_ext autoreload
+  %autoreload 2
 
-from mpl_interactions import ....
-```
+  from mpl_interactions import ....
+  ```
 
 ### Working with Git
 
-Using Git/Github can confusing (<https://xkcd.com/1597/>) so if you're new to Git, you may find it helpful to use a program like [Github Desktop](https://desktop.github.com) and to follow a [guide](https://github.com/firstcontributions/first-contributions#first-contributions).
+Using Git/GitHub can confusing (<https://xkcd.com/1597>), so if you're new to Git, you may find it helpful to use a program like [GitHub Desktop](https://desktop.github.com) and to follow a [guide](https://github.com/firstcontributions/first-contributions#first-contributions).
 
-Also feel free to ask for help/advice on the relevant Github [issue](https://github.com/ianhi/mpl-interactions/issues).
+Also feel free to ask for help/advice on the relevant GitHub [issue](https://github.com/ianhi/mpl-interactions/issues).
 
 ## Documentation
 
-For the most part the Documentation is generated from the Notebooks in the `examples` folder. So to write new examples work in a notebook in the `examples` directory. When the docs are generated then they will be converted to html via [myst-nb](https://myst-nb.readthedocs.io).
+Our documentation on Read the Docs ([mpl-interactions.rtfd.io](https://mpl-interactions.readthedocs.io)) is built with [Sphinx](https://www.sphinx-doc.org) from the notebooks in the `docs` folder. It contains both Markdown files and Jupyter notebooks.
 
-If you are adding a new example then you need to include it in the toctree in `docs/index.md`.
+Examples are best written as Jupyter notebooks. To write a new example, create in a notebook in the `docs/examples` directory and list its path under one of the [`toctree`s](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-toctree) in the `index.md` file. When the docs are generated, they will be rendered as static html pages by [myst-nb](https://myst-nb.readthedocs.io).
 
-Following changes to the source files, you can view recent adjustments by building the documentation.
-
-1. Make sure you have installed the requirements for building the documentation:
+If you have installed all developer dependencies (see [above](#contributing)), you can view recent modifications to the source files the following simple tox command:
 
 ```bash
-cd mpl-interactions
-pip install -e ".[doc, jupyter]"
-```
-
-2. Run the following commands:
-
-```bash
-cd docs
-make html
+tox -e doc
 ```
 
 If you open the `index.html` file in your browser you should now be able to see the rendered documentation.
 
-### Embedding GIFs
-
-Unfortunately the interactive plots are not interactive on readthedocs, this is because they require an active Python kernel to work. So instead we short gifs or apngs of interacting with the plots and embed them. To accomplish this the GIFs are stored in `docs/_static/images` and they are automatically embedded when the notebooks are converted to html based on the file names in the cell metadata. For example here is the process of setting the metadata of a cell when using JupyterLab.
-
-```{image} _static/images/how-to-embed-gif.apng
-
-```
-
-### Autobuild the documentation
-
-Alternatively, you can use [sphinx-autobuild](https://github.com/GaretJax/sphinx-autobuild) to continuously watch the documentation for changes and rebuild it for you. Sphinx-autobuild will be installed automatically by the above `pip` command, and we've added it to the `Makefile`. All you need to do is:
+Alternatively, you can use [sphinx-autobuild](https://github.com/executablebooks/sphinx-autobuild) to continuously watch source files for changes and rebuild the documentation for you. Sphinx-autobuild will be installed automatically by the above `pip` command, so all you need to do is run:
 
 ```bash
-cd docs
-make watch
+tox -e doclive
 ```
 
 In a few seconds your web browser should open up the documentation. Now whenever you save a file the documentation will automatically regenerate and the webpage will refresh for you!
+
+### Embedding GIFs
+
+Unfortunately, interactive plots are not interactive on [Read the Docs](https://readthedocs.org/projects/mpl-interactions), because widgets require an active Python kernel to work. Instead, we therefore shoot [gif](https://docs.fileformat.com/image/gif) or [apng](https://docs.fileformat.com/image/apng) screencasts of interacting with the plots and embed them in the Jupyter notebooks.
+
+To accomplish, these GIFs are best stored in `docs/_static/images`. Then, below the input cell of which you want to render cell output, you create a Markdown cell below that code cell and insert the GIF there [as an image](https://www.markdownguide.org/basic-syntax/#images).
 
 ## Thank you to our current team!
 
