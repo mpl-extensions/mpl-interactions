@@ -17,8 +17,6 @@ import shutil
 import subprocess
 import sys
 
-import sphinx_rtd_theme
-
 import mpl_interactions as mpl_inter
 
 sys.path.insert(0, os.path.abspath("../mpl_interactions"))
@@ -147,11 +145,6 @@ suppress_warnings = [
     "myst.header",
 ]
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -176,22 +169,25 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
+html_copy_source = True  # needed for download notebook button
+html_css_files = [
+    "custom.css",
+]
+html_sourcelink_suffix = ""
+html_static_path = ["_static"]
+html_theme = "sphinx_book_theme"
 html_theme_options = {
-    # Toc options
-    "collapse_navigation": False,
-    "sticky_navigation": True,
-    "navigation_depth": 4,
+    "path_to_docs": "docs",
+    "repository_branch": "master",
+    "repository_url": "https://github.com/ianhi/mpl-interactions",
+    "use_download_button": True,
+    "use_edit_page_button": True,
+    "use_issues_button": True,
+    "use_repository_button": True,
 }
-
+html_title = "mpl-interactions"
 
 master_doc = "index"
-
-
-def setup(app):
-    app.add_css_file("custom.css")
 
 
 # based on pandas/doc/source/conf.py
