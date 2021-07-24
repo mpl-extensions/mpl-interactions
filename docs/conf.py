@@ -78,6 +78,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
+    "sphinx_thebe",
 ]
 
 from mpl_playback.scraper import matplotlib_scraper
@@ -177,6 +178,13 @@ html_sourcelink_suffix = ""
 html_static_path = ["_static"]
 html_theme = "sphinx_book_theme"
 html_theme_options = {
+    "launch_buttons": {
+        "binderhub_url": "https://mybinder.org",
+        "colab_url": "https://colab.research.google.com",
+        "notebook_interface": "jupyterlab",
+        "thebe": True,
+        "thebelab": True,
+    },
     "path_to_docs": "docs",
     "repository_branch": "master",
     "repository_url": "https://github.com/ianhi/mpl-interactions",
@@ -188,6 +196,10 @@ html_theme_options = {
 html_title = "mpl-interactions"
 
 master_doc = "index"
+thebe_config = {
+    "repository_url": html_theme_options["repository_url"],
+    "repository_branch": html_theme_options["repository_branch"],
+}
 
 
 # based on pandas/doc/source/conf.py
