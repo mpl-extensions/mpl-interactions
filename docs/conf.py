@@ -53,7 +53,6 @@ subprocess.call(
             "--separate",
             "../mpl_interactions/",
             # excluded modules
-            "../*/controller.py",
             "../*/helpers.py",
             "../*/ipyplot.py",
             "../*/mpl_kwargs.py",
