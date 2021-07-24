@@ -124,6 +124,10 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
 
+# Settings for copybutton
+copybutton_prompt_is_regexp = True
+copybutton_prompt_text = r">>> |\.\.\. "  # doctest
+
 # Settings for myst-nb
 jupyter_execute_notebooks = "off"
 
