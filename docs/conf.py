@@ -34,8 +34,8 @@ author = "Ian Hunt-Isaak"
 # The full version, including alpha/beta/rc tags
 
 # -- Generate API ------------------------------------------------------------
-api_folder_name = "autoapi"
-shutil.rmtree(api_folder_name, ignore_errors=True)
+api_folder_name = "api"
+shutil.rmtree(api_folder_name, ignore_errors=True)  # in case of new or renamed modules
 subprocess.call(
     " ".join(
         [
