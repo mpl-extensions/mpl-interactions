@@ -128,6 +128,10 @@ intersphinx_mapping = {
 copybutton_prompt_is_regexp = True
 copybutton_prompt_text = r">>> |\.\.\. "  # doctest
 
+# Settings for linkcheck
+linkcheck_anchors = False
+linkcheck_ignore = []
+
 # Settings for myst-nb
 jupyter_execute_notebooks = "off"
 
