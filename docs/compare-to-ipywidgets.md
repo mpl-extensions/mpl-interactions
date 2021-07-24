@@ -12,11 +12,11 @@ This explanation is built on the description here: [matplotlib/ipympl#36 (commen
 
 The ipywidgets functions expect the entire output to be regenerated every time a slider value changes. This means ipywidgets functions will work best with the `inline` backend. In fact, some [special casing](https://github.com/jupyter-widgets/ipywidgets/blob/6be18d9b75353f7b4a1c328c6ea06d8959f978f6/ipywidgets/widgets/interaction.py#L230) is even available to better support the inline backend. Unfortunately this process does not work well with the interactive `ipympl` backend. The `ipympl` backend expects to be shown only once, then updated with Matplotlib methods as controls change. What results is you needing to make multiple new figures---or recreate the entire plot---every time a slider value changes.
 
-It is possible to get around these performance issues by using the `interact` function and setting the called function to use Matplotlib updating methods (such as {meth}`~matplotlib.lines.Line2D.set_data`). However in this case, not only do you need to remember how to do this, but over time you will find you are repeating yourself. Reducing these performance barriers was the initial motivation for the mpl_interactions library, and also brings us to the reason of convenience.
+It is possible to get around these performance issues by using the `interact` function and setting the called function to use Matplotlib updating methods (such as {meth}`~matplotlib.lines.Line2D.set_data`). However in this case, not only do you need to remember how to do this, but over time you will find you are repeating yourself. Reducing these performance barriers was the initial motivation for the `mpl_interactions` library, and also brings us to the reason of convenience.
 
 ## Portability
 
-mpl_interactions will make use of the widgets provided by ipywidgets if they are available. Unlike interactive output, it will still work if called from a script or an (i)python REPL by falling back to the built in Matplotlib [widgets](https://matplotlib.org/api/widgets_api.html?highlight=widgets#module-matplotlib.widgets).
+`mpl_interactions` will make use of the widgets provided by ipywidgets if they are available. Unlike interactive output, it will still work if called from a script or an (i)python REPL by falling back to the built in Matplotlib [widgets](https://matplotlib.org/api/widgets_api.html?highlight=widgets#module-matplotlib.widgets).
 
 ## Convenience
 
@@ -25,9 +25,9 @@ With the interact function (**ipywidgets.interact**) you are responsible for gen
 1. `f(x,...) => y`
 2. Plotting logic (`plt.plot`, `fig.cla`, `ax.set_ylim`, etc)
 
-In contrast, mpl_interactions only requires you specify the data you want to plot and will handle the plot creation and updating for you.
+In contrast, `mpl_interactions` only requires you specify the data you want to plot and will handle the plot creation and updating for you.
 
-Additionally, there are multiple valid strategies for choosing what selection widgets to create for a parameter. As a general framework the choices made by ipywidgets are not always ideal for plotting scientific data. Unencumbered by generality, mpl_interactions makes several slightly different choices that are more plotting focused.
+Additionally, there are multiple valid strategies for choosing what selection widgets to create for a parameter. As a general framework the choices made by ipywidgets are not always ideal for plotting scientific data. Unencumbered by generality, `mpl_interactions` makes several slightly different choices that are more plotting focused.
 
 ### Differences in generated widgets
 
@@ -37,7 +37,7 @@ Additionally, there are multiple valid strategies for choosing what selection wi
 
 #### Tuple of floats
 
-Both mpl_interactions and ipywidgets will generate a slider. However, mpl_interactions will use `numpy.linspace` and ipywidgets will use `numpy.arange`.
+Both `mpl_interactions` and ipywidgets will generate a slider. However, `mpl_interactions` will use {func}`numpy.linspace` and ipywidgets will use {func}`numpy.arange`.
 
 Here is a comparison of the generated widget for `two_tuple = (1., 5)` and `three_tuple = (0., 1250, 100)`:
 
@@ -73,9 +73,9 @@ _ = interact(f, two_tuple=(1., 5), three_tuple=(0., 1250, 100))
 
 #### NumPy array or list
 
-ipywidgets will assume a NumPy array or list are categoricals. mpl_interactions will attempt to make a slider for the values.
+ipywidgets will assume a NumPy array or list are categoricals. `mpl_interactions` will attempt to make a slider for the values.
 
-For example, here is what ipywidgets and mpl_interactions will create for `np.linspace(-5,5,100) <numpy.linspace>`:
+For example, here is what ipywidgets and `mpl_interactions` will create for {func}`np.linspace(-5,5,100) <numpy.linspace>`:
 
 **mpl_interactions**
 

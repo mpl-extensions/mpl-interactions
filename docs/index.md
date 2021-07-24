@@ -5,7 +5,7 @@ mpl_interactions' aims to make it as easy as possible to create responsive [Matp
 - Better understand a function's change with respect to a parameter.
 - Visualize your data interactively.
 
-To achieve this, mpl_interactions provides:
+To achieve this, `mpl_interactions` provides:
 
 - A way to control the output of pyplot functions (e.g. {func}`~matplotlib.pyplot.plot` and {func}`~matplotlib.pyplot.hist`) with sliders.
 - A function to compare horizontal and vertical slices of heatmaps.
@@ -19,7 +19,7 @@ To install, simply run:
 pip install mpl_interactions
 ```
 
-To also install version of `ipympl` and {doc}`ipywidgets <ipywidgets:index>` that are known to work install the optional jupyter dependencies by running:
+To also install version of [`ipympl`](https://github.com/matplotlib/ipympl) and {doc}`ipywidgets <ipywidgets:index>` that are known to work install the optional jupyter dependencies by running:
 
 ```
 pip install mpl_interactions[jupyter]
@@ -29,7 +29,7 @@ Further instructions for installation from JupyterLab can be found on the {doc}`
 
 ## Getting Help
 
-If you have a question on using this library a great place to ask it is: <https://discourse.matplotlib.org/c/3rdparty/18>. Feel free to mention `@ianhi` in your post there.
+If you have a question on using this library a great place to ask it is: <https://discourse.matplotlib.org/c/3rdparty/18>. Feel free to mention [`@ianhi`](https://github.com/ianhi) in your post there.
 
 ## Basic example
 
@@ -75,7 +75,7 @@ plt.show()
 
 ## Matplotlib backends
 
-mpl_interactions' functions will work in any Matplotlib backend. In most backends they will use the Matplotlib Slider and Radio button widgets. However, if you are working in a Jupyter notebook the [ipympl](https://github.com/matplotlib/ipympl) backend then ipywidgets sliders will be used as the controls. Further discussion of the behavior as a function of backend can be found on the {doc}`Backends` page.
+mpl_interactions' functions will work in any Matplotlib backend. In most backends they will use the Matplotlib Slider and Radio button widgets. However, if you are working in a Jupyter notebook the [`ipympl`](https://github.com/matplotlib/ipympl) backend then ipywidgets sliders will be used as the controls. Further discussion of the behavior as a function of backend can be found on the {doc}`Backends` page.
 
 _Follow the links below for further information on installation, functions, and plot examples._
 

@@ -6,7 +6,7 @@ For discussion of what a Matplotlib backend is see: <https://matplotlib.org/faq/
 
 :::
 
-All of the functions in this library will work with any interactive backend to Matplotlib. However, if you are working in a Jupyter Notebook then you should make sure to use the [ipympl](https://github.com/matplotlib/ipympl) backend. If you are using a different backend (such as `qt5agg`), then the built-in Matplotlib widgets will be used instead of the ipywidgets widgets. It is trickier to achieve a good layout of Matplotlib widgets versus ipywidgets widgets, so if in a Notebook it is best to use the ipympl backend by including the [Jupyter Magic](https://ipython.readthedocs.io/en/stable/interactive/magics.html):
+All of the functions in this library will work with any interactive backend to Matplotlib. However, if you are working in a Jupyter Notebook then you should make sure to use the [ipympl](https://github.com/matplotlib/ipympl) backend. If you are using a different backend (such as [`qt5agg`](https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends)), then the built-in Matplotlib widgets will be used instead of the ipywidgets widgets. It is trickier to achieve a good layout of Matplotlib widgets versus ipywidgets widgets, so if in a Notebook it is best to use the ipympl backend by including the [Jupyter Magic](https://ipython.readthedocs.io/en/stable/interactive/magics.html):
 
 ```python
 %matplotlib ipympl
@@ -37,7 +37,7 @@ If you want to use a non-ipympl backend in a Jupyter Notebook but still want {do
 
   ```
 
-- You can also explicitly set whether to use Matplotlib sliders or not with the `use_ipywidgets` argument {func}`.interactive_plot`. If `None` then the function will try to infer whether to use ipywidgets or not. By setting the argument to `False`, you will be able to use Matplotlib sliders in the notebook.
+- You can also explicitly set whether to use Matplotlib sliders or not with the `use_ipywidgets` argument in {func}`.interactive_plot`. If {obj}`None` then the function will try to infer whether to use ipywidgets or not. By setting the argument to {obj}`False`, you will be able to use Matplotlib sliders in the notebook.
 
   ```python
   %matplotlib ipympl

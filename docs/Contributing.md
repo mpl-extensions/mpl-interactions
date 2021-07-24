@@ -83,4 +83,4 @@ In a few seconds your web browser should open up the documentation. Now whenever
 
 ## Thank you to our current team!
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributors members can be found on mpl_interactions' [README](https://github.com/ianhi/mpl-interactions#contributors-) page.
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributors members can be found on `mpl_interactions`' [README](https://github.com/ianhi/mpl-interactions#contributors-) page.

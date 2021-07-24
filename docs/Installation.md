@@ -26,7 +26,7 @@ pip install --upgrade jupyterlab mpl-interactions[jupyter]
 
 ## Setup for JupyterLab \<= 2
 
-If you plan on using mpl_interactions in notebooks with [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/#) version 2.x or lower then you need to follow the below steps to ensure you have a fully working installation of [ipympl](https://github.com/matplotlib/ipympl). In particular you need to make sure `nodejs > 10` is available and that you have installed `jupyterlab-manager`.
+If you plan on using `mpl_interactions` in notebooks with [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/#) version 2.x or lower then you need to follow the below steps to ensure you have a fully working installation of [ipympl](https://github.com/matplotlib/ipympl). In particular, you need to make sure `nodejs > 10` is available and that you have installed [`jupyterlab-manager`](https://www.npmjs.com/package/@jupyter-widgets/jupyterlab-manager).
 
 ```bash
 pip install --upgrade ipympl
