@@ -121,6 +121,9 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
 
+# remove panels css to get wider main content
+panels_add_bootstrap_css = False
+
 # Settings for copybutton
 copybutton_prompt_is_regexp = True
 copybutton_prompt_text = r">>> |\.\.\. "  # doctest
