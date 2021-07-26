@@ -7,7 +7,7 @@ on:
   push:
     branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   test-3x:
@@ -15,23 +15,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9.x']
-        matplotlib-version: ['3.3', '3.4']
+        python-version: ["3.9.x"]
+        matplotlib-version: ["3.3", "3.4"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: 'x64'
+          architecture: "x64"
 
       - name: Get pip cache dir
         id: pip-cache
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
-  
+
       - name: pip cache
         uses: actions/cache@v2
         with:
@@ -50,4 +50,3 @@ jobs:
       - name: Tests
         run: |
           pytest --color=yes
-
