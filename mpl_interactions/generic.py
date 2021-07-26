@@ -436,6 +436,7 @@ class image_segmenter:
 
         if mask is None:
             self.mask = np.zeros(self._img.shape[:2])
+            """See :doc:`/examples/image-segmentation`."""
         else:
             self.mask = mask
 

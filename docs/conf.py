@@ -53,7 +53,6 @@ subprocess.call(
             "--separate",
             "../mpl_interactions/",
             # excluded modules
-            "../*/controller.py",
             "../*/helpers.py",
             "../*/ipyplot.py",
             "../*/mpl_kwargs.py",
@@ -71,14 +70,14 @@ subprocess.call(
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "jupyter_sphinx",
+    "myst_nb",
+    "numpydoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.mathjax",
     "sphinx.ext.linkcode",
+    "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
-    "numpydoc",
-    "jupyter_sphinx",
-    "nbsphinx",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
 ]
@@ -92,35 +91,6 @@ sphinx_gallery_conf = {
     "ignore_pattern": "/_.*",  # https://www.debuggex.com/
     "image_scrapers": (matplotlib_scraper),
 }
-
-
-# prolog taken nearly verbatim from https://github.com/spatialaudio/nbsphinx/blob/98005a9d6b331b7d6d14221539154df69f7ae51a/doc/conf.py#L38
-nbsphinx_prolog = r"""
-{% set docname = env.doc2path(env.docname, base=None) %}
-
-.. raw:: html
-
-    <div class="admonition note">
-      This page was generated from
-      <a class="reference external" href="https://github.com/ianhi/mpl-interactions/blob/{{ env.config.release|e }}/{{ docname|e }}">{{ docname|e }}</a>.
-      Interactive online version:
-      (Warning: The interactions will be much laggier on Binder than on your computer.)
-      <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/ianhi/mpl-interactions/{{ env.config.release|e }}?filepath={{ docname|e }}"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg" style="vertical-align:text-bottom"></a>.</span>
-    </div>
-
-.. raw:: latex
-
-    \nbsphinxstartnotebook{\scriptsize\noindent\strut
-    \textcolor{gray}{The following section was generated from
-    \sphinxcode{\sphinxupquote{\strut {{ docname | escape_latex }}}} \dotfill}}
-"""
-
-nbsphinx_execute = "never"
-# nbsphinx_allow_errors = True
-
-# ensure widget output is not duplicated
-# see https://github.com/spatialaudio/nbsphinx/issues/378
-nbsphinx_widgets_path = ""
 
 # API settings
 autodoc_default_options = {
@@ -154,6 +124,29 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
 
+# Settings for copybutton
+copybutton_prompt_is_regexp = True
+copybutton_prompt_text = r">>> |\.\.\. "  # doctest
+
+# Settings for linkcheck
+linkcheck_anchors = False
+linkcheck_ignore = []
+
+# Settings for myst-nb
+jupyter_execute_notebooks = "off"
+
+# Settings for myst-parser
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "dollarmath",
+    "smartquotes",
+    "substitution",
+]
+suppress_warnings = [
+    "myst.header",
+]
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -173,6 +166,7 @@ exclude_patterns = [
     "examples/non-ipympl-backends.ipynb",
     "gallery/*.ipynb",
     "gallery/*.md5",
+    "gallery/*.md",
     "gallery/*.py",
 ]
 

@@ -1,0 +1,29 @@
+# https://github.com/ComPWA/ampform/blob/ac2579db1bb6c30690b10ffa1c38e8a35b9b46da/.github/workflows/linkcheck.yml
+name: Linkcheck
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  check_links:
+    name: Check external links
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[doc]
+      - name: Check external links
+        working-directory: docs
+        run: make ignore-warnings=1 linkcheck
