@@ -47,7 +47,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/kmdalton"><img src="https://avatars2.githubusercontent.com/u/2790777?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kevin Dalton</b></sub></a><br /><a href="#userTesting-kmdalton" title="User Testing">📓</a></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/redeboer"><img src="https://avatars.githubusercontent.com/u/29308176?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Remco de Boer</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=redeboer" title="Code">💻</a> <a href="#userTesting-redeboer" title="User Testing">📓</a></td>
+    <td align="center"><a href="https://github.com/redeboer"><img src="https://avatars.githubusercontent.com/u/29308176?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Remco de Boer</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=redeboer" title="Code">💻</a> <a href="#userTesting-redeboer" title="User Testing">📓</a> <a href="https://github.com/ianhi/mpl-interactions/commits?author=redeboer" title="Documentation">📖</a></td>
   </tr>
 </table>
 
