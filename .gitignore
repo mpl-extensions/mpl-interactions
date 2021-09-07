@@ -130,5 +130,16 @@ dmypy.json
 
 *.swp
 
-# Test output
-animation-*.gif
+_build
+
+# autoapi stuff - may be bad to ignore this idk
+autoapi
+
+# notebooks in the docs folder
+# this is to enable the madness with adding gifs
+docs/examples/tidbits/*.ipynb
+docs/examples/*.ipynb
+docs/examples/*.gif
+docs/*.ipynb
+docs/gallery
+
