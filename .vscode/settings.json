@@ -20,5 +20,5 @@
   "python.formatting.provider": "black",
   "python.languageServer": "Pylance",
   "python.linting.enabled": false,
-  "python.analysis.completeFunctionParens": true
+  "python.testing.pytestEnabled": true
 }

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import ipywidgets as widgets
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,7 +30,7 @@ def test_eager_register():
     assert len(zoop) == 2
 
 
-def test_save_animation():
+def test_save_animation(tmp_path: Path):
     # just test that no errors are thrown, don't actually check
     # that the saved animation makes any sense. Doing that seems hard :(
     x = np.linspace(0, np.pi, 100)
@@ -50,6 +52,6 @@ def test_save_animation():
     iplt.plot(x, f1, ax=ax, controls=ctrls)
     iplt.plot(x, f2, ax=ax, controls=ctrls)
 
-    ctrls.save_animation("animation-amp.gif", fig, "amp", N_frames=10)
-    ctrls.save_animation("animation-beta.gif", fig, "beta")
-    ctrls.save_animation("animation-tau.gif", fig, "tau")
+    ctrls.save_animation(str(tmp_path / "animation-amp.gif"), fig, "amp", N_frames=10)
+    ctrls.save_animation(str(tmp_path / "animation-beta.gif"), fig, "beta")
+    ctrls.save_animation(str(tmp_path / "animation-tau.gif"), fig, "tau")

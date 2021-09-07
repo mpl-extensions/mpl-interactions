@@ -41,8 +41,7 @@ def test_image_segmentation():
         "https://github.com/matplotlib/matplotlib/raw/v3.3.0/lib/matplotlib/mpl-data/sample_data/ada.png"
     )
     script_dir = realpath(dirname(__file__))
-    mask_file = "examples/ada-mask.npy"
-    mask = np.load(f"{script_dir}/../../docs/{mask_file}")
+    mask = np.load(f"{script_dir}/../docs/examples/ada-mask.npy")
     preloaded = image_segmenter(image, nclasses=3, mask=mask)
 
     return preloaded.fig
