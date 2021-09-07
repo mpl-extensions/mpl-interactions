@@ -16,7 +16,7 @@ prune docs/dist
 prune docs/docs
 
 # Examples
-graft examples
+graft docs/examples
 
 # Tests
 graft tests

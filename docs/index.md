@@ -25,7 +25,7 @@ To also install version of [`ipympl`](https://github.com/matplotlib/ipympl) and 
 pip install mpl_interactions[jupyter]
 ```
 
-Further instructions for installation from JupyterLab can be found on the {doc}`Installation` page.
+Further instructions for installation from JupyterLab can be found on the {doc}`install` page.
 
 ## Getting Help
 
@@ -75,26 +75,26 @@ plt.show()
 
 ## Matplotlib backends
 
-mpl_interactions' functions will work in any Matplotlib backend. In most backends they will use the Matplotlib Slider and Radio button widgets. However, if you are working in a Jupyter notebook the [`ipympl`](https://github.com/matplotlib/ipympl) backend then ipywidgets sliders will be used as the controls. Further discussion of the behavior as a function of backend can be found on the {doc}`Backends` page.
+mpl_interactions' functions will work in any Matplotlib backend. In most backends they will use the Matplotlib Slider and Radio button widgets. However, if you are working in a Jupyter notebook the [`ipympl`](https://github.com/matplotlib/ipympl) backend then ipywidgets sliders will be used as the controls. Further discussion of the behavior as a function of backend can be found on the {doc}`backends` page.
 
 _Follow the links below for further information on installation, functions, and plot examples._
 
 ```{toctree}
 :maxdepth: 3
 
-Installation
-Backends
-compare-to-ipywidgets
-API <autoapi/mpl_interactions>
+install
+backends
+comparison
+API <api/mpl_interactions>
 gallery/index
-Contributing
+contributing
 ```
 
 ```{toctree}
 :caption: Tutorials
 :maxdepth: 1
 
-examples/Usage-Guide.ipynb
+examples/usage.ipynb
 examples/mpl-sliders.ipynb
 examples/custom-callbacks.ipynb
 examples/animations.ipynb
@@ -122,7 +122,7 @@ examples/heatmap-slicer.ipynb
 :caption: Showcase
 :maxdepth: 1
 
-examples/Lotka-Volterra.ipynb
+examples/lotka-volterra.ipynb
 examples/rossler-attractor.ipynb
 ```
 

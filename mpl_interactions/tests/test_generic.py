@@ -1,3 +1,5 @@
+from os.path import dirname, realpath
+
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,10 +40,9 @@ def test_image_segmentation():
     image = plt.imread(
         "https://github.com/matplotlib/matplotlib/raw/v3.3.0/lib/matplotlib/mpl-data/sample_data/ada.png"
     )
-    try:
-        mask = np.load("../../examples/ada-mask.npy")
-    except FileNotFoundError:
-        mask = np.load("examples/ada-mask.npy")
+    script_dir = realpath(dirname(__file__))
+    mask_file = "examples/ada-mask.npy"
+    mask = np.load(f"{script_dir}/../../docs/{mask_file}")
     preloaded = image_segmenter(image, nclasses=3, mask=mask)
 
     return preloaded.fig

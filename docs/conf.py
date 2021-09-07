@@ -17,16 +17,10 @@ import shutil
 import subprocess
 import sys
 
-import sphinx_rtd_theme
-
 import mpl_interactions as mpl_inter
 
 sys.path.insert(0, os.path.abspath("../mpl_interactions"))
 sys.path.insert(0, os.path.abspath("."))
-from gifmaker import gogogo_all
-
-gogogo_all("../examples", "examples/")
-gogogo_all("../examples/tidbits", "examples/tidbits/")
 
 release = mpl_inter.__version__
 
@@ -40,8 +34,8 @@ author = "Ian Hunt-Isaak"
 # The full version, including alpha/beta/rc tags
 
 # -- Generate API ------------------------------------------------------------
-api_folder_name = "autoapi"
-shutil.rmtree(api_folder_name, ignore_errors=True)
+api_folder_name = "api"
+shutil.rmtree(api_folder_name, ignore_errors=True)  # in case of new or renamed modules
 subprocess.call(
     " ".join(
         [
@@ -80,12 +74,15 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx_gallery.gen_gallery",
+    "sphinx_panels",
+    "sphinx_thebe",
+    "sphinx_togglebutton",
 ]
 
 from mpl_playback.scraper import matplotlib_scraper
 
 sphinx_gallery_conf = {
-    "examples_dirs": "../examples/gallery",  # path to your example scripts
+    "examples_dirs": "examples/gallery",  # path to your example scripts
     "gallery_dirs": "gallery",  # path to where to save gallery generated output
     "filename_pattern": "/.*",
     "ignore_pattern": "/_.*",  # https://www.debuggex.com/
@@ -124,6 +121,9 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
 
+# remove panels css to get wider main content
+panels_add_bootstrap_css = False
+
 # Settings for copybutton
 copybutton_prompt_is_regexp = True
 copybutton_prompt_text = r">>> |\.\.\. "  # doctest
@@ -133,7 +133,14 @@ linkcheck_anchors = False
 linkcheck_ignore = []
 
 # Settings for myst-nb
+execution_excludepatterns = [
+    "examples/devlop/*",
+]
+execution_timeout = -1
 jupyter_execute_notebooks = "off"
+if "EXECUTE_NB" in os.environ:
+    print("\033[93;1mWill run Jupyter notebooks!\033[0m")
+    jupyter_execute_notebooks = "force"
 
 # Settings for myst-parser
 myst_enable_extensions = [
@@ -147,11 +154,6 @@ suppress_warnings = [
     "myst.header",
 ]
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -163,6 +165,8 @@ exclude_patterns = [
     ".DS_Store",
     "Thumbs.db",
     "_build",
+    "examples/devlop",
+    "examples/gallery",
     "examples/non-ipympl-backends.ipynb",
     "gallery/*.ipynb",
     "gallery/*.md5",
@@ -176,22 +180,36 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
+html_copy_source = True  # needed for download notebook button
+html_css_files = [
+    "custom.css",
+]
+html_sourcelink_suffix = ""
+html_static_path = ["_static"]
+html_theme = "sphinx_book_theme"
 html_theme_options = {
-    # Toc options
-    "collapse_navigation": False,
-    "sticky_navigation": True,
-    "navigation_depth": 4,
+    "launch_buttons": {
+        "binderhub_url": "https://mybinder.org",
+        "colab_url": "https://colab.research.google.com",
+        "notebook_interface": "jupyterlab",
+        "thebe": True,
+        "thebelab": True,
+    },
+    "path_to_docs": "docs",
+    "repository_branch": "master",
+    "repository_url": "https://github.com/ianhi/mpl-interactions",
+    "use_download_button": True,
+    "use_edit_page_button": True,
+    "use_issues_button": True,
+    "use_repository_button": True,
 }
-
+html_title = "mpl-interactions"
 
 master_doc = "index"
-
-
-def setup(app):
-    app.add_css_file("custom.css")
+thebe_config = {
+    "repository_url": html_theme_options["repository_url"],
+    "repository_branch": html_theme_options["repository_branch"],
+}
 
 
 # based on pandas/doc/source/conf.py
