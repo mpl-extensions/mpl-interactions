@@ -120,3 +120,18 @@ def test_imshow_scalars():
 
     fig, ax = plt.subplots()
     iplt.imshow(mask, min_distance=(1, 10), alpha=(0, 1))
+
+
+def test_title():
+    fig, ax = plt.subplots()
+    ctrls = iplt.plot(1, 1, E=3e7)
+    expected = "E=3.00e+07"
+    iplt.title("E={E:.2e}", controls=ctrls)
+    assert not isinstance(ctrls.params["E"], np.ndarray)
+    assert ax.get_title() == expected
+    plt.close()
+    fig, ax = plt.subplots()
+    ctrls = iplt.plot(1, 1, E=np.array([3e7, 3e9]))
+    iplt.title("E={E:.2e}", controls=ctrls)
+    assert ax.get_title() == expected
+    plt.close()

@@ -357,7 +357,7 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
             raise ValueError(f"{key} is {val.ndim}D but can only be 1D or a scalar")
         if len(val) == 1:
             # don't need to create a slider
-            return val, None
+            return val[0], None
         else:
             # params[key] = val[0]
             label = widgets.Label(value=slider_format_string.format(val[0]))
