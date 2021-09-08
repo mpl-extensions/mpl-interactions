@@ -43,10 +43,12 @@ jobs:
 
       - name: Install
         run: |
-          pip install wheel
+          pip install wheel pytest-cov
           pip install matplotlib==${{ matrix.matplotlib-version}}.*
           pip install ".[jupyter, test]"
 
       - name: Tests
-        run: |
-          pytest --color=yes
+        run: pytest -v --color=yes --cov=mpl_interactions --cov-report=xml
+
+      - name: Coverage
+        uses: codecov/codecov-action@v2
