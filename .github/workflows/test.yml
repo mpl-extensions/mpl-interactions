@@ -45,7 +45,7 @@ jobs:
         run: |
           pip install wheel pytest-cov
           pip install matplotlib==${{ matrix.matplotlib-version}}.*
-          pip install ".[jupyter, test]"
+          pip install -e ".[jupyter, test]"
 
       - name: Tests
         run: pytest -v --color=yes --cov=mpl_interactions --cov-report=xml
