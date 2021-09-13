@@ -10,7 +10,7 @@ repos:
       - id: isort
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.0.0
+    rev: 1.1.1
     hooks:
       - id: nbqa-black
       - id: nbqa-isort
@@ -21,6 +21,6 @@ repos:
       - id: nbstripout
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.3.2
+    rev: v2.4.0
     hooks:
       - id: prettier
