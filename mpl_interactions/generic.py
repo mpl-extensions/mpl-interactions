@@ -33,14 +33,12 @@ def heatmap_slicer(
     heatmaps,
     slices="horizontal",
     heatmap_names=None,
-    cmap=None,
-    vmin=None,
-    vmax=None,
-    figsize=(18, 9),
     linecolor="k",
     labels=("X", "Y"),
     interaction_type="move",
     fig=None,
+    figsize=(18, 9),
+    **pcolormesh_kwargs,
 ):
 
     """
@@ -57,11 +55,6 @@ def heatmap_slicer(
     heatmap_names : (String, String, ...)
         An iterable with the names of the heatmaps. If provided it must have as many names
         as there are heatmaps
-    cmap : str or Colormap, optional
-        A Colormap instance or registered colormap name.
-    vmin, vmax : float, optional
-        The colorbar range. If None, suitable min/max values are automatically chosen
-        by the Normalize instance.
     figsize : tuple of number, default: (18, 9)
         The size of the created figure. Ignored if *fig* is not None.
     linecolor : colorlike, default: 'k'
@@ -74,6 +67,8 @@ def heatmap_slicer(
         The figure to use for the heatmap_slicer. Useful when embedding into a gui.
         If you are embedding into a gui make sure you set up the gui canvas first
         and then pass the figure to this function
+    **pcolormesh_kwargs
+        kwargs passed to ``ax.pcolormesh``.
 
     Returns
     -------
@@ -127,12 +122,12 @@ def heatmap_slicer(
     # mpl pcolormesh from version 3.3+ handles len(X), len(Y) equal to Z shape
     # differently than <2. (Unquestionably better, but different enough to justify a shim)
     # https://github.com/matplotlib/matplotlib/pull/16258
-    shading = "auto"
+    shading = pcolormesh_kwargs.pop("shading", "auto")
 
     x_centered = X[:-1] + (X[1:] - X[:-1]) / 2
     y_centered = Y[:-1] + (Y[1:] - Y[:-1]) / 2
     for i, ax in enumerate(axes[:-num_line_axes]):
-        ax.pcolormesh(X, Y, heatmaps[i], cmap=cmap, vmin=vmin, vmax=vmax, shading=shading)
+        ax.pcolormesh(X, Y, heatmaps[i], shading=shading, **pcolormesh_kwargs)
         ax.set_xlabel(labels[0])
         ax.set_title(heatmap_names[i])
         hmap_shape = asanyarray(heatmaps[i]).shape
