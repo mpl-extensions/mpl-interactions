@@ -32,7 +32,7 @@ class Controls:
         play_button_pos="right",
         use_ipywidgets=None,
         use_cache=True,
-        **kwargs
+        **kwargs,
     ):
         # it might make sense to also accept kwargs as a straight up arg
         # to allow for passing the dictionary, but then it would need a different name
@@ -234,22 +234,6 @@ class Controls:
                     # also should probably register a close_event callback to remove
                     # the figure
 
-    def __getitem__(self, key):
-        """
-        hack to allow calls like
-        interactive_plot(...beta=(0,1), controls = controls["tau"])
-        also allows [None] to grab None of the current params
-        to imply that we only want tau from the existing set of commands
-        """
-
-        # make sure keys is a list
-        # bc in gogogo_controls it may get added to another list
-        if isinstance(key, str):
-            key = [key]
-        elif key is None:
-            key = []
-        return self, key
-
     def save_animation(
         self, filename, fig, param, interval=20, func_anim_kwargs={}, N_frames=None, **kwargs
     ):
@@ -342,6 +326,58 @@ class Controls:
     def _ipython_display_(self):
         ipy_display(self.vbox)
 
+    def __getitem__(self, key):
+        """
+        hack to allow calls like
+        interactive_plot(...beta=(0,1), controls = controls["tau"])
+        also allows [None] to grab None of the current params
+        to imply that we only want tau from the existing set of commands
+
+        I think ideally this would give another controls object with just the given
+        params that has this one as a parent - I think that that is most consistent with
+        the idea of indexing (e.g. indexing a numpy array gives you a numpy array).
+        But it's not clear how to implement that with all the sliders and such that get
+        created. So for now do a sort of half-measure by returing the controls_proxy object.
+        """
+
+        # make sure keys is a list
+        # bc in gogogo_controls it may get added to another list
+        keys = key
+        if isinstance(key, str):
+            keys = [key]
+        if keys is not None:
+            for k in keys:
+                if k not in self.params:
+                    raise IndexError(f"{k} is not a param in this Controls object.")
+
+        return _controls_proxy(self, context=False, keys=keys)
+
+    def __enter__(self):
+        self._context = _controls_proxy(self, context=True, keys=list(self.params.keys()))
+        return self._context
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._context._stack.remove(self._context)
+
+
+class _controls_proxy:
+    _stack = []
+
+    def __init__(self, ctrl, context, keys=None):
+        self.ctrl = ctrl
+        if keys is None:
+            self.keys = []
+        else:
+            self.keys = keys
+        if context:
+            self.__enter__()
+
+    def __enter__(self):
+        self._stack.append(self)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._stack.remove(self)
+
 
 def gogogo_controls(
     kwargs,
@@ -352,50 +388,58 @@ def gogogo_controls(
     extra_controls=None,
     allow_dupes=False,
 ):
-    if controls or (extra_controls and not all([e is None for e in extra_controls])):
-        if extra_controls is not None:
-            if isinstance(controls, Controls):
-                # e.g. plt.scatter(x,y, s=ctrls['size'], controls=ctrls)
-                # so now we pretend as if the controls object was indexed with all of its
-                # parameters
-                controls = (controls, list(controls.params.keys()))
-            controls = [controls] + extra_controls
-
-        if isinstance(controls, tuple):
-            # it was indexed by the user when passed in
-            extra_keys = controls[1]
-            controls = controls[0]
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
-            params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
-        elif isinstance(controls, list):
-            # collected from extra controls
-            ctrls = []
-            kwgs = []
-            for c in controls:
-                if c is not None:
-                    # c[0] is a controls object
-                    ctrls.append(c[0])
-                    if c[1] is not None:
-                        # at this point c[1] is a list of the the values indexed from controls
-                        kwgs += [*c[1]]
-            extra_keys = set(kwgs)
-            controls = set(ctrls)
-            if len(controls) != 1:
-                raise ValueError("Only one controls object may be used per function")
-            # now we are garunteed to only have a single entry in controls, so it's ok to pop
-            controls = controls.pop()
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
-            params = {k: controls.params[k] for k in list(kwargs.keys()) + list(extra_keys)}
+    # check if we're in a controls context manager
+    if len(_controls_proxy._stack) > 0:
+        ctrl_context = _controls_proxy._stack[-1]
+        if extra_controls is None:
+            extra_controls = [ctrl_context]
         else:
-            controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
-            params = controls.params
-        return controls, params
+            extra_controls.append[ctrl_context]
+
+    # Squash controls + extra_controls and make sure we have a unique controller object
+
+    # first check whether we go an argument of controls = controls
+    # or somethign like controls=controls['param1', 'param2']
+    if isinstance(controls, Controls):
+        ctrls = [controls]
+        keys = list(controls.params.keys())
+    elif isinstance(controls, _controls_proxy):
+        ctrls = [controls.ctrl]
+        keys = list(controls.keys)
     else:
+        ctrls = []
+        keys = []
+
+    # loop over extra_controls to collect all of them
+    if extra_controls is not None:
+        for ec in extra_controls:
+            if isinstance(ec, _controls_proxy):
+                # e.g. indexed ctrls for scalar arg
+                # or in context manager
+                ctrls.append(ec.ctrl)
+                keys.extend(ec.keys)
+            elif isinstance(ec, Controls):
+                # I don't think we should ever get here?
+                # if we do not sure what should be happening with the keys
+                ctrls.append(ec)
+    ctrls = set(ctrls)
+    keys = set(keys + list(kwargs.keys()))
+
+    if len(ctrls) > 1:
+        raise ValueError("Only one controls object may be used per function")
+
+    # now we are garunteed to only have either no controls and must make one
+    # or have a single controls object that we should add to.
+    if None in ctrls or len(ctrls) == 0:
         controls = Controls(slider_formats=slider_formats, play_buttons=play_buttons, **kwargs)
         params = controls.params
         if display_controls:
             controls.display()
-        return controls, params
+    else:
+        controls = ctrls.pop()
+        controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+        params = {k: controls.params[k] for k in keys}
+    return controls, params
 
 
 def _gen_f(key):
@@ -460,24 +504,19 @@ def prep_scalars(kwarg_dict, **kwargs):
     added_kwargs = []
 
     for name, arg in kwargs.items():
-        if isinstance(arg, tuple):
-            if isinstance(arg[0], Controls):
-                # index controls. e.g. ctrls['size']
-                # arg looks like (controls, ['size'])
+        if isinstance(arg, tuple) and name is not None:
+            # name will be set by calling function if from ipyplot
+            # this case is if given an abbreviation e.g.: `s = (0, 10)`
 
-                # factory function to avoid scoping shenanigans
+            kwargs[name] = _gen_f(name)
 
-                extra_ctrls.append(arg)
-                kwargs[name] = _gen_f(arg[1][0])
-            elif name is not None:
-                # name will be set by calling function if from ipyplot
-                # this case is if given an abbreviation e.g.: `s = (0, 10)`
-
-                kwargs[name] = _gen_f(name)
-
-                # Modify the calling functions kwargs in place to add the arg
-                kwarg_dict[name] = arg
-                added_kwargs.append(name)
+            # Modify the calling functions kwargs in place to add the arg
+            kwarg_dict[name] = arg
+            added_kwargs.append(name)
+        elif isinstance(arg, _controls_proxy) and len(arg.keys) == 1:
+            # indexed controls. e.g. ctrls['vmin']
+            kwargs[name] = _gen_f(arg.keys[0])
+            extra_ctrls.append(arg)
 
     if len(added_kwargs) == 0:
         # shortcircuit options

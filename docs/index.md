@@ -95,6 +95,7 @@ contributing
 :maxdepth: 1
 
 examples/usage.ipynb
+examples/context.ipynb
 examples/mpl-sliders.ipynb
 examples/custom-callbacks.ipynb
 examples/animations.ipynb
