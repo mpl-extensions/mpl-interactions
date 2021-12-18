@@ -83,6 +83,15 @@
         "userTesting",
         "doc"
       ]
+    },
+    {
+      "login": "samwelborn",
+      "name": "samwelborn",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55868530?v=4",
+      "profile": "https://github.com/samwelborn",
+      "contributions": [
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
