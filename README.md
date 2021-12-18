@@ -1,9 +1,7 @@
 # mpl_interactions
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
-
+[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![PyPI package](https://badge.fury.io/py/mpl-interactions.svg)](https://pypi.org/project/mpl-interactions)
@@ -60,6 +58,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/redeboer"><img src="https://avatars.githubusercontent.com/u/29308176?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Remco de Boer</b></sub></a><br /><a href="https://github.com/ianhi/mpl-interactions/commits?author=redeboer" title="Code">💻</a> <a href="#userTesting-redeboer" title="User Testing">📓</a> <a href="https://github.com/ianhi/mpl-interactions/commits?author=redeboer" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/samwelborn"><img src="https://avatars.githubusercontent.com/u/55868530?v=4?s=100" width="100px;" alt=""/><br /><sub><b>samwelborn</b></sub></a><br /><a href="#userTesting-samwelborn" title="User Testing">📓</a></td>
   </tr>
 </table>
 
