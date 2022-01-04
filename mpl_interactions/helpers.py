@@ -12,10 +12,9 @@ try:
 except ImportError:
     pass
 from matplotlib import get_backend
-from matplotlib.pyplot import axes, figure, gca, gcf
+from matplotlib.pyplot import axes, figure, gca, gcf, ioff
 from numpy.distutils.misc_util import is_sequence
 
-from .utils import ioff
 from .widgets import RangeSlider
 
 __all__ = [
@@ -474,7 +473,7 @@ def create_mpl_controls_fig(kwargs):
     gap_height = 0
     if not all(map(lambda x: isinstance(x, mwidgets.AxesWidget), kwargs.values())):
         # if the only kwargs are existing matplotlib widgets don't make a new figure
-        with ioff:
+        with ioff():
             fig = figure()
         size = fig.get_size_inches()
         fig_h = widget_inches
@@ -677,7 +676,7 @@ def gogogo_figure(ipympl, ax=None):
     """
     if ax is None:
         if ipympl:
-            with ioff:
+            with ioff():
                 ax = gca()
                 fig = ax.get_figure()
         else:

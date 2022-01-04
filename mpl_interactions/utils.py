@@ -1,5 +1,6 @@
 """Functions that make some features in Matplotlib a bit more convenient."""
 
+import warnings
 from collections.abc import Iterable
 
 import numpy as np
@@ -7,6 +8,8 @@ from matplotlib import interactive, is_interactive
 from matplotlib.pyplot import figure as mpl_figure
 from matplotlib.pyplot import install_repl_displayhook, rcParams, uninstall_repl_displayhook
 from numpy import abs, argmin, asarray, take
+
+from .deprecations import mpl_interactions_DeprecationWarning
 
 __all__ = [
     "figure",
@@ -25,6 +28,11 @@ class _ioff_class:
 
     def __call__(self):
         """Turn the interactive mode off."""
+        warnings.warn(
+            "ioff is deprecated in mpl-interactions. Please use `with plt.ioff():` directly from matplotlib instead.",
+            mpl_interactions_DeprecationWarning,
+            3,
+        )
         interactive(False)
         uninstall_repl_displayhook()
 
