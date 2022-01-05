@@ -26,3 +26,22 @@ repos:
     rev: v2.4.0
     hooks:
       - id: prettier
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-typing-imports==1.7.0]
+
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        args:
+          [
+            "--in-place",
+            "--remove-all-unused-imports",
+            "--ignore-init-module-imports",
+            "--remove-unused-variables",
+            "--exclude mpl_interactions/ipyplot.py",
+          ]
