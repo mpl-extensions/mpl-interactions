@@ -13,7 +13,13 @@ from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 
 from .controller import gogogo_controls, prep_scalars
-from .helpers import *
+from .helpers import (
+    callable_else_value,
+    callable_else_value_no_cast,
+    create_slider_format_dict,
+    gogogo_figure,
+    notebook_backend,
+)
 from .utils import figure, nearest_idx
 from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
@@ -246,7 +252,7 @@ def zoom_factory(ax, base_scale=1.1):
     orig_center = ((orig_xlim[0] + orig_xlim[1]) / 2, (orig_ylim[0] + orig_ylim[1]) / 2)
 
     def zoom_fun(event):
-        if not event.inaxes is ax:
+        if event.inaxes is not ax:
             return
         # get the current x and y limits
         cur_xlim = ax.get_xlim()
@@ -492,7 +498,7 @@ class image_segmenter:
         self.fig.canvas.draw_idle()
 
     def _ipython_display_(self):
-        display(self.fig.canvas)
+        display(self.fig.canvas)  # noqa: F405, F821
 
 
 def hyperslicer(
@@ -676,7 +682,7 @@ def hyperslicer(
             name = names[i]
         name_to_dim[name] = i
 
-        if not name in kwargs:
+        if name not in kwargs:
             slider_format_strings[name] = "{:.0f}"
             kwargs[name] = np.arange(arr.shape[i])
 

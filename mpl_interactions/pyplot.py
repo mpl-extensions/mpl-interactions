@@ -589,7 +589,7 @@ def interactive_scatter(
 
     def check_callable_alpha(alpha_, params, cache):
         if isinstance(alpha_, Callable):
-            if not alpha_ in cache:
+            if alpha_ not in cache:
                 cache[alpha_] = alpha_(**param_excluder(params, "alpha"))
             return cache[alpha_]
         else:

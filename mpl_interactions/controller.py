@@ -284,7 +284,7 @@ class Controls:
             step = slider.step
         else:
             raise NotImplementedError(
-                "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
+                "Cannot save animation for slider of type {slider.__class__.__name__}"
             )
 
         N = int((max_ - min_) / step)
