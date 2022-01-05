@@ -17,6 +17,8 @@ import shutil
 import subprocess
 import sys
 
+from mpl_playback.scraper import matplotlib_scraper
+
 import mpl_interactions as mpl_inter
 
 sys.path.insert(0, os.path.abspath("../mpl_interactions"))
@@ -79,7 +81,6 @@ extensions = [
     "sphinx_togglebutton",
 ]
 
-from mpl_playback.scraper import matplotlib_scraper
 
 sphinx_gallery_conf = {
     "examples_dirs": "examples/gallery",  # path to your example scripts

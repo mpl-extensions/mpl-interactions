@@ -102,7 +102,7 @@ def is_jagged(seq):
                 lens.append(len(y))
             except TypeError:
                 return True
-        if not all(lens[0] == l for l in lens):
+        if not all(lens[0] == l for l in lens):  # noqa: E741
             return True
     return False
 
@@ -185,7 +185,7 @@ def callable_else_value(arg, params, cache=None):
     """
     if isinstance(arg, Callable):
         if cache:
-            if not arg in cache:
+            if arg not in cache:
                 cache[arg] = np.asanyarray(arg(**params))
             return cache[arg]
         else:
@@ -200,7 +200,7 @@ def callable_else_value_no_cast(arg, params, cache=None):
     """
     if isinstance(arg, Callable):
         if cache:
-            if not arg in cache:
+            if arg not in cache:
                 cache[arg] = arg(**params)
             return cache[arg]
         else:
@@ -212,7 +212,7 @@ def callable_else_value_wrapper(arg, params, cache=None):
     def f(params):
         if isinstance(arg, Callable):
             if cache:
-                if not arg in cache:
+                if arg not in cache:
                     cache[arg] = np.asanyarray(arg(**params))
                 return cache[arg]
             else:
@@ -407,7 +407,7 @@ def changeify(val, update):
 
 
 def changeify_radio(val, labels, update):
-    """
+    r"""
     matplolib radio buttons don't keep track what index is selected. So this
     figures out what the index is
     made a whole function bc its easier to use with partial then
@@ -416,7 +416,7 @@ def changeify_radio(val, labels, update):
     radio button has multiple identical values but that's wildly niche
     and also probably means they're doing something they shouldn't. So: ¯\_(ツ)_/¯
     """
-    update({"new": labels.index(value)})
+    update({"new": labels.index(val)})
 
 
 def create_mpl_controls_fig(kwargs):
@@ -452,7 +452,7 @@ def create_mpl_controls_fig(kwargs):
                 n_opts += new_opts
         elif (
             not isinstance(val, mwidgets.AxesWidget)
-            and not "ipywidgets" in str(val.__class__)  # do this to avoid depending on ipywidgets
+            and "ipywidgets" not in str(val.__class__)  # do this to avoid depending on ipywidgets
             and isinstance(val, Iterable)
             and len(val) > 1
         ):

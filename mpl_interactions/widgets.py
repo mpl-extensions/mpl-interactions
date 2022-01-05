@@ -52,7 +52,7 @@ class scatter_selector(AxesWidget):
             y = self._y[idx]
             self._process(idx, (x, y))
 
-    def _process(idx, val):
+    def _process(self, idx, val):
         self._observers.process("picked", idx, val)
 
     def on_changed(self, func):

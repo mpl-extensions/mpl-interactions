@@ -123,6 +123,6 @@ def get_hs_fmts(xarr, units=None, is_color_image=False):
         if units is not None and units[i] is not None:
             try:
                 fmt_strs[d] += " {}".format(units[i])
-            except:
+            except KeyError:
                 continue
     return fmt_strs
