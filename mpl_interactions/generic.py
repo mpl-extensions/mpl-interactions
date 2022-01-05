@@ -8,13 +8,13 @@ import numpy as np
 from matplotlib import get_backend
 from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
-from matplotlib.pyplot import close, subplots
+from matplotlib.pyplot import close, ioff, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min, swapaxes
 
 from .controller import gogogo_controls, prep_scalars
 from .helpers import *
-from .utils import figure, ioff, nearest_idx
+from .utils import figure, nearest_idx
 from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
 # functions that are methods
@@ -447,7 +447,7 @@ class image_segmenter:
             self.ax = ax
             self.fig = self.ax.figure
         else:
-            with ioff:
+            with ioff():
                 self.fig = figure(figsize=figsize)
                 self.ax = self.fig.gca()
         self.displayed = self.ax.imshow(self._img, **kwargs)
