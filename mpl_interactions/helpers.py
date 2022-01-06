@@ -12,7 +12,7 @@ try:
 except ImportError:
     pass
 from matplotlib import get_backend
-from matplotlib.pyplot import axes, figure, gca, gcf, ioff
+from matplotlib.pyplot import figure, gca, gcf, ioff
 from numpy.distutils.misc_util import is_sequence
 
 from .widgets import RangeSlider
@@ -281,7 +281,6 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
         returned then control will be *None*
     """
 
-    init_val = 0
     control = None
     if isinstance(val, set):
         if len(val) == 1:
@@ -574,10 +573,8 @@ def kwarg_to_mpl_widget(
 
     # widget_y = 0.05
     slider_ax = []
-    sliders = []
     radio_ax = []
     radio_buttons = []
-    cbs = []
     if isinstance(val, set):
         if len(val) == 1:
             val = val.pop()
@@ -602,7 +599,6 @@ def kwarg_to_mpl_widget(
         return val, widget, cb, widget_y
     else:
         slider = None
-        update_fxn = None
         if isinstance(val, tuple) and val[0] in ["r", "range", "rang", "rage"]:
             if isinstance(val[1], (np.ndarray, list)):
                 vals = val[1]

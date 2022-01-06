@@ -5,7 +5,6 @@ try:
     _not_ipython = False
 except ImportError:
     _not_ipython = True
-    pass
 from collections import defaultdict
 from collections.abc import Iterable
 from functools import partial

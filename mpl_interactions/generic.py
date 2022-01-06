@@ -1,16 +1,14 @@
 """Functions that will be useful irrespective of backend."""
 
-import warnings
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 
-import matplotlib.cm as cm
 import numpy as np
 from matplotlib import get_backend
 from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
 from matplotlib.pyplot import close, ioff, subplots
 from matplotlib.widgets import LassoSelector
-from numpy import asanyarray, asarray, max, min, swapaxes
+from numpy import asanyarray, asarray, max, min
 
 from .controller import gogogo_controls, prep_scalars
 from .helpers import (
@@ -258,8 +256,8 @@ def zoom_factory(ax, base_scale=1.1):
         cur_xlim = ax.get_xlim()
         cur_ylim = ax.get_ylim()
         # set the range
-        cur_xrange = (cur_xlim[1] - cur_xlim[0]) * 0.5
-        cur_yrange = (cur_ylim[1] - cur_ylim[0]) * 0.5
+        (cur_xlim[1] - cur_xlim[0]) * 0.5
+        (cur_ylim[1] - cur_ylim[0]) * 0.5
         xdata = event.xdata  # get event x location
         ydata = event.ydata  # get event y location
         if event.button == "up":
@@ -611,7 +609,7 @@ def hyperslicer(
 
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_format_strings = create_slider_format_dict(slider_formats)
 
     name_to_dim = {}
@@ -632,15 +630,13 @@ def hyperslicer(
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
 
-        slider_arr_passed = False
         start, stop = None, None
         name = f"axis{i}"
         if name in kwargs:
             if len(kwargs[name]) == 2:
                 start, stop = kwargs.pop(name)
             else:
-                slider_arr_passed = True
-                slider_arr = kwargs.pop(name)
+                kwargs.pop(name)
 
         if axes is not None and axes[i] is not None:
             # now we assume the axes[i] has one of the following forms

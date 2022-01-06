@@ -46,9 +46,9 @@ repos:
       - id: autoflake
         args:
           [
+            "--exclude=mpl_interactions/ipyplot.py",
             "--in-place",
             "--remove-all-unused-imports",
             "--ignore-init-module-imports",
             "--remove-unused-variables",
-            "--exclude mpl_interactions/ipyplot.py",
           ]
