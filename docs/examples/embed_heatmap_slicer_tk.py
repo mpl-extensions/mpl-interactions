@@ -11,7 +11,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 # Implement the default Matplotlib key bindings.
 from matplotlib.figure import Figure
-from matplotlib.widgets import Slider
 
 from mpl_interactions import heatmap_slicer
 

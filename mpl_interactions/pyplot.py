@@ -4,8 +4,7 @@ these functions will leverage ipywidgets for the controls, otherwise they will u
 Matplotlib widgets."""
 
 
-from collections.abc import Callable, Iterable
-from functools import partial
+from collections.abc import Callable
 from numbers import Number
 
 import matplotlib.markers as mmarkers
@@ -14,17 +13,13 @@ from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
 
-from .controller import Controls, gogogo_controls, prep_scalars
+from .controller import gogogo_controls, prep_scalars
 from .helpers import (
-    broadcast_many,
     callable_else_value,
     callable_else_value_no_cast,
     create_slider_format_dict,
     eval_xy,
-    gogogo_display,
     gogogo_figure,
-    kwarg_to_ipywidget,
-    kwarg_to_mpl_widget,
     notebook_backend,
     sca,
     update_datalim_from_bbox,
@@ -163,7 +158,7 @@ def interactive_plot(
         raise ValueError(f"You passed in {len(args)} args, but no more than 3 is supported.")
 
     ipympl = notebook_backend()
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax=ax)
     slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
@@ -382,7 +377,7 @@ def interactive_hist(
 
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax=ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
@@ -514,7 +509,7 @@ def interactive_scatter(
 
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     extra_ctrls = []
@@ -552,10 +547,10 @@ def interactive_scatter(
         if c_ is not None:
             try:
                 c_ = to_rgba_array(c_)
-            except ValueError as array_err:
+            except ValueError:
                 try:
                     c_ = scatter.cmap(c_)
-                except TypeError as cmap_err:
+                except TypeError:
                     raise ValueError(
                         "If c is a function it must return either an RGB(A) array"
                         "or a 1D array of valid color names or values to be colormapped"
@@ -720,7 +715,7 @@ def interactive_imshow(
     """
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
     kwargs, imshow_kwargs = kwarg_popper(kwargs, imshow_kwargs_list)
 
@@ -859,7 +854,7 @@ def interactive_axhline(
     """
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
@@ -952,7 +947,7 @@ def interactive_axvline(
     """
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
@@ -1049,7 +1044,7 @@ def interactive_title(
     """
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1139,7 +1134,7 @@ def interactive_xlabel(
     """
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1226,7 +1221,7 @@ def interactive_ylabel(
     """
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    use_ipywidgets = ipympl or force_ipywidgets
+    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)

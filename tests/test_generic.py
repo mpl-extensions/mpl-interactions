@@ -1,6 +1,5 @@
 from os.path import dirname, realpath
 
-import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
