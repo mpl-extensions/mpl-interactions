@@ -13,11 +13,13 @@ except ImportError:
     pass
 from matplotlib import get_backend
 from matplotlib.pyplot import axes, figure, gca, gcf, ioff
+from matplotlib.pyplot import sca as mpl_sca
 from numpy.distutils.misc_util import is_sequence
 
 from .widgets import RangeSlider
 
 __all__ = [
+    "sca",
     "decompose_bbox",
     "update_datalim_from_xy",
     "update_datalim_from_bbox",
@@ -40,6 +42,17 @@ __all__ = [
     "eval_xy",
     "choose_fmt_str",
 ]
+
+
+def sca(ax):
+    """
+    sca that won't fail if figure not managed by pyplot
+    """
+    try:
+        mpl_sca(ax)
+    except ValueError as e:
+        if "not managed by pyplot" not in str(e):
+            raise e
 
 
 def decompose_bbox(bbox):

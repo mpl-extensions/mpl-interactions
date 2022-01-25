@@ -13,7 +13,6 @@ import numpy as np
 from matplotlib.collections import PatchCollection
 from matplotlib.colors import to_rgba_array
 from matplotlib.patches import Rectangle
-from matplotlib.pyplot import sca
 
 from .controller import Controls, gogogo_controls, prep_scalars
 from .helpers import (
@@ -27,6 +26,7 @@ from .helpers import (
     kwarg_to_ipywidget,
     kwarg_to_mpl_widget,
     notebook_backend,
+    sca,
     update_datalim_from_bbox,
 )
 from .mpl_kwargs import (

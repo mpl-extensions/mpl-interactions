@@ -1,8 +1,9 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import pytest
+from matplotlib.figure import Figure
 
-from mpl_interactions.helpers import update_datalim_from_bbox, update_datalim_from_xy
+from mpl_interactions.helpers import sca, update_datalim_from_bbox, update_datalim_from_xy
 
 
 def test_bbox_update():
@@ -44,3 +45,11 @@ def test_xy_update():
     assert ax.dataLim.bounds == (0, 0, 9, 10)
     update_datalim_from_xy(ax, x_scat, y_scat_small, stretch_y=False)
     assert ax.dataLim.bounds == (0.0, 0.0, 9.0, 4.0)
+
+
+def test_sca():
+    fig = Figure()
+    ax = fig.add_subplot(111)
+
+    # this shouldn't fail
+    sca(ax)
