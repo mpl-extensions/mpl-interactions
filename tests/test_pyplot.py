@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pytest
 from matplotlib import __version__ as mpl_version
+from matplotlib.testing.decorators import check_figures_equal
 from packaging import version
 
 import mpl_interactions.ipyplot as iplt
-from mpl_interactions.pyplot import interactive_hist, interactive_plot
-from mpl_interactions.utils import figure
+from mpl_interactions.pyplot import interactive_plot
+
+from ._util import set_param_values
 
 np.random.seed(1111111121)
 
@@ -17,23 +18,11 @@ def f_hist(loc, scale):
     return np.random.randn(1000) * scale + loc
 
 
-@pytest.mark.mpl_image_compare(style="default")
-def test_hist_plot():
-    fig = figure(2)
-    _ = interactive_hist(f_hist, density=True, loc=(5.5, 100), scale=(10, 15))
-    fig.tight_layout()
-    return fig
-
-
-@pytest.mark.mpl_image_compare(style="default")
-def test_hist_controls():
-    if not mpl_gr_32:
-        pytest.skip("wonky font differences")
-    fig, ax = plt.subplots()
-    controls = interactive_hist(
-        f_hist, density=True, loc=(5.5, 100), scale=(10, 15), slider_formats="{:.1f}"
-    )
-    return controls.control_figures[0]
+# # smoke test
+# def test_hist_plot(fig_test, fig_ref):
+#     fig, ax =
+#     test_ax = fig_test.add_subplot()
+#     _ = interactive_hist(f_hist, density=True, loc=(5.5, 100), scale=(10, 15), ax=test_ax)
 
 
 def f1(x, tau, beta):
@@ -42,30 +31,6 @@ def f1(x, tau, beta):
 
 def f2(x, tau, beta):
     return np.sin(x * beta) * x * tau
-
-
-@pytest.mark.mpl_image_compare(style="default")
-def test_mixed_types():
-    if not mpl_gr_32:
-        pytest.skip("wonky font differences")
-
-    def foo(x, **kwargs):
-        return x
-
-    x = np.linspace(0, 1)
-    a = np.linspace(0, 10)
-    b = (0, 10, 15)
-    # set order is determined in part by PYTHONHASHSEED
-    # but there doesn't seem to be an easy way to set this for pytest
-    # so the unordered set will change its order from test to test :/
-    # c = {'this', 'set will be', 'unordered'}
-    d = {("this", "set will be", "ordered")}
-    e = 0  # this will not get a slider
-
-    # can't test ipywidgets yet
-    # no mpl widgets for booleans
-    # f = widgets.Checkbox(value=True, description='A checkbox!!')
-    return interactive_plot(x, foo, a=a, b=b, d=d, e=e, display=False).control_figures[0]
 
 
 def f1(x, tau, beta):
@@ -81,7 +46,6 @@ tau = (5, 10, 100)
 beta = (1, 2)
 
 
-@pytest.mark.mpl_image_compare(style="default")
 def test_multiple_functions():
     fig, ax = plt.subplots()
     controls = interactive_plot(x, f1, tau=tau, beta=beta, label="f1")
@@ -90,26 +54,28 @@ def test_multiple_functions():
     return fig
 
 
-@pytest.mark.mpl_image_compare(style="default")
-def test_styling():
-    fig, ax = plt.subplots()
-    controls = interactive_plot(
-        x,
-        f1,
-        beta=beta,
-        tau=tau,
-        label="f1",
-    )
-    iplt.title("the value of tau is: {tau:.2f}", controls=controls["tau"])
+@check_figures_equal(extensions=["png"])
+def test_plot(fig_test, fig_ref):
+    test_ax = fig_test.add_subplot()
+
+    # TODO: fix the horrible ylim scaling
+    # get it outside of the plot command
+    ylims = (-10, 10)
+    controls = interactive_plot(x, f1, beta=beta, tau=tau, label="f1", ax=test_ax, ylim=ylims)
     interactive_plot(
-        x,
-        f2,
-        controls=controls,
-        label="custom label!",
-        linestyle="--",
+        x, f2, controls=controls, label="custom label!", linestyle="--", ax=test_ax, ylim=ylims
     )
-    plt.legend()
-    return fig
+    # these are all int sliders internally so set them like this
+    set_param_values(controls, {"beta": 5, "tau": 4})
+    test_ax.legend()
+
+    ref_ax = fig_ref.add_subplot()
+    ref_ax.plot(x, f1(x, **controls.params), label="f1")
+    ref_ax.plot(x, f2(x, **controls.params), linestyle="--", label="custom label!")
+    ref_ax.legend()
+    ref_ax.set_ylim(ylims)
+    for fig in controls.control_figures:
+        plt.close(fig)
 
 
 def test_imshow_scalars():
