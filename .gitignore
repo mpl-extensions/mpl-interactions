@@ -136,3 +136,6 @@ _build
 autoapi
 
 _version.py
+
+# mpl testing
+result_images/
