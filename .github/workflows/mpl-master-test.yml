@@ -4,9 +4,9 @@ on:
   schedule:
     - cron: "0 16 * * 1" # monday at noon est
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   test-3x:
