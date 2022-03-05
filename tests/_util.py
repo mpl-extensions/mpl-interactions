@@ -4,6 +4,10 @@ __all__ = [
 
 
 def set_param_values(controls, params):
+    """
+    A bit sketch because it set the index for ipywidgets
+    and direct value for mpl sliders. big TODO there.
+    """
     for p, v in params.items():
         slider = controls.controls[p]
         if "Box" in str(slider.__class__):

@@ -65,7 +65,6 @@ def test_plot(fig_test, fig_ref):
     interactive_plot(
         x, f2, controls=controls, label="custom label!", linestyle="--", ax=test_ax, ylim=ylims
     )
-    # these are all int sliders internally so set them like this
     set_param_values(controls, {"beta": 5, "tau": 4})
     test_ax.legend()
 
@@ -78,13 +77,25 @@ def test_plot(fig_test, fig_ref):
         plt.close(fig)
 
 
-def test_imshow_scalars():
+@check_figures_equal(extensions=["png"])
+def test_imshow_scalars(fig_test, fig_ref):
     # and by proxy all the scalar handling
-    def mask(min_distance):
-        return np.random.randn(10, 10)
 
-    fig, ax = plt.subplots()
-    iplt.imshow(mask, min_distance=(1, 10), alpha=(0, 1))
+    mask_arr = np.random.randn(10, 10) * 10
+
+    def mask(min_distance):
+        new_arr = np.copy(mask_arr)
+        new_arr[mask_arr < min_distance] = 0
+        return new_arr
+
+    test_ax = fig_test.add_subplot()
+    ctrls = iplt.imshow(mask, min_distance=(1, 10), alpha=(0, 1), ax=test_ax)
+    set_param_values(ctrls, {"min_distance": 5.5, "alpha": 0.75})
+    ref_ax = fig_ref.add_subplot()
+    print(ctrls.params)
+    ref_ax.imshow(mask(ctrls.params["min_distance"]), alpha=ctrls.params["alpha"])
+    for fig in ctrls.control_figures:
+        plt.close(fig)
 
 
 def test_title():
