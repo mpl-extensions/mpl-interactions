@@ -20,8 +20,7 @@ def f_hist(loc, scale):
 @pytest.mark.mpl_image_compare(style="default")
 def test_hist_plot():
     fig = figure(2)
-    ax = fig.gca()
-    controls = interactive_hist(f_hist, density=True, loc=(5.5, 100), scale=(10, 15))
+    _ = interactive_hist(f_hist, density=True, loc=(5.5, 100), scale=(10, 15))
     fig.tight_layout()
     return fig
 

@@ -12,7 +12,7 @@ try:
 except ImportError:
     pass
 from matplotlib import get_backend
-from matplotlib.pyplot import axes, figure, gca, gcf, ioff
+from matplotlib.pyplot import figure, gca, gcf, ioff
 from matplotlib.pyplot import sca as mpl_sca
 from numpy.distutils.misc_util import is_sequence
 
@@ -115,7 +115,7 @@ def is_jagged(seq):
                 lens.append(len(y))
             except TypeError:
                 return True
-        if not all(lens[0] == l for l in lens):
+        if not all(lens[0] == l for l in lens):  # noqa: E741
             return True
     return False
 
@@ -198,7 +198,7 @@ def callable_else_value(arg, params, cache=None):
     """
     if isinstance(arg, Callable):
         if cache:
-            if not arg in cache:
+            if arg not in cache:
                 cache[arg] = np.asanyarray(arg(**params))
             return cache[arg]
         else:
@@ -213,7 +213,7 @@ def callable_else_value_no_cast(arg, params, cache=None):
     """
     if isinstance(arg, Callable):
         if cache:
-            if not arg in cache:
+            if arg not in cache:
                 cache[arg] = arg(**params)
             return cache[arg]
         else:
@@ -225,7 +225,7 @@ def callable_else_value_wrapper(arg, params, cache=None):
     def f(params):
         if isinstance(arg, Callable):
             if cache:
-                if not arg in cache:
+                if arg not in cache:
                     cache[arg] = np.asanyarray(arg(**params))
                 return cache[arg]
             else:
@@ -294,7 +294,6 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
         returned then control will be *None*
     """
 
-    init_val = 0
     control = None
     if isinstance(val, set):
         if len(val) == 1:
@@ -420,7 +419,7 @@ def changeify(val, update):
 
 
 def changeify_radio(val, labels, update):
-    """
+    r"""
     matplolib radio buttons don't keep track what index is selected. So this
     figures out what the index is
     made a whole function bc its easier to use with partial then
@@ -429,7 +428,7 @@ def changeify_radio(val, labels, update):
     radio button has multiple identical values but that's wildly niche
     and also probably means they're doing something they shouldn't. So: ¯\_(ツ)_/¯
     """
-    update({"new": labels.index(value)})
+    update({"new": labels.index(val)})
 
 
 def create_mpl_controls_fig(kwargs):
@@ -465,7 +464,7 @@ def create_mpl_controls_fig(kwargs):
                 n_opts += new_opts
         elif (
             not isinstance(val, mwidgets.AxesWidget)
-            and not "ipywidgets" in str(val.__class__)  # do this to avoid depending on ipywidgets
+            and "ipywidgets" not in str(val.__class__)  # do this to avoid depending on ipywidgets
             and isinstance(val, Iterable)
             and len(val) > 1
         ):
@@ -587,10 +586,8 @@ def kwarg_to_mpl_widget(
 
     # widget_y = 0.05
     slider_ax = []
-    sliders = []
     radio_ax = []
     radio_buttons = []
-    cbs = []
     if isinstance(val, set):
         if len(val) == 1:
             val = val.pop()
@@ -615,7 +612,6 @@ def kwarg_to_mpl_widget(
         return val, widget, cb, widget_y
     else:
         slider = None
-        update_fxn = None
         if isinstance(val, tuple) and val[0] in ["r", "range", "rang", "rage"]:
             if isinstance(val[1], (np.ndarray, list)):
                 vals = val[1]

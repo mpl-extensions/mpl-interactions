@@ -1,13 +1,12 @@
 from os.path import dirname, realpath
 
-import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib import __version__ as mpl_version
 from packaging import version
 
-from mpl_interactions.generic import *
+from mpl_interactions.generic import heatmap_slicer, image_segmenter
 
 if version.parse(mpl_version) >= version.parse("3.3"):
     mplsuffix = ""

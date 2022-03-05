@@ -37,8 +37,8 @@ any necessary plotted data.
 **Version Info**
 <!--Please specify your platform and versions of the relevant libraries you are using:-->
   * Operating system:
-  * Matplotlib version: 
+  * Matplotlib version:
   * Matplotlib backend (`print(matplotlib.get_backend())`):
   * Python version:
   * Jupyter version (if applicable):
-  * Other libraries: 
+  * Other libraries:

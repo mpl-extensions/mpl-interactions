@@ -5,7 +5,6 @@ try:
     _not_ipython = False
 except ImportError:
     _not_ipython = True
-    pass
 from collections import defaultdict
 from collections.abc import Iterable
 from functools import partial
@@ -284,7 +283,7 @@ class Controls:
             step = slider.step
         else:
             raise NotImplementedError(
-                "Cannot save animation for slider of type %s".format(slider.__class__.__name__)
+                "Cannot save animation for slider of type {slider.__class__.__name__}"
             )
 
         N = int((max_ - min_) / step)

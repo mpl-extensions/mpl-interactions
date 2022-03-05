@@ -10,7 +10,7 @@ beta = np.linspace(0.001, 1)
 
 
 def f(x, tau, beta):
-    return np.sin(x * tau) * x ** beta
+    return np.sin(x * tau) * x**beta
 
 
 fig, ax = plt.subplots()
