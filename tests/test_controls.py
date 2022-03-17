@@ -55,3 +55,17 @@ def test_save_animation(tmp_path: Path):
     ctrls.save_animation(str(tmp_path / "animation-amp.gif"), fig, "amp", N_frames=10)
     ctrls.save_animation(str(tmp_path / "animation-beta.gif"), fig, "beta")
     ctrls.save_animation(str(tmp_path / "animation-tau.gif"), fig, "tau")
+
+
+def test_scalar_inside_context():
+    x = np.random.randn(20)
+    y = 2 * x + np.random.randn(20) / 2
+
+    x2 = np.random.randn(20)
+    y2 = -2 * x2 - np.random.randn(20) / 2
+
+    fig, ax = plt.subplots()
+    ctrls = iplt.scatter(x, y, s=(10, 1000))
+    # this shouldn't fail
+    with ctrls:
+        _ = iplt.scatter(x2, y2, s=ctrls["s"], ax=ax)

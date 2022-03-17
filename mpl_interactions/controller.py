@@ -393,7 +393,7 @@ def gogogo_controls(
         if extra_controls is None:
             extra_controls = [ctrl_context]
         else:
-            extra_controls.append[ctrl_context]
+            extra_controls.append(ctrl_context)
 
     # Squash controls + extra_controls and make sure we have a unique controller object
 
