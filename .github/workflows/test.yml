@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9.x"]
+        python-version: ["3.9.x", "3.10.x"]
         matplotlib-version: ["3.4", "3.5"]
     steps:
       - name: Checkout
