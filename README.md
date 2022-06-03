@@ -39,7 +39,7 @@ I use the GitHub [issues](https://github.com/ianhi/mpl-interactions/issues) to k
 
 ## Documentation
 
-The fuller narrative documentation can be found on [ReadTheDocs](https://mpl-interactions.readthedocs.io/en/latest/). You may also find it helpful to check out the [examples directory](https://github.com/ianhi/mpl-interactions/tree/master/docs/examples).
+The fuller narrative documentation can be found on [ReadTheDocs](https://mpl-interactions.readthedocs.io/en/latest/). You may also find it helpful to check out the [examples directory](docs/examples).
 
 ## Contributors ✨
 
