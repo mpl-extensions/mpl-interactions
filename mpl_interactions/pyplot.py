@@ -42,6 +42,7 @@ __all__ = [
     "interactive_title",
     "interactive_xlabel",
     "interactive_ylabel",
+    "interactive_text",
 ]
 
 
@@ -1244,6 +1245,88 @@ def interactive_ylabel(
         fontdict=fontdict,
         labelpad=labelpad,
         loc=loc,
+        **text_kwargs,
+    )
+    return controls
+
+
+def interactive_text(
+    x,
+    y,
+    s,
+    fontdict,
+    controls=None,
+    ax=None,
+    *,
+    slider_formats=None,
+    display_controls=True,
+    play_buttons=False,
+    force_ipywidgets=False,
+    **kwargs,
+):
+    """
+    Set a ylabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
+    other kwargs will be used to create interactive controls.
+
+    Parameters
+    ----------
+    x, y : float or function
+        The text position.
+    s : str or function
+        The text. Can either be static text, a function returning a string or
+        can include {} style formatting. e.g. 'The voltage is {volts:.2f}'
+    fontdict : dict[str]
+        Passed through to the Text object. Currently not dynamically updateable. See
+
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements to the same set of
+        controls
+    ax : matplotlib axis, optional
+        The axis on which to plot. If none the current axis will be used.
+    play_buttons : bool or str or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get created.
+        If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
+        want to attach play buttons too.
+
+        - None: no sliders
+        - True: sliders on the lft
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl backend.
+        If False the function will try to detect if it is ok to use ipywidgets
+        If ipywidgets are not used the function will fall back on matplotlib widgets
+
+    Returns
+    -------
+    controls
+    """
+    ipympl = notebook_backend()
+    fig, ax = gogogo_figure(ipympl, ax)
+    ipympl or force_ipywidgets
+    slider_formats = create_slider_format_dict(slider_formats)
+
+    kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, x=x, y=y)
+    x = funcs["x"]
+    y = funcs["y"]
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
+    )
+
+    def update(params, indices, cache):
+        text.set_x(callable_else_value(x, param_excluder(params, "x"), cache).item())
+        text.set_y(callable_else_value(y, param_excluder(params, "y"), cache).item())
+        text.set_text(callable_else_value_no_cast(s, params, cache))
+
+    controls._register_function(update, fig, params)
+    text = ax.text(
+        callable_else_value_no_cast(x, params, None),
+        callable_else_value_no_cast(y, params, None),
+        callable_else_value_no_cast(s, params, None).format(**params),
+        fontdict=fontdict,
         **text_kwargs,
     )
     return controls
