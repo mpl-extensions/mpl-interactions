@@ -1254,7 +1254,7 @@ def interactive_text(
     x,
     y,
     s,
-    fontdict,
+    fontdict=None,
     controls=None,
     ax=None,
     *,
@@ -1265,8 +1265,13 @@ def interactive_text(
     **kwargs,
 ):
     """
-    Set a ylabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
-    other kwargs will be used to create interactive controls.
+    Create a text object that will update interactively.
+    kwargs for `matplotlib.text.Text` will be passed through, other kwargs will be used to create interactive controls.
+
+    .. note::
+
+        fontdict properties are currently static - see https://github.com/ianhi/mpl-interactions/issues/247
+
 
     Parameters
     ----------
@@ -1277,7 +1282,7 @@ def interactive_text(
         can include {} style formatting. e.g. 'The voltage is {volts:.2f}'
     fontdict : dict[str]
         Passed through to the Text object. Currently not dynamically updateable. See
-
+        https://github.com/ianhi/mpl-interactions/issues/247
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -1317,15 +1322,17 @@ def interactive_text(
     )
 
     def update(params, indices, cache):
-        text.set_x(callable_else_value(x, param_excluder(params, "x"), cache).item())
-        text.set_y(callable_else_value(y, param_excluder(params, "y"), cache).item())
-        text.set_text(callable_else_value_no_cast(s, params, cache))
+        x_, y_ = eval_xy(x, y, param_excluder(params, ["x", "y"]), cache)
+        text.set_x(x_)
+        text.set_y(y_)
+        text.set_text(callable_else_value_no_cast(s, params, cache).format(**params))
 
     controls._register_function(update, fig, params)
+    x_, y_ = eval_xy(x, y, param_excluder(params, ["x", "y"]))
     text = ax.text(
-        callable_else_value_no_cast(x, params, None),
-        callable_else_value_no_cast(y, params, None),
-        callable_else_value_no_cast(s, params, None).format(**params),
+        x_,
+        y_,
+        callable_else_value_no_cast(s, params).format(**params),
         fontdict=fontdict,
         **text_kwargs,
     )
