@@ -469,7 +469,7 @@ def _gen_param_excluder(added_kwargs):
         params : dict
         except : str or list[str]
         """
-        if isinstance(except_, str):
+        if isinstance(except_, str) or except_ is None:
             except_ = [except_]
 
         return {k: v for k, v in params.items() if k not in added_kwargs or k in except_}
