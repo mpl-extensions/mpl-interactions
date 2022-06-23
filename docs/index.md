@@ -101,6 +101,7 @@ examples/custom-callbacks.ipynb
 examples/animations.ipynb
 examples/range-sliders.ipynb
 examples/scalar-arguments.ipynb
+examples/text-annotations.ipynb
 examples/tidbits.md
 ```
 

@@ -238,29 +238,38 @@ def callable_else_value_wrapper(arg, params, cache=None):
 def eval_xy(x_, y_, params, cache=None):
     """
     for when y requires x as an argument and either, neither or both
-    of x and y may be a function.
+    of x and y may be a function. This will automatically do the param exclusion
+    for 'x' and 'y'.
 
     Returns
     -------
     x, y
         as numpy arrays
     """
-    if isinstance(x_, Callable):
+    if "x" in params:
+        # passed as a scalar with a slider
+        x = params["x"]
+    elif isinstance(x_, Callable):
         if cache is not None:
             if x_ in cache:
                 x = cache[x_]
             else:
                 x = x_(**params)
+                cache[x_] = x
         else:
             x = x_(**params)
     else:
         x = x_
-    if isinstance(y_, Callable):
+    if "y" in params:
+        # passed a scalar with a slider
+        y = params["y"]
+    elif isinstance(y_, Callable):
         if cache is not None:
             if y_ in cache:
                 y = cache[y_]
             else:
                 y = y_(x, **params)
+                cache[y_] = y
         else:
             y = y_(x, **params)
     else:
