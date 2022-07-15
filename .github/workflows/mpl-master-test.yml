@@ -27,10 +27,10 @@ jobs:
 
       - name: Install
         run: |
-          pip install wheel
-          pip install git+https://github.com/matplotlib/matplotlib.git
-          pip install --upgrade --pre ipywidgets
-          pip install ".[jupyter, test]"
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install git+https://github.com/matplotlib/matplotlib.git
+          python -m pip install --upgrade --pre ipywidgets
+          python -m pip install ".[jupyter, test]"
 
       - name: Tests
         run: |
