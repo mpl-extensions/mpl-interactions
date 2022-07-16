@@ -27,10 +27,17 @@ jobs:
 
       - name: Install
         run: |
-          pip install wheel
-          pip install git+https://github.com/matplotlib/matplotlib.git
-          pip install --upgrade --pre ipywidgets
-          pip install ".[jupyter, test]"
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install \
+            --upgrade \
+            --pre \
+            --extra-index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+            matplotlib
+          python -m pip install --upgrade --pre ipywidgets
+          python -m pip install ".[jupyter, test]"
+
+      - name: List installed Python packages
+        run: python -m pip list
 
       - name: Tests
         run: |
