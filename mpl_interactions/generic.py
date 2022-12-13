@@ -12,7 +12,6 @@ from numpy import asanyarray, asarray, max, min
 
 from .controller import gogogo_controls, prep_scalars
 from .helpers import (
-    callable_else_value,
     callable_else_value_no_cast,
     create_slider_format_dict,
     gogogo_figure,
@@ -808,8 +807,8 @@ def hyperslicer(
         aspect=aspect,
         interpolation=interpolation,
         alpha=alpha,
-        vmin=callable_else_value(vmin, params),
-        vmax=callable_else_value(vmax, params),
+        vmin=callable_else_value_no_cast(vmin, params),
+        vmax=callable_else_value_no_cast(vmax, params),
         origin=origin,
         extent=extent,
         filternorm=filternorm,
