@@ -7,6 +7,7 @@ authors:
   - name: Ian Hunt-Isaak
     orcid: 0000-0002-7591-083X
     affiliation: "1" # (Multiple affiliations must be quoted)
+  - name: Doeke Heksta
 affiliations:
   - name: John A. Paulson School of Engineering and Applied Sciences, Harvard University, USA
     index: 1
@@ -18,7 +19,7 @@ bibliography: paper.bib
 
 <!-- A summary describing the high-level functionality and purpose of the software for a diverse, non-specialist audience. -->
 
-`mpl-interactions` enables users to transform static matplotlib figures to dynamic figures with control of the parameters of the plot elements through automatically generated widgets. It creates widgets and connects them to update plot elements automatically using a shorthand for widgets optimized for control of plots. In order to be as easy to use as possible it adds these features while otherwise staying as close to the `matplotlib.pyplot` interface as possible. It is built to be composable with itself while not interfering with static plotting elements. This allows for building any figure that `matplotlib` can produce while adding dynamism to specific parts as necessary to increase the utility of the plot. `mpl-interactions` allows to be used for exploring the parameters of computational and mathematical models.
+`mpl-interactions` enables users to transform static matplotlib figures to dynamic figures with control of the parameters of the plot elements through automatically generated widgets. It creates widgets and connects them to update plot elements automatically using a shorthand for widgets optimized for control of plots. In order to be as easy to use as possible it adds these features while otherwise staying as close to the `matplotlib.pyplot` interface as possible. It is built to be composable with itself while not interfering with static plotting elements. This allows for building any figure that `matplotlib` can produce while adding dynamism to specific parts as necessary to increase the utility of the plot. `mpl-interactions` has applications for data exploration, model building and pedagogy.
 
 # Statement of Need
 
@@ -31,48 +32,6 @@ While it is possible to accomplish this using existing tools such as `matplotlib
 The `ipywidgets` makes widget creation easier, and handles layout for the user, but is still difficult to use quickly with matplotlib as doing so requires remembering how update matplotlib artists and writing approriate callbacks. The easiest approach for users is to use hte `ipywidgets`' `interact` function (footnote: this is inspiration for the package name) which automatically generates sliders and other widgets to control arguments to arbitrary python functions. However, the this has drawbacks as well, the recommended usage is to re-make the plot every time a parameter changes, and it only works in an context where ipywidgets can be displayed (e.g. jupyterlab). Finally, `ipywidgets` is a general framework, and thus constrained in how it's choices of how to intrepret shorthands for widget generation - the choices it makes are not always optimal for scientific plotting.
 
 `mpl-interactions` builds on top of both of these packages in order make their power available while reducing the complexity of generating an interactive plot to a single line. It automates the creation of widgets, using a shorthand optimized for scientific plotting. It works anywhere matplotlib does, creating ipywidgets if they are available, but falling back to matplotlib widgets necessary. In addition when generating matplotlib widgets it automatically handles widget layout. After creating widgets it connects callbacks to update the matplotlib artists in the most performant way possible. Finally, `mpl-interactions` handles, updating the matplotlib axis limits as the plot elements update. Without this plot elements can easily go off screen.
-
-# Examples
-
-Imports for examples:
-
-```python
-import mpl_interactions.ipyplot as iplt
-import matplotlib.pyplot as plt
-import numpy as np
-```
-
-Example demonstrating the ability to update the axis limits, as well passing a numpy array, or a tuple to generate a slider:
-
-```python
-x = np.linspace(0, np.pi, 100)
-tau = np.linspace(0.5, 10, 100)
-
-def f1(x, tau, beta):
-   return np.sin(x * tau) * x * beta
-
-fig, ax = plt.subplots()
-controls = iplt.plot(x, f1, tau=tau, beta=(1, 10, 100))
-plt.show()
-```
-
-And example demonstrating reusing widgets generated from earlier function calls to control other plot elements.
-
-```python
-N = 128
-im = np.random.randn(N * N).reshape(N, N)
-
-fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-
-# plot histogram of pixel intensities
-axs[1].hist(im.flatten(), bins="auto")
-axs[1].set_title("Histogram of Pixel Intensities")
-
-# create interactive controls
-ctrls = iplt.imshow(im, vmin_vmax=("r", im.min(), im.max()), ax=axs[0])
-iplt.axvline(ctrls["vmin"], ax=axs[1], c="k")
-_ = iplt.axvline(ctrls["vmax"], ax=axs[1], c="k")
-```
 
 # Overview
 
@@ -94,6 +53,29 @@ plt.show()
 ```
 
 ![Generated figure and sliders after running above example in jupyter lab.\label{fig:sinusoid}](imgs/sinusoid.png){ width=75% }
+
+In addition the generated widgets can be re-used to control other elements in the figure, including scalar values. For example here a RangeSlider is created and used to control the thresholding of an image, as well as the position of two vertical lines on a histogram of pixel intensities.
+
+```python
+import mpl_interactions.ipyplot as iplt
+import matplotlib.pyplot as plt
+import numpy as np
+N = 128
+im = np.random.randn(N * N).reshape(N, N)
+
+fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+
+# plot histogram of pixel intensities
+axs[1].hist(im.flatten(), bins="auto")
+axs[1].set_title("Histogram of Pixel Intensities")
+
+# create interactive controls
+ctrls = iplt.imshow(im, vmin_vmax=("r", im.min(), im.max()), ax=axs[0])
+iplt.axvline(ctrls["vmin"], ax=axs[1], c="k")
+_ = iplt.axvline(ctrls["vmax"], ax=axs[1], c="k")
+```
+
+Both of these examples are only a few lines different from their static counterpart and use a similar syntax for function calls as the pure matplotlib equivalent. This is the power of the library, allowing rapid iteration by allowing low effort addition of interactivity to static plots.
 
 # Acknowledgements
 
