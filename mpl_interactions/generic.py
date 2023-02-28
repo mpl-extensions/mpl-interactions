@@ -3,6 +3,7 @@
 from collections.abc import Callable
 
 import numpy as np
+from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
 from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
 from matplotlib.path import Path
@@ -429,6 +430,7 @@ class image_segmenter:
         mask_colors=None,
         mask_alpha=0.75,
         lineprops=None,
+        props=None,
         lasso_mousebutton="left",
         pan_mousebutton="middle",
         ax=None,
@@ -452,7 +454,11 @@ class image_segmenter:
             The alpha values to use for selected regions. This will always override the alpha values
             in mask_colors if any were passed
         lineprops : dict, default: None
+            DEPRECATED - use props instead.
             lineprops passed to LassoSelector. If None the default values are:
+            {"color": "black", "linewidth": 1, "alpha": 0.8}
+        props : dict, default: None
+            props passed to LassoSelector. If None the default values are:
             {"color": "black", "linewidth": 1, "alpha": 0.8}
         lasso_mousebutton : str, or int, default: "left"
             The mouse button to use for drawing the selecting lasso.
@@ -509,8 +515,13 @@ class image_segmenter:
         self.displayed = self.ax.imshow(self._img, **kwargs)
         self._mask = self.ax.imshow(self._overlay)
 
-        if lineprops is None:
-            lineprops = {"color": "black", "linewidth": 1, "alpha": 0.8}
+        default_props = {"color": "black", "linewidth": 1, "alpha": 0.8}
+        if (props is None) and (lineprops is None):
+            props = default_props
+        elif (lineprops is not None) and (mpl_version >= "3.7"):
+            print("*lineprops* is deprecated - please use props")
+            props = {"color": "black", "linewidth": 1, "alpha": 0.8}
+
         useblit = False if "ipympl" in get_backend().lower() else True
         button_dict = {"left": 1, "middle": 2, "right": 3}
         if isinstance(pan_mousebutton, str):
@@ -518,9 +529,14 @@ class image_segmenter:
         if isinstance(lasso_mousebutton, str):
             lasso_mousebutton = button_dict[lasso_mousebutton.lower()]
 
-        self.lasso = LassoSelector(
-            self.ax, self._onselect, lineprops=lineprops, useblit=useblit, button=lasso_mousebutton
-        )
+        if mpl_version < "3.7":
+            self.lasso = LassoSelector(
+                self.ax, self._onselect, lineprops=props, useblit=useblit, button=lasso_mousebutton
+            )
+        else:
+            self.lasso = LassoSelector(
+                self.ax, self._onselect, props=props, useblit=useblit, button=lasso_mousebutton
+            )
         self.lasso.set_visible(True)
 
         pix_x = np.arange(self._img.shape[0])
