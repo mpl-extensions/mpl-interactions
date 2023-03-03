@@ -19,6 +19,11 @@ The `conda env create` command installs all Python packages that are useful when
 ```bash
 pip install -e .[dev]
 ```
+for MacOs systems that use zsh instead of bash type:
+```
+pip install -e ".[dev]"
+
+
 
 The {command}`-e .` flag installs the `mpl_interactions` folder in ["editable" mode](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs) and {command}`[dev]` installs the [optional dependencies](https://setuptools.readthedocs.io/en/latest/userguide/dependency_management.html#optional-dependencies) you need for developing `mpl_interacions`.
 
