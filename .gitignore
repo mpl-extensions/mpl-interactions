@@ -139,3 +139,7 @@ _version.py
 
 # mpl testing
 result_images/
+
+
+# Pycharm paths
+.idea/
