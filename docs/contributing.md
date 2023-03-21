@@ -1,10 +1,10 @@
 # Contributing
 
-Thanks for thinking of a way to help improve this library! Remember that contributions come in all shapes and sizes beyond writing bug fixes. Contributing to [documentation](#documentation), opening new [issues](https://github.com/ianhi/mpl-interactions/issues) for bugs, asking for clarification on things you find unclear, and requesting new features, are all super valuable contributions.
+Thanks for thinking of a way to help improve this library! Remember that contributions come in all shapes and sizes beyond writing bug fixes. Contributing to [documentation](#documentation), opening new [issues](https://github.com/mpl-extensions/mpl-interactions/issues) for bugs, asking for clarification on things you find unclear, and requesting new features, are all super valuable contributions.
 
 ## Code Improvements
 
-All development for this library happens on GitHub at [mpl_interactions](https://github.com/ianhi/mpl-interactions). We recommend you work with a [Conda](https://www.anaconda.com/products/individual) environment (or an alternative virtual environment like [`venv`](https://docs.python.org/3/library/venv.html)).
+All development for this library happens on GitHub at [mpl_interactions](https://github.com/mpl-extensions/mpl-interactions). We recommend you work with a [Conda](https://www.anaconda.com/products/individual) environment (or an alternative virtual environment like [`venv`](https://docs.python.org/3/library/venv.html)).
 
 ```bash
 git clone <your fork>
@@ -40,7 +40,7 @@ If you are working in a Jupyter Notebook, then in order to see your code changes
 
 Using Git/GitHub can confusing (<https://xkcd.com/1597>), so if you're new to Git, you may find it helpful to use a program like [GitHub Desktop](https://desktop.github.com) and to follow a [guide](https://github.com/firstcontributions/first-contributions#first-contributions).
 
-Also feel free to ask for help/advice on the relevant GitHub [issue](https://github.com/ianhi/mpl-interactions/issues).
+Also feel free to ask for help/advice on the relevant GitHub [issue](https://github.com/extensions/mpl-interactions/issues).
 
 ## Documentation
 
@@ -72,4 +72,4 @@ To accomplish, these GIFs are best stored in `docs/_static/images`. Then, below 
 
 ## Thank you to our current team!
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributors members can be found on `mpl_interactions`' [README](https://github.com/ianhi/mpl-interactions#contributors-) page.
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributors members can be found on `mpl_interactions`' [README](https://github.com/extensions/mpl-interactions#contributors-) page.

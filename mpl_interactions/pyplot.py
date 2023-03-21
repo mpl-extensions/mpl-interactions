@@ -30,7 +30,7 @@ from .mpl_kwargs import (
     collection_kwargs_list,
     imshow_kwargs_list,
     kwarg_popper,
-)
+extensions
 
 __all__ = [
     "interactive_plot",
@@ -316,9 +316,10 @@ def interactive_hist(
     """
     Control the contents of a histogram using widgets.
 
-    See https://github.com/ianhi/mpl-interactions/pull/73#issue-470638134 for a discussion
-    of the limitations of this function. These limitations will be improved once
-    https://github.com/matplotlib/matplotlib/pull/18275 has been merged.
+    See https://github.com/mpl-extensions/mpl-interactions/pull/73#issue-470638134
+    for a discussion of the limitations of this function. These limitations will
+    can improved once https://github.com/matplotlib/matplotlib/pull/18275 has
+    been merged.
 
     Parameters
     ----------
@@ -1270,7 +1271,7 @@ def interactive_text(
 
     .. note::
 
-        fontdict properties are currently static - see https://github.com/ianhi/mpl-interactions/issues/247
+        fontdict properties are currently static - see https://github.com/mpl-extensions/mpl-interactions/issues/247
 
 
     Parameters
@@ -1282,7 +1283,7 @@ def interactive_text(
         can include {} style formatting. e.g. 'The voltage is {volts:.2f}'
     fontdict : dict[str]
         Passed through to the Text object. Currently not dynamically updateable. See
-        https://github.com/ianhi/mpl-interactions/issues/247
+        https://github.com/mpl-extensions/mpl-interactions/issues/247
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls

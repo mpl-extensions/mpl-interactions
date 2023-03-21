@@ -198,7 +198,7 @@ html_theme_options = {
     },
     "path_to_docs": "docs",
     "repository_branch": "master",
-    "repository_url": "https://github.com/ianhi/mpl-interactions",
+    "repository_url": "https://github.com/mpl-extensions/mpl-interactions",
     "use_download_button": True,
     "use_edit_page_button": True,
     "use_issues_button": True,
@@ -254,4 +254,4 @@ def linkcode_resolve(domain, info):
 
     fn = os.path.relpath(fn, start=os.path.dirname(mpl_inter.__file__))
 
-    return f"https://github.com/ianhi/mpl-interactions/blob/master/mpl_interactions/{fn}{linespec}"
+    return f"https://github.com/mpl-extensions/mpl-interactions/blob/main/mpl_interactions/{fn}{linespec}"
