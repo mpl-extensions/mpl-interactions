@@ -30,7 +30,7 @@ from .mpl_kwargs import (
     collection_kwargs_list,
     imshow_kwargs_list,
     kwarg_popper,
-extensions
+)
 
 __all__ = [
     "interactive_plot",
