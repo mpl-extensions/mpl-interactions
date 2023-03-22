@@ -40,7 +40,7 @@ jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplot
 
 ## Development installation
 
-First create your own fork of <https://github.com/ianhi/mpl-interactions>.
+First create your own fork of <https://github.com/mpl-extensions/mpl-interactions>.
 
 ```bash
 git clone <your fork>
