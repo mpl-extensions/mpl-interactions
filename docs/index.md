@@ -116,6 +116,7 @@ examples/imshow.ipynb
 examples/hist.ipynb
 examples/scatter-selector.ipynb
 examples/image-segmentation.ipynb
+examples/image-segmentation-multiple-image.ipynb
 examples/zoom-factory.ipynb
 examples/heatmap-slicer.ipynb
 ```

@@ -2,7 +2,9 @@
 
 from collections.abc import Callable
 
+import ipywidgets as widgets
 import numpy as np
+from IPython.display import display
 from matplotlib import __version__ as mpl_version
 from matplotlib import get_backend
 from matplotlib.colors import TABLEAU_COLORS, XKCD_COLORS, to_rgba_array
@@ -10,6 +12,7 @@ from matplotlib.path import Path
 from matplotlib.pyplot import close, ioff, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min
+from skimage import measure
 
 from .controller import gogogo_controls, prep_scalars
 from .helpers import (
@@ -27,6 +30,11 @@ __all__ = [
     "zoom_factory",
     "panhandler",
     "image_segmenter",
+    "image_segmenter_overlayed",
+    "get_segmenter_list",
+    "draw_masks",
+    "get_masks",
+    "get_mask_contours",
     "hyperslicer",
 ]
 
@@ -44,7 +52,6 @@ def heatmap_slicer(
     figsize=(18, 9),
     **pcolormesh_kwargs,
 ):
-
     """
     Compare horizontal and/or vertical slices across multiple arrays.
 
@@ -440,7 +447,6 @@ class image_segmenter:
         """
         Create an image segmenter. Any ``kwargs`` will be passed through to the ``imshow``
         call that displays *img*.
-
         Parameters
         ----------
         img : array_like
@@ -567,6 +573,382 @@ class image_segmenter:
         display(self.fig.canvas)  # noqa: F405, F821
 
 
+class image_segmenter_overlayed:
+    """
+    Manually segment an overlay of two images with the lasso selector.
+    """
+
+    def __init__(
+        self,
+        img,
+        second_img,
+        img_extent=None,
+        second_img_extent=None,
+        second_img_alpha=0.2,
+        second_img_cmap="viridis",
+        nclasses=1,
+        mask=None,
+        mask_colors=None,
+        mask_alpha=0.75,
+        lineprops=None,
+        props=None,
+        lasso_mousebutton="left",
+        pan_mousebutton="middle",
+        ax=None,
+        figsize=(10, 10),
+        **kwargs,
+    ):
+        """
+        Create an image segmenter. Any ``kwargs`` will be passed through to the ``imshow``
+        call that displays *img*.
+
+        Parameters
+        ----------
+        img : array_like
+            A valid argument to imshow
+        nclasses : int, default 1
+        second_img : array_like, optional
+            A valid argument to imshow. Secondary image that is overlayed with a designated alpha value over the primary
+            image.
+        img_extent : list, optional
+            Extent of primary image as given to imshow.
+            For example: extent = [-15,15,-10,10]
+        second_img_extent : list, optional
+            Extent of secondary image as given to imshow.
+            Similar to img_extent
+        second_img_alpha : float, optional
+            transparency of secondary image, by default 0.2
+        second_img_cmap : str, optional
+            colormap of secondary image, by default 'viridis'
+        mask : arraylike, optional
+            If you want to pre-seed the mask
+        mask_colors : None, color, or array of colors, optional
+            the colors to use for each class. Unselected regions will always be totally transparent
+        mask_alpha : float, default .75
+            The alpha values to use for selected regions. This will always override the alpha values
+            in mask_colors if any were passed
+        lineprops : dict, default: None
+            DEPRECATED - use props instead.
+            lineprops passed to LassoSelector. If None the default values are:
+            {"color": "black", "linewidth": 1, "alpha": 0.8}
+        props : dict, default: None
+            props passed to LassoSelector. If None the default values are:
+            {"color": "black", "linewidth": 1, "alpha": 0.8}
+        lasso_mousebutton : str, or int, default: "left"
+            The mouse button to use for drawing the selecting lasso.
+        pan_mousebutton : str, or int, default: "middle"
+            The button to use for `~mpl_interactions.generic.panhandler`. One of 'left', 'middle' or
+            'right', or 1, 2, 3 respectively.
+        ax : `matplotlib.axes.Axes`, optional
+            The axis on which to plot. If *None* a new figure will be created.
+        figsize : (float, float), optional
+            passed to plt.figure. Ignored if *ax* is given.
+        **kwargs
+            All other kwargs will passed to the imshow command for the image
+        """
+        # ensure mask colors is iterable and the same length as the number of classes
+        # choose colors from default color cycle?
+
+        self.mask_alpha = mask_alpha
+
+        if mask_colors is None:
+            # this will break if there are more than 10 classes
+            if nclasses <= 10:
+                self.mask_colors = to_rgba_array(list(TABLEAU_COLORS)[:nclasses])
+            else:
+                # up to 949 classes. Hopefully that is always enough....
+                self.mask_colors = to_rgba_array(list(XKCD_COLORS)[:nclasses])
+        else:
+            self.mask_colors = to_rgba_array(np.atleast_1d(mask_colors))
+            # should probably check the shape here
+        self.mask_colors[:, -1] = self.mask_alpha
+
+        self._img = np.asarray(img)
+        self.second_img = np.asarray(second_img)
+        if mask is None:
+            self.mask = np.zeros(self._img.shape[:2])
+            """See :doc:`/examples/image-segmentation`."""
+        else:
+            self.mask = mask
+
+        self._overlay = np.zeros((*self._img.shape[:2], 4))
+        self.nclasses = nclasses
+        for i in range(nclasses + 1):
+            idx = self.mask == i
+            if i == 0:
+                self._overlay[idx] = [0, 0, 0, 0]
+            else:
+                self._overlay[idx] = self.mask_colors[i - 1]
+        if ax is not None:
+            self.ax = ax
+            self.fig = self.ax.figure
+        else:
+            with ioff():
+                self.fig = figure(figsize=figsize)
+                self.ax = self.fig.gca()
+        self.displayed = self.ax.imshow(self._img, extent=img_extent, **kwargs)
+        # plot the secondary image over the primary
+        self.displayed = self.ax.imshow(
+            self.second_img, alpha=second_img_alpha, extent=second_img_extent, cmap=second_img_cmap
+        )
+
+        self._mask = self.ax.imshow(self._overlay)
+
+        default_props = {"color": "black", "linewidth": 1, "alpha": 0.8}
+        if (props is None) and (lineprops is None):
+            props = default_props
+        elif (lineprops is not None) and (mpl_version >= "3.7"):
+            print("*lineprops* is deprecated - please use props")
+            props = {"color": "black", "linewidth": 1, "alpha": 0.8}
+
+        useblit = False if "ipympl" in get_backend().lower() else True
+        button_dict = {"left": 1, "middle": 2, "right": 3}
+        if isinstance(pan_mousebutton, str):
+            pan_mousebutton = button_dict[pan_mousebutton.lower()]
+        if isinstance(lasso_mousebutton, str):
+            lasso_mousebutton = button_dict[lasso_mousebutton.lower()]
+
+        if mpl_version < "3.7":
+            self.lasso = LassoSelector(
+                self.ax, self._onselect, lineprops=props, useblit=useblit, button=lasso_mousebutton
+            )
+        else:
+            self.lasso = LassoSelector(
+                self.ax, self._onselect, props=props, useblit=useblit, button=lasso_mousebutton
+            )
+        self.lasso.set_visible(True)
+
+        pix_x = np.arange(self._img.shape[0])
+        pix_y = np.arange(self._img.shape[1])
+        xv, yv = np.meshgrid(pix_y, pix_x)
+        self.pix = np.vstack((xv.flatten(), yv.flatten())).T
+
+        self.ph = panhandler(self.fig, button=pan_mousebutton)
+        self.disconnect_zoom = zoom_factory(self.ax)
+        self.current_class = 1
+        self.erasing = False
+
+    def _onselect(self, verts):
+        self.verts = verts
+        p = Path(verts)
+        self.indices = p.contains_points(self.pix, radius=0).reshape(self.mask.shape)
+        if self.erasing:
+            self.mask[self.indices] = 0
+            self._overlay[self.indices] = [0, 0, 0, 0]
+        else:
+            self.mask[self.indices] = self.current_class
+            self._overlay[self.indices] = self.mask_colors[self.current_class - 1]
+
+        self._mask.set_data(self._overlay)
+        self.fig.canvas.draw_idle()
+
+    def _ipython_display_(self):
+        display(self.fig.canvas)  # noqa: F405, F821
+
+
+def get_segmenter_list(
+    primary_image_stack,
+    secondary_image_stack,
+    primary_img_extent=None,
+    secondary_image_ext=None,
+    overlay=0.25,
+    secondary_image_cmap="viridis",
+    n_classes=1,
+    figsize=(5, 5),
+):
+    """
+    Returns a list of image_segmenter_overlayed type entries.
+    Parameters
+    ----------
+    primary_image_stack: array like
+        Contains primary images as a 3D array, exemplary shape (128,128,5) for 5 slices
+    secondary_image_stack: array like
+        Contains secondary images as a 3D array, has to have same shape[2] as primary_image_stack
+    primary_img_extent : list, optional
+        If primary and secondary images don't have the same extent (i.e. shape[0],[1]) this need to be given.
+        Gets passed to imshow(extent = primary_img_extent), for example something like [-15,15,-10,10]
+    secondary_image_ext : list, optional
+        If primary and secondary images don't have the same extent (i.e. shape[0],[1]) this need to be given.
+        Gets passed to imshow(extent = secondary_image_ext), for example something like [-15,15,-10,10]
+    overlay : float
+        alpha value of the secondary image, per default 0.25
+    secondary_image_cmap : str, optional
+        secondary image colormap, per default 'viridis'
+    n_classes: int, optional
+        number of channels, per default 1.
+    Returns
+    -------
+    seg_list: list
+        Contains image_segmenter_overlayed type objects
+    """
+    line_properties = {"color": "red", "linewidth": 1}
+    seg_list = [
+        image_segmenter_overlayed(
+            primary_image_stack[:, :, s],
+            secondary_image_stack[:, :, s],
+            img_extent=primary_img_extent,
+            second_img_extent=secondary_image_ext,
+            second_img_alpha=overlay,
+            second_img_cmap=secondary_image_cmap,
+            figsize=figsize,
+            nclasses=n_classes,
+            lineprops=None,
+            props=line_properties,
+            mask_alpha=0.76,
+            cmap="gray",
+        )
+        for s in range(primary_image_stack.shape[2])
+    ]
+    return seg_list
+
+
+def draw_masks(segmenter_list, roi_names=None):
+    """
+    Loads a segmenter_list and then allows the user to draw ROIs which are saved in the segmenter_list.
+    Parameters
+    ----------
+    segmenter_list: list of image_segmenter objects
+        Usually returned from get_segmenter_list.
+    roi_names: list of str, optional
+        Names of ROIs as str for better overview when segmenting multiple ROIs.
+    """
+
+    # define image plotting function
+    def plot_imgs(n_slice, eraser_mode, roi_key):
+        temp_seg = segmenter_list[n_slice]
+        temp_seg.erasing = eraser_mode
+        if roi_names:
+            # names instead of numbers
+            # +1 to have the same colorscheme as we start with
+            # index 0
+            roi_number = roi_names.index(roi_key) + 1
+        else:
+            # default numbering
+            roi_number = roi_key
+        temp_seg.current_class = roi_number
+        display(temp_seg)
+
+    n_rois = segmenter_list[0].nclasses
+    n_slices = len(segmenter_list)
+
+    # Making the UI
+    if roi_names:
+        class_selector = widgets.Dropdown(options=roi_names, description="ROI name")
+    else:
+        class_selector = widgets.Dropdown(
+            options=list(range(1, n_rois + 1)), description="ROI number"
+        )
+
+    erasing_button = widgets.Checkbox(value=False, description="Erasing")
+    # create interactive slider for echoes
+
+    slice_slider = widgets.IntSlider(
+        value=n_slices // 2, min=0, max=n_slices - 1, description="Slice: "
+    )
+
+    # put both sliders inside a HBox for nice alignment  etc.
+    ui = widgets.HBox(
+        [erasing_button, slice_slider, class_selector],
+        layout=widgets.Layout(display="flex"),
+    )
+
+    sliders = widgets.interactive_output(
+        plot_imgs,
+        {"n_slice": slice_slider, "eraser_mode": erasing_button, "roi_key": class_selector},
+    )
+
+    display(ui, sliders)
+
+
+def get_masks(segmenter_list, roi_keys=None, plot_res=False):
+    """
+    Extract the masks for a given segmenter list.
+
+    Parameters
+    ---------
+    segmenter_list: list of image_segmenter_overlayed objects
+    roi_keys: list of str, optional
+        Default is none, then just strings of numbers from 0-number_of_rois are the keys
+    plot_res: bool, optional.
+        if one wants the result to be plotted, default is False.
+    Returns
+    --------
+    mask_per_slice: dict
+        entries can be called via the selected keys.
+
+    Examples
+    --------
+    If we give keys:
+    masks = get_masks(segmenter_list,['Tumor','Kidney','Vessel'])
+    masked_secondary_image = masks['Tumor'] * secondary_image
+
+    If we dont give keys:
+    masks = ut_anat.get_masks_multi_rois(segmenter_list)
+    masked_secondary_image = masks['1'] * secondary_image
+    """
+    n_slices = len(segmenter_list)
+    n_rois = segmenter_list[0].nclasses
+    if not roi_keys:
+        # set default names
+        roi_keys = [str(n) for n in range(1, n_rois + 1)]
+    else:
+        # use given keys
+        pass
+    mask_per_slice = np.zeros(
+        (segmenter_list[0].mask.shape[0], segmenter_list[0].mask.shape[1], n_slices, n_rois)
+    )
+    for slic in range(0, n_slices):
+        for roi in range(0, n_rois):
+            test_mask = segmenter_list[slic].mask == roi + 1
+            mask_per_slice[:, :, slic, roi] = test_mask
+
+    mask_dict = dict()
+    for idx, roi_key in enumerate(roi_keys):
+        mask_dict.update({roi_key: mask_per_slice[:, :, :, idx - 1]})
+
+    if plot_res:
+        fig, ax = subplots(1, n_rois)
+
+        @widgets.interact(slices=(0, n_slices - 1, 1))
+        def update(slices=0):
+            if n_rois > 1:
+                [ax[n].imshow(mask_per_slice[:, :, slices, n]) for n in range(n_rois)]
+                [ax[n].set_title("ROI " + str(roi_keys[n])) for n in range(n_rois)]
+            else:
+                ax.imshow(mask_per_slice[:, :, slices, 0])
+                ax.set_title("ROI " + str(roi_keys[0]))
+
+    return mask_dict
+
+
+def get_mask_contours(segmenter_list):
+    """
+    Extract the contours of a mask segmented with mpl_interactions image_segmenter_overlayed
+
+    Parameters
+    ---------
+    segmenter_list: list of image_segmenter_overlayed objects
+
+    Returns
+    --------
+    contours: list(np.arrays)
+
+    Examples
+    ---------
+    To plot the contours on a primary image:
+    contours = get_roi_coords(seg_list)
+    fig,ax=subplots(1)
+    ax.imshow(primary_image)
+    for contour in contours:
+        ax.plot(contour[:, 1], contour[:, 0], linewidth=2, color='r')
+
+    """
+    contours = []
+    for n in range(len(segmenter_list)):
+        contours.append(measure.find_contours(segmenter_list[n].mask))
+    return contours
+
+
 def hyperslicer(
     arr,
     cmap=None,
@@ -594,7 +976,6 @@ def hyperslicer(
     display_controls=True,
     **kwargs,
 ):
-
     """
     View slices from a hyperstack of images selected by sliders. Also accepts Xarray.DataArrays
     in which case the axes names and coordinates will be inferred from the xarray dims and coords.
@@ -697,7 +1078,6 @@ def hyperslicer(
 
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
-
         start, stop = None, None
         name = f"axis{i}"
         if name in kwargs:
