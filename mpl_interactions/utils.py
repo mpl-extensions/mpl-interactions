@@ -23,7 +23,7 @@ class _ioff_class:
     """
     A context manager for turning interactive mode off. Now
     that https://github.com/matplotlib/matplotlib/pull/17371 has been merged this will
-    be available via ``plt.ioff`` starting in Matplotlib 3.4
+    be available via ``plt.ioff`` starting in Matplotlib 3.4.
     """
 
     def __call__(self):
@@ -92,7 +92,7 @@ def nearest_idx(array, value, axis=None):
 def indexer(arr, index_name=None, axis=0):
     """
     Utility function for when you want to index an array as part of an interactive function.
-    For example: ``iplt.plot(indexor(arr), idx = np.arange(5))``
+    For example: ``iplt.plot(indexor(arr), idx = np.arange(5))``.
 
     Parameters
     ----------
@@ -109,7 +109,6 @@ def indexer(arr, index_name=None, axis=0):
     f : function
         Function to be passed as an argument to an interactive plotting function
     """
-
     if index_name is None:
         idxs = ["idx", "index", "indx", "ind"]
     else:

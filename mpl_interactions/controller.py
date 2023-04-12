@@ -67,7 +67,7 @@ class Controls:
     def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None, allow_duplicates=False):
         """
         If you pass a redundant kwarg it will just be overwritten
-        maybe should only raise a warning rather than an error?
+        maybe should only raise a warning rather than an error?.
 
         need to implement matplotlib widgets
         also a big question is how to dynamically update the display of matplotlib widgets.
@@ -109,7 +109,7 @@ class Controls:
                     )
                     if control:
                         self.controls[k] = control
-                        self.vbox.children = list(self.vbox.children) + [control]
+                        self.vbox.children = [*list(self.vbox.children), control]
                 if k == "vmin_vmax":
                     self.params["vmin"] = self.params["vmin_vmax"][0]
                     self.params["vmax"] = self.params["vmin_vmax"][1]
@@ -140,9 +140,7 @@ class Controls:
                         self.params["vmax"] = self.params["vmin_vmax"][1]
 
     def _slider_updated(self, change, key, values):
-        """
-        gotta also give the indices in order to support hyperslicer without horrifying contortions
-        """
+        """Gotta also give the indices in order to support hyperslicer without horrifying contortions."""
         if values is None:
             self.params[key] = change["new"]
         else:
@@ -183,7 +181,7 @@ class Controls:
         """
         thin wrapper to enable splitting of special cased range sliders.
         e.g. of ``vmin_vmax`` -> ``vmin`` and ``vmax``. In the future maybe
-        generalize this to any range slider with an underscore in the name?
+        generalize this to any range slider with an underscore in the name?.
         """
         self._slider_updated(change, key, values)
         if key == "vmin_vmax":
@@ -215,9 +213,7 @@ class Controls:
         self._register_function(callback, fig=None, params=params)
 
     def _register_function(self, f, fig=None, params=None):
-        """
-        if params is None use the entire current set of params
-        """
+        """If params is None use the entire current set of params."""
         if params is None:
             params = self.params.keys()
         # listify to ensure it's not a reference to dicts keys
@@ -306,9 +302,7 @@ class Controls:
         return anim
 
     def display(self):
-        """
-        Display the display the ipywidgets controls or show the control figures
-        """
+        """Display the display the ipywidgets controls or show the control figures."""
         if self.use_ipywidgets:
             ipy_display(self.vbox)
         else:
@@ -317,9 +311,7 @@ class Controls:
                     fig.show()
 
     def show(self):
-        """
-        Show the control figures or display the ipywidgets controls
-        """
+        """Show the control figures or display the ipywidgets controls."""
         self.display()
 
     def _ipython_display_(self):
@@ -330,7 +322,7 @@ class Controls:
         hack to allow calls like
         interactive_plot(...beta=(0,1), controls = controls["tau"])
         also allows [None] to grab None of the current params
-        to imply that we only want tau from the existing set of commands
+        to imply that we only want tau from the existing set of commands.
 
         I think ideally this would give another controls object with just the given
         params that has this one as a parent - I think that that is most consistent with
@@ -338,7 +330,6 @@ class Controls:
         But it's not clear how to implement that with all the sliders and such that get
         created. So for now do a sort of half-measure by returing the controls_proxy object.
         """
-
         # make sure keys is a list
         # bc in gogogo_controls it may get added to another list
         keys = key
@@ -451,7 +442,7 @@ def _gen_f(key):
 def _gen_param_excluder(added_kwargs):
     """
     Pass through all the original keys, but exclude any kwargs that we added
-    manually through prep_scalar
+    manually through prep_scalar.
 
     Parameters
     ----------

@@ -332,9 +332,7 @@ class panhandler:
 
     @property
     def enabled(self) -> bool:
-        """
-        Status of the panhandler, whether it's enabled or disabled.
-        """
+        """Status of the panhandler, whether it's enabled or disabled."""
         return self._id_press is not None and self._id_release is not None
 
     def enable(self):
@@ -417,9 +415,7 @@ class panhandler:
 
 
 class image_segmenter:
-    """
-    Manually segment an image with the lasso selector.
-    """
+    """Manually segment an image with the lasso selector."""
 
     def __init__(
         self,
@@ -563,7 +559,7 @@ class image_segmenter:
         self.fig.canvas.draw_idle()
 
     def _ipython_display_(self):
-        display(self.fig.canvas)  # noqa: F405, F821
+        display(self.fig.canvas)  # noqa: F821
 
 
 def hyperslicer(
@@ -654,7 +650,6 @@ def hyperslicer(
     -------
     controls
     """
-
     arr = np.squeeze(arr)
 
     arr_type = "numpy"

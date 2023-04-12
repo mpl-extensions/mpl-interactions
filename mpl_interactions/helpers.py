@@ -45,9 +45,7 @@ __all__ = [
 
 
 def sca(ax):
-    """
-    sca that won't fail if figure not managed by pyplot
-    """
+    """Sca that won't fail if figure not managed by pyplot."""
     try:
         mpl_sca(ax)
     except ValueError as e:
@@ -88,7 +86,7 @@ def update_datalim_from_xy(ax, x, y, stretch_x=True, stretch_y=True):
     x : array
         the new x datavalues to include
     y : array
-        the new y datavalues to include
+        the new y datavalues to include.
     """
     # this part bc scatter not affect by relim
     # so need this to keep stretchign working for scatter
@@ -103,7 +101,7 @@ def is_jagged(seq):
     """
     checks for jaggedness up to two dimensions
     don't need more because more doesn't make any sense for this library
-    need this bc numpy is unhappy about being passed jagged arrays now :(
+    need this bc numpy is unhappy about being passed jagged arrays now :(.
     """
     lens = []
     if is_sequence(seq):
@@ -140,7 +138,7 @@ def broadcast_to(arr, to_shape, names):
     import sys
     xs = np.arange(5)
     print(sys.getsizeof(xs.nbytes))
-    print(sys.getsizeof(np.broadcast_to(xs, (19000, xs.shape[0]))))
+    print(sys.getsizeof(np.broadcast_to(xs, (19000, xs.shape[0])))).
 
     gives 28 and 112. Note 112/28 != 19000
     """
@@ -161,9 +159,8 @@ def broadcast_to(arr, to_shape, names):
 def broadcast_arrays(*args):
     """
     This is a modified version the numpy `broadcast_arrays` function
-    that uses a version of _broadcast_to that only considers the first axis
+    that uses a version of _broadcast_to that only considers the first axis.
     """
-
     shapes = [array.shape[0] for (array, name) in args]
     idx = np.argmax(shapes)
     if all([shapes[0] == s for s in shapes]):
@@ -175,15 +172,13 @@ def broadcast_arrays(*args):
 def broadcast_many(*args):
     """
     helper to call prep_broadcast followed by broadcast arrays
-    keep as a separate function to keep the idea of broadcast_arrays the same
+    keep as a separate function to keep the idea of broadcast_arrays the same.
     """
     return broadcast_arrays(*[(prep_broadcast(arg[0]), arg[1]) for arg in args])
 
 
 def notebook_backend():
-    """
-    returns True if the backend is ipympl or nbagg, otherwise False
-    """
+    """Returns True if the backend is ipympl or nbagg, otherwise False."""
     backend = get_backend().lower()
     if "ipympl" in backend:
         return True
@@ -193,9 +188,7 @@ def notebook_backend():
 
 
 def callable_else_value(arg, params, cache=None):
-    """
-    returns as a numpy array
-    """
+    """Returns as a numpy array."""
     if isinstance(arg, Callable):
         if cache:
             if arg not in cache:
@@ -209,7 +202,7 @@ def callable_else_value(arg, params, cache=None):
 def callable_else_value_no_cast(arg, params, cache=None):
     """
     doesn't cast to numpy. Useful when working with parametric functions that might
-    return (x, y) where it's handy to check if the return is a tuple
+    return (x, y) where it's handy to check if the return is a tuple.
     """
     if isinstance(arg, Callable):
         if cache:
@@ -302,7 +295,6 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
         widget (e.g. HBox) depending on what widget was generated. If a fixed value is
         returned then control will be *None*
     """
-
     control = None
     if isinstance(val, set):
         if len(val) == 1:
@@ -401,9 +393,7 @@ def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None)
 
 
 def extract_num_options(val):
-    """
-    convert a categorical to a number of options
-    """
+    """Convert a categorical to a number of options."""
     if len(val) == 1:
         for v in val:
             if isinstance(v, tuple):
@@ -422,7 +412,7 @@ def extract_num_options(val):
 def changeify(val, update):
     """
     make matplotlib update functions return a dict with key 'new'.
-    Do this for compatibility with ipywidgets
+    Do this for compatibility with ipywidgets.
     """
     update({"new": val})
 
@@ -431,7 +421,7 @@ def changeify_radio(val, labels, update):
     r"""
     matplolib radio buttons don't keep track what index is selected. So this
     figures out what the index is
-    made a whole function bc its easier to use with partial then
+    made a whole function bc its easier to use with partial then.
 
     There doesn't seem to be a good way to determine which one was clicked if the
     radio button has multiple identical values but that's wildly niche
@@ -465,7 +455,7 @@ def create_mpl_controls_fig(kwargs):
     n_opts = 0
     n_radio = 0
     n_sliders = 0
-    for key, val in kwargs.items():
+    for _key, val in kwargs.items():
         if isinstance(val, set):
             new_opts = extract_num_options(val)
             if new_opts > 0:
@@ -492,7 +482,7 @@ def create_mpl_controls_fig(kwargs):
     slider_height = 0
     radio_height = 0
     gap_height = 0
-    if not all(map(lambda x: isinstance(x, mwidgets.AxesWidget), kwargs.values())):
+    if not all(isinstance(x, mwidgets.AxesWidget) for x in kwargs.values()):
         # if the only kwargs are existing matplotlib widgets don't make a new figure
         with ioff():
             fig = figure()
@@ -510,9 +500,7 @@ def create_mpl_controls_fig(kwargs):
 
 
 def create_mpl_selection_slider(ax, label, values, slider_format_string):
-    """
-    creates a slider that behaves similarly to the ipywidgets selection slider
-    """
+    """Creates a slider that behaves similarly to the ipywidgets selection slider."""
     slider = mwidgets.Slider(ax, label, 0, len(values) - 1, valinit=0, valstep=1)
 
     def update_text(val):
@@ -525,9 +513,7 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
 
 
 def create_mpl_range_selection_slider(ax, label, values, slider_format_string):
-    """
-    creates a slider that behaves similarly to the ipywidgets selection slider
-    """
+    """Creates a slider that behaves similarly to the ipywidgets selection slider."""
     slider = RangeSlider(ax, label, 0, len(values) - 1, valinit=(0, len(values) - 1), valstep=1)
 
     def update_text(val):
@@ -547,7 +533,7 @@ def process_mpl_widget(val, update):
     """
     handle the case of a kwarg being an existing matplotlib widget.
     This needs to be separate so that the controller can call it when mixing ipywidets and
-    a widget like scatter_selector without having to create a control figure
+    a widget like scatter_selector without having to create a control figure.
     """
     if isinstance(val, mwidgets.RadioButtons):
         # gotta set it to the zeroth index bc there's no reasonable way to determine the current value
@@ -589,7 +575,7 @@ def kwarg_to_mpl_widget(
     cb
         the callback id
     new_y
-        The widget_y to use for the next pass
+        The widget_y to use for the next pass.
     """
     slider_height, radio_height, gap_height = heights
 
@@ -608,7 +594,7 @@ def kwarg_to_mpl_widget(
             val = list(val)
 
         n = len(val)
-        longest_len = max(list(map(lambda x: len(list(x)), map(str, val))))
+        longest_len = max([len(list(x)) for x in map(str, val)])
         # should probably use something based on fontsize rather that .015
         width = max(0.15, 0.015 * longest_len)
         radio_ax = fig.add_axes([0.2, 0.9 - widget_y - radio_height * n, width, radio_height * n])
@@ -689,9 +675,7 @@ def create_slider_format_dict(slider_format_string):
 
 
 def gogogo_figure(ipympl, ax=None):
-    """
-    gogogo the greatest function name of all
-    """
+    """Gogogo the greatest function name of all."""
     if ax is None:
         if ipympl:
             with ioff():
