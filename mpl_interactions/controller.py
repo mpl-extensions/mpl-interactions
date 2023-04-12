@@ -24,6 +24,8 @@ from .helpers import (
 
 
 class Controls:
+    """Manager of many interactive functions."""
+
     def __init__(
         self,
         slider_formats=None,
@@ -45,7 +47,8 @@ class Controls:
         if self.use_ipywidgets:
             if _not_ipython:
                 raise ValueError(
-                    "You need to be in an Environment with IPython.display available to use ipywidgets"
+                    "You need to be in an Environment with IPython.display"
+                    " available to use ipywidgets"
                 )
             self.vbox = widgets.VBox([])
         else:
@@ -65,7 +68,8 @@ class Controls:
         self.add_kwargs(kwargs, slider_formats, play_buttons)
 
     def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None, allow_duplicates=False):
-        """
+        """Add kwargs to the controller.
+
         If you pass a redundant kwarg it will just be overwritten
         maybe should only raise a warning rather than an error?.
 
@@ -140,7 +144,8 @@ class Controls:
                         self.params["vmax"] = self.params["vmin_vmax"][1]
 
     def _slider_updated(self, change, key, values):
-        """Gotta also give the indices in order to support hyperslicer without horrifying contortions."""
+        # Gotta also give the indices in order to support
+        # hyperslicer without horrifying contortions
         if values is None:
             self.params[key] = change["new"]
         else:
@@ -178,7 +183,10 @@ class Controls:
             f.canvas.draw_idle()
 
     def slider_updated(self, change, key, values):
-        """
+        """Call the slider updated function special casing vmin/vmax.
+
+        Not sure why this is public - users should NOT call this directly.
+
         thin wrapper to enable splitting of special cased range sliders.
         e.g. of ``vmin_vmax`` -> ``vmin`` and ``vmax``. In the future maybe
         generalize this to any range slider with an underscore in the name?.
@@ -230,7 +238,7 @@ class Controls:
                     # the figure
 
     def save_animation(
-        self, filename, fig, param, interval=20, func_anim_kwargs={}, N_frames=None, **kwargs
+        self, filename, fig, param, interval=20, func_anim_kwargs=None, N_frames=None, **kwargs
     ):
         """
         Save an animation over one of the parameters controlled by this `Controls` object.
@@ -238,12 +246,14 @@ class Controls:
         Parameters
         ----------
         filename : str
+            Where to save the animation
         fig : figure
+            The figure to animate.
         param : str
             the name of the kwarg to use to animate
         interval : int, default: 2o
             interval between frames in ms
-        func_anim_kwargs : dict
+        func_anim_kwargs : dict, optional
             kwargs to pass the creation of the underlying FuncAnimation
         N_frames : int
             Only used if the param is a matplotlib slider that was created without a
@@ -257,6 +267,8 @@ class Controls:
         -------
         anim : matplotlib.animation.FuncAniation
         """
+        if func_anim_kwargs is None:
+            func_anim_kwargs = {}
         slider = self.controls[param]
         ipywidgets_slider = False
         if "Box" in str(slider.__class__):
@@ -329,7 +341,7 @@ class Controls:
         the idea of indexing (e.g. indexing a numpy array gives you a numpy array).
         But it's not clear how to implement that with all the sliders and such that get
         created. So for now do a sort of half-measure by returing the controls_proxy object.
-        """
+        """  # noqa: D205
         # make sure keys is a list
         # bc in gogogo_controls it may get added to another list
         keys = key
@@ -343,10 +355,12 @@ class Controls:
         return _controls_proxy(self, context=False, keys=keys)
 
     def __enter__(self):
+        """Have this controller act as the active controller."""
         self._context = _controls_proxy(self, context=True, keys=list(self.params.keys()))
         return self._context
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Remove this controller from the controls stack."""
         self._context._stack.remove(self._context)
 
 
@@ -378,6 +392,11 @@ def gogogo_controls(
     extra_controls=None,
     allow_dupes=False,
 ):
+    """
+    Create a new controls object.
+
+    This should be private - users should NOT use this.
+    """
     # check if we're in a controls context manager
     if len(_controls_proxy._stack) > 0:
         ctrl_context = _controls_proxy._stack[-1]
@@ -439,8 +458,9 @@ def _gen_f(key):
     return f
 
 
-def _gen_param_excluder(added_kwargs):
-    """
+def _gen_param_excluder(added_kwargs):  # noqa: D417
+    """Make a function to handle remove params from kwargs.
+
     Pass through all the original keys, but exclude any kwargs that we added
     manually through prep_scalar.
 
@@ -453,13 +473,13 @@ def _gen_param_excluder(added_kwargs):
     excluder : callable
     """
 
-    def excluder(params, except_=None):
+    def excluder(params, except_=None):  # noqa: D417
         """
         Parameters
         ----------
         params : dict
         except : str or list[str]
-        """
+        """  # noqa: D205
         if isinstance(except_, str) or except_ is None:
             except_ = [except_]
 
@@ -469,9 +489,10 @@ def _gen_param_excluder(added_kwargs):
 
 
 def prep_scalars(kwarg_dict, **kwargs):
-    """
-    Process potentially scalar arguments. This allows for passing in
-    slider shorthands for these arguments, and for passing indexed controls objects for them.
+    """Process potentially scalar arguments.
+
+    This allows for passing in slider shorthands for these arguments,
+    and for passing indexed controls objects for them.
 
     Parameters
     ----------

@@ -20,18 +20,19 @@ __all__ = [
 
 
 class _ioff_class:
-    """
-    A context manager for turning interactive mode off. Now
-    that https://github.com/matplotlib/matplotlib/pull/17371 has been merged this will
+    """A context manager for turning interactive mode off.
+
+    Now that https://github.com/matplotlib/matplotlib/pull/17371 has been merged this will
     be available via ``plt.ioff`` starting in Matplotlib 3.4.
     """
 
     def __call__(self):
         """Turn the interactive mode off."""
         warnings.warn(
-            "ioff is deprecated in mpl-interactions. Please use `with plt.ioff():` directly from matplotlib instead.",
+            "ioff is deprecated in mpl-interactions."
+            " Please use `with plt.ioff():` directly from matplotlib instead.",
             mpl_interactions_DeprecationWarning,
-            3,
+            stacklevel=3,
         )
         interactive(False)
         uninstall_repl_displayhook()
@@ -64,18 +65,20 @@ def figure(figsize=1, *args, **kwargs):
     """
     if not isinstance(figsize, Iterable) and figsize is not None:
         figsize = [figsize * x for x in rcParams["figure.figsize"]]
-    return mpl_figure(figsize=figsize, *args, **kwargs)
+    return mpl_figure(*args, figsize=figsize, **kwargs)
 
 
 def nearest_idx(array, value, axis=None):
-    """
-    Return the index of the array that is closest to value. Equivalent to
-    `np.argmin(np.abs(array-value), axis=axis) <numpy.argmin>`.
+    """Return the index of the array that is closest to value.
+
+    Equivalent to  `np.argmin(np.abs(array-value), axis=axis) <numpy.argmin>`.
 
     Parameters
     ----------
     array : arraylike
+        The array to search through
     value : Scalar
+        The value to search for.
     axis : int, optional
         From np.argmin: "By default, the index is into the flattened array, otherwise
         along the specified axis."
@@ -90,8 +93,8 @@ def nearest_idx(array, value, axis=None):
 
 
 def indexer(arr, index_name=None, axis=0):
-    """
-    Utility function for when you want to index an array as part of an interactive function.
+    """Index an array as part of an interactive function.
+
     For example: ``iplt.plot(indexor(arr), idx = np.arange(5))``.
 
     Parameters

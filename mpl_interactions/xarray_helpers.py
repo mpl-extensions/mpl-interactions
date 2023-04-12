@@ -30,9 +30,7 @@ def choose_datetime_nonsense(arr, timeunit="m"):
 
 
 def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
-    """
-    Read the dims and coordinates from an xarray and construct the
-    axes argument for hyperslicer. Called internally by hyperslicer.
+    """Read the dims and coordinates from an xarray and construct the axes argument for hyperslicer.
 
     Parameters
     ----------
@@ -59,9 +57,7 @@ def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
 
 
 def get_hs_extent(xarr, is_color_image=False, origin="upper"):
-    """
-    Read the "YX" coordinates of an xarray.DataArray to set extent of image for
-    imshow.
+    """Read the "YX" coordinates of an xarray.DataArray to set extent of image for imshow.
 
     Parameters
     ----------
@@ -99,9 +95,7 @@ def get_hs_extent(xarr, is_color_image=False, origin="upper"):
 
 
 def get_hs_fmts(xarr, units=None, is_color_image=False):
-    """
-    Get appropriate slider format strings from xarray coordinates
-    based the dtype of corresponding values.
+    """Get appropriate slider format strings from xarray coordinates.
 
     Parameters
     ----------

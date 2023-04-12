@@ -1,8 +1,9 @@
 """Control the output of standard plotting functions such as :func:`~matplotlib.pyplot.plot` and
-:func:`~matplotlib.pyplot.hist` using sliders and other widgets. When using the ``ipympl`` backend
-these functions will leverage ipywidgets for the controls, otherwise they will use the built-in
+:func:`~matplotlib.pyplot.hist` using sliders and other widgets.
+
+ When using the ``ipympl`` backend these functions will leverage ipywidgets for the controls, otherwise they will use the built-in
 Matplotlib widgets.
-"""
+"""  # noqa: D205
 
 
 from collections.abc import Callable
@@ -112,6 +113,8 @@ def interactive_plot(
         controls
     display_controls : boolean
         Whether the controls should display on creation. Ignored if controls is specified.
+    **kwargs:
+        Interpreted as widgets and remainder are passed through to `ax.plot`.
 
     Returns
     -------
@@ -159,8 +162,7 @@ def interactive_plot(
     else:
         raise ValueError(f"You passed in {len(args)} args, but no more than 3 is supported.")
 
-    ipympl = notebook_backend()
-    ipympl or force_ipywidgets
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax=ax)
     slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
@@ -377,9 +379,8 @@ def interactive_hist(
             return np.random.randn(1000)*scale + loc
         interactive_hist(f, loc=(-5, 5, 500), scale=(1, 10, 100))
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax=ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
@@ -508,9 +509,8 @@ def interactive_scatter(
 
     kwargs, collection_kwargs = kwarg_popper(kwargs, collection_kwargs_list)
 
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     extra_ctrls = []
@@ -714,9 +714,8 @@ def interactive_imshow(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
     kwargs, imshow_kwargs = kwarg_popper(kwargs, imshow_kwargs_list)
 
@@ -853,9 +852,8 @@ def interactive_axhline(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
@@ -946,9 +944,8 @@ def interactive_axvline(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
@@ -998,9 +995,9 @@ def interactive_title(
     force_ipywidgets=False,
     **kwargs,
 ):
-    """
-    Set an title that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
-    other kwargs will be used to create interactive controls.
+    """Set the title to update interactively.
+
+    kwargs for `matplotlib.text.Text` will be passed through, other kwargs will be used to create interactive controls.
 
     Parameters
     ----------
@@ -1033,19 +1030,19 @@ def interactive_title(
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
+    **kwargs:
+        Passed through to `ax.set_title`
 
     Returns
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1133,9 +1130,8 @@ def interactive_xlabel(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1177,9 +1173,10 @@ def interactive_ylabel(
     force_ipywidgets=False,
     **kwargs,
 ):
-    """
-    Set a ylabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
-    other kwargs will be used to create interactive controls.
+    """Set a ylabel that will update interactively.
+
+    kwargs for `matplotlib.text.Text` will be passed through, other kwargs will
+    be used to create interactive controls.
 
     Parameters
     ----------
@@ -1220,9 +1217,8 @@ def interactive_ylabel(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1308,9 +1304,8 @@ def interactive_text(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
