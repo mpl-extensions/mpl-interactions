@@ -7,9 +7,7 @@ from matplotlib.widgets import AxesWidget
 
 
 class scatter_selector(AxesWidget):
-    """
-    A widget for selecting a point in a scatter plot. callback will receive (index, (x, y))
-    """
+    """A widget for selecting a point in a scatter plot. callback will receive (index, (x, y))."""
 
     def __init__(self, ax, x, y, pickradius=5, which_button=1, **kwargs):
         """
@@ -25,6 +23,8 @@ class scatter_selector(AxesWidget):
             Pick radius, in points.
         which_button : int, default: 1
             Where 1=left, 2=middle, 3=right
+        **kwargs:
+            Passed through to scatter.
 
         Other Parameters
         ----------------
@@ -56,8 +56,7 @@ class scatter_selector(AxesWidget):
         self._observers.process("picked", idx, val)
 
     def on_changed(self, func):
-        """
-        When a point is clicked calll *func* with the newly selected point
+        """When a point is clicked calll *func* with the newly selected point.
 
         Parameters
         ----------
@@ -74,9 +73,9 @@ class scatter_selector(AxesWidget):
 
 
 class scatter_selector_index(scatter_selector):
-    """
-    A widget for selecting a point in a scatter plot. callback will receive the index of
-    the selected point as an argument.
+    """A widget for selecting a point in a scatter plot.
+
+    Callbacks will receive the index of the selected point as an argument.
     """
 
     def _init_val(self):
@@ -86,7 +85,8 @@ class scatter_selector_index(scatter_selector):
         self._observers.process("picked", idx)
 
     def on_changed(self, func):
-        """
+        """Attach a callback for when points are selected.
+
         When a point is clicked calll *func* with the newly selected point's index
         and position as arguments.
 
@@ -105,9 +105,9 @@ class scatter_selector_index(scatter_selector):
 
 
 class scatter_selector_value(scatter_selector):
-    """
-    A widget for selecting a point in a scatter plot. callbacks will receive the x,y position of
-    the selected point as arguments.
+    """A widget for selecting a point in a scatter plot.
+
+    Callbacks will receive the x,y position of the selected point as arguments.
     """
 
     def _init_val(self):
@@ -117,7 +117,8 @@ class scatter_selector_value(scatter_selector):
         self._observers.process("picked", val)
 
     def on_changed(self, func):
-        """
+        """Attach a callback for when points are selected.
+
         When a point is clicked calll *func* with the newly selected point's index
         as arguments.
 
@@ -138,6 +139,8 @@ class scatter_selector_value(scatter_selector):
 # slider widgets are taken almost verbatim from https://github.com/matplotlib/matplotlib/pull/18829/files
 # which was written by me - but incorporates much of the existing matplotlib slider infrastructure
 class SliderBase(AxesWidget):
+    """Base Class for all sliders."""
+
     def __init__(
         self, ax, orientation, closedmin, closedmax, valmin, valmax, valfmt, dragging, valstep
     ):
@@ -184,8 +187,7 @@ class SliderBase(AxesWidget):
         return val
 
     def disconnect(self, cid):
-        """
-        Remove the observer with connection id *cid*
+        """Remove the observer with connection id *cid*.
 
         Parameters
         ----------
@@ -195,7 +197,7 @@ class SliderBase(AxesWidget):
         self._observers.disconnect(cid)
 
     def reset(self):
-        """Reset the slider to the initial value"""
+        """Reset the slider to the initial value."""
         if self.val != self.valinit:
             self.set_val(self.valinit)
 
@@ -230,6 +232,8 @@ class RangeSlider(SliderBase):
         **kwargs,
     ):
         """
+        Create a RangeSlider.
+
         Parameters
         ----------
         ax : Axes
@@ -256,6 +260,8 @@ class RangeSlider(SliderBase):
             If given, the slider will snap to multiples of *valstep*.
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
+        **kwargs:
+            Passed to axhspan
 
         Notes
         -----
@@ -320,38 +326,32 @@ class RangeSlider(SliderBase):
         self.set_val(valinit)
 
     def _min_in_bounds(self, min):
-        """
-        Ensure the new min value is between valmin and self.val[1]
-        """
+        """Ensure the new min value is between valmin and self.val[1]."""
         if min <= self.valmin:
             if not self.closedmin:
                 return self.val[0]
-            min = self.valmin
+            min = self.valmin  # noqa: A001
 
         if min > self.val[1]:
-            min = self.val[1]
+            min = self.val[1]  # noqa: A001
         return self._stepped_value(min)
 
     def _max_in_bounds(self, max):
-        """
-        Ensure the new max value is between valmax and self.val[0]
-        """
+        """Ensure the new max value is between valmax and self.val[0]."""
         if max >= self.valmax:
             if not self.closedmax:
                 return self.val[1]
-            max = self.valmax
+            max = self.valmax  # noqa: A001
 
         if max <= self.val[0]:
-            max = self.val[0]
+            max = self.val[0]  # noqa: A001
         return self._stepped_value(max)
 
     def _value_in_bounds(self, val):
         return (self._min_in_bounds(val[0]), self._max_in_bounds(val[1]))
 
     def _update_val_from_pos(self, pos):
-        """
-        Given a position update the *val*
-        """
+        """Given a position update the *val*."""
         idx = np.argmin(np.abs(self.val - pos))
         if idx == 0:
             val = self._min_in_bounds(pos)
@@ -396,33 +396,33 @@ class RangeSlider(SliderBase):
             # use raw string to avoid issues with backslashes from
             return rf"({s1}, {s2})"
 
-    def set_min(self, min):
-        """
-        Set the lower value of the slider to *min*
+    def set_min(self, val):
+        """Set the lower value of the slider to *val*.
 
         Parameters
         ----------
-        min : float
+        val : float
+            The value to set the min to.
         """
-        self.set_val((min, self.val[1]))
+        self.set_val((val, self.val[1]))
 
-    def set_max(self, max):
-        """
-        Set the lower value of the slider to *max*
+    def set_max(self, val):
+        """Set the lower value of the slider to *val*.
 
         Parameters
         ----------
-        max : float
+        val : float
+            The value to set the max to.
         """
-        self.set_val((self.val[0], max))
+        self.set_val((self.val[0], val))
 
     def set_val(self, val):
-        """
-        Set slider value to *val*
+        """Set slider value to *val*.
 
         Parameters
         ----------
         val : tuple or arraylike of float
+            The position to move the slider to.
         """
         val = np.sort(np.asanyarray(val))
         if val.shape != (2,):
@@ -451,9 +451,7 @@ class RangeSlider(SliderBase):
             self._observers.process("changed", val)
 
     def on_changed(self, func):
-        """
-        When the slider value is changed call *func* with the new
-        slider value
+        """Attach a callback to when the slider is changed.
 
         Parameters
         ----------
