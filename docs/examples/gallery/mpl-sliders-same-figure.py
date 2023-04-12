@@ -1,7 +1,7 @@
 """
 =====================================================
 Matplotlib Sliders without a separate Controls Figure
-=====================================================
+=====================================================.
 
 Demonstration of how to provide a matplotlib slider to prevent
 the creation of a separate controls figure.

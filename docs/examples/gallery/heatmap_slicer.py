@@ -1,7 +1,7 @@
 """
 =============
 Heamap Slicer
-=============
+=============.
 
 """
 import matplotlib.pyplot as plt

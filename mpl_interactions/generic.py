@@ -44,7 +44,6 @@ def heatmap_slicer(
     figsize=(18, 9),
     **pcolormesh_kwargs,
 ):
-
     """
     Compare horizontal and/or vertical slices across multiple arrays.
 
@@ -333,9 +332,7 @@ class panhandler:
 
     @property
     def enabled(self) -> bool:
-        """
-        Status of the panhandler, whether it's enabled or disabled.
-        """
+        """Status of the panhandler, whether it's enabled or disabled."""
         return self._id_press is not None and self._id_release is not None
 
     def enable(self):
@@ -418,9 +415,7 @@ class panhandler:
 
 
 class image_segmenter:
-    """
-    Manually segment an image with the lasso selector.
-    """
+    """Manually segment an image with the lasso selector."""
 
     def __init__(
         self,
@@ -564,7 +559,7 @@ class image_segmenter:
         self.fig.canvas.draw_idle()
 
     def _ipython_display_(self):
-        display(self.fig.canvas)  # noqa: F405, F821
+        display(self.fig.canvas)  # noqa: F821
 
 
 def hyperslicer(
@@ -594,7 +589,6 @@ def hyperslicer(
     display_controls=True,
     **kwargs,
 ):
-
     """
     View slices from a hyperstack of images selected by sliders. Also accepts Xarray.DataArrays
     in which case the axes names and coordinates will be inferred from the xarray dims and coords.
@@ -656,7 +650,6 @@ def hyperslicer(
     -------
     controls
     """
-
     arr = np.squeeze(arr)
 
     arr_type = "numpy"
@@ -697,7 +690,6 @@ def hyperslicer(
 
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
-
         start, stop = None, None
         name = f"axis{i}"
         if name in kwargs:

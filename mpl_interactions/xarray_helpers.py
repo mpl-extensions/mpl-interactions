@@ -20,7 +20,6 @@ def choose_datetime_nonsense(arr, timeunit="m"):
         Array modified to format decently in a slider.
 
     """
-
     if np.issubdtype(arr.dtype, "datetime64"):
         out = arr.astype(f"datetime64[{timeunit}]")
     elif np.issubdtype(arr.dtype, "timedelta64"):
@@ -77,7 +76,6 @@ def get_hs_extent(xarr, is_color_image=False):
         Extent argument for imshow. [d0_min, d0_max, d1_min, d1_max]
 
     """
-
     if not is_color_image:
         dims = xarr.dims[-2:]
     else:
@@ -122,7 +120,7 @@ def get_hs_fmts(xarr, units=None, is_color_image=False):
         fmt_strs[d] = choose_fmt_str(xarr[d].dtype)
         if units is not None and units[i] is not None:
             try:
-                fmt_strs[d] += " {}".format(units[i])
+                fmt_strs[d] += f" {units[i]}"
             except KeyError:
                 continue
     return fmt_strs

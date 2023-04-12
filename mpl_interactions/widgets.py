@@ -7,9 +7,7 @@ from matplotlib.widgets import AxesWidget
 
 
 class scatter_selector(AxesWidget):
-    """
-    A widget for selecting a point in a scatter plot. callback will receive (index, (x, y))
-    """
+    """A widget for selecting a point in a scatter plot. callback will receive (index, (x, y))."""
 
     def __init__(self, ax, x, y, pickradius=5, which_button=1, **kwargs):
         """
@@ -57,7 +55,7 @@ class scatter_selector(AxesWidget):
 
     def on_changed(self, func):
         """
-        When a point is clicked calll *func* with the newly selected point
+        When a point is clicked calll *func* with the newly selected point.
 
         Parameters
         ----------
@@ -185,7 +183,7 @@ class SliderBase(AxesWidget):
 
     def disconnect(self, cid):
         """
-        Remove the observer with connection id *cid*
+        Remove the observer with connection id *cid*.
 
         Parameters
         ----------
@@ -195,7 +193,7 @@ class SliderBase(AxesWidget):
         self._observers.disconnect(cid)
 
     def reset(self):
-        """Reset the slider to the initial value"""
+        """Reset the slider to the initial value."""
         if self.val != self.valinit:
             self.set_val(self.valinit)
 
@@ -320,9 +318,7 @@ class RangeSlider(SliderBase):
         self.set_val(valinit)
 
     def _min_in_bounds(self, min):
-        """
-        Ensure the new min value is between valmin and self.val[1]
-        """
+        """Ensure the new min value is between valmin and self.val[1]."""
         if min <= self.valmin:
             if not self.closedmin:
                 return self.val[0]
@@ -333,9 +329,7 @@ class RangeSlider(SliderBase):
         return self._stepped_value(min)
 
     def _max_in_bounds(self, max):
-        """
-        Ensure the new max value is between valmax and self.val[0]
-        """
+        """Ensure the new max value is between valmax and self.val[0]."""
         if max >= self.valmax:
             if not self.closedmax:
                 return self.val[1]
@@ -349,9 +343,7 @@ class RangeSlider(SliderBase):
         return (self._min_in_bounds(val[0]), self._max_in_bounds(val[1]))
 
     def _update_val_from_pos(self, pos):
-        """
-        Given a position update the *val*
-        """
+        """Given a position update the *val*."""
         idx = np.argmin(np.abs(self.val - pos))
         if idx == 0:
             val = self._min_in_bounds(pos)
@@ -398,7 +390,7 @@ class RangeSlider(SliderBase):
 
     def set_min(self, min):
         """
-        Set the lower value of the slider to *min*
+        Set the lower value of the slider to *min*.
 
         Parameters
         ----------
@@ -408,7 +400,7 @@ class RangeSlider(SliderBase):
 
     def set_max(self, max):
         """
-        Set the lower value of the slider to *max*
+        Set the lower value of the slider to *max*.
 
         Parameters
         ----------
@@ -418,7 +410,7 @@ class RangeSlider(SliderBase):
 
     def set_val(self, val):
         """
-        Set slider value to *val*
+        Set slider value to *val*.
 
         Parameters
         ----------
@@ -453,7 +445,7 @@ class RangeSlider(SliderBase):
     def on_changed(self, func):
         """
         When the slider value is changed call *func* with the new
-        slider value
+        slider value.
 
         Parameters
         ----------

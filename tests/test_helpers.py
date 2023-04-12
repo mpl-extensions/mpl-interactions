@@ -2,7 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.figure import Figure
 
-from mpl_interactions.helpers import sca, update_datalim_from_bbox, update_datalim_from_xy
+from mpl_interactions.helpers import (
+    sca,
+    update_datalim_from_bbox,
+    update_datalim_from_xy,
+)
 
 
 def test_bbox_update():

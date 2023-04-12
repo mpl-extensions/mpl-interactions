@@ -1,7 +1,7 @@
 """
 based on https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
 special thanks to @tacaswell for helping on the matplotlib discourse:
-https://discourse.matplotlib.org/t/mpl-iteractions-with-gui-outside-of-jupyter-notebooks/21523/6
+https://discourse.matplotlib.org/t/mpl-iteractions-with-gui-outside-of-jupyter-notebooks/21523/6.
 """
 
 import tkinter

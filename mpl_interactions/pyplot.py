@@ -1,7 +1,8 @@
 """Control the output of standard plotting functions such as :func:`~matplotlib.pyplot.plot` and
 :func:`~matplotlib.pyplot.hist` using sliders and other widgets. When using the ``ipympl`` backend
 these functions will leverage ipywidgets for the controls, otherwise they will use the built-in
-Matplotlib widgets."""
+Matplotlib widgets.
+"""
 
 
 from collections.abc import Callable
@@ -60,7 +61,7 @@ def interactive_plot(
     **kwargs,
 ):
     """
-    Control a plot using widgets
+    Control a plot using widgets.
 
     interactive_plot([x], y, [fmt])
 
@@ -376,7 +377,6 @@ def interactive_hist(
             return np.random.randn(1000)*scale + loc
         interactive_hist(f, loc=(-5, 5, 500), scale=(1, 10, 100))
     """
-
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax=ax)
     ipympl or force_ipywidgets
@@ -492,7 +492,6 @@ def interactive_scatter(
     -------
     controls
     """
-
     if isinstance(xlim, str):
         stretch_x = xlim == "stretch"
     else:
