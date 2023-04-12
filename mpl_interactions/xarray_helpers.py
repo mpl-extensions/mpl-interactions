@@ -59,7 +59,7 @@ def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
     return list(axes)
 
 
-def get_hs_extent(xarr, is_color_image=False):
+def get_hs_extent(xarr, is_color_image=False, origin="upper"):
     """
     Read the "YX" coordinates of an xarray.DataArray to set extent of image for
     imshow.
@@ -70,11 +70,14 @@ def get_hs_extent(xarr, is_color_image=False):
         DataArray being viewed with hyperslicer
     is_color_image : bool, default False
         Whether the individual images of the hyperstack are color images.
+    origin : {'upper', 'lower'}
+        Whether the imshow origin is in the top left or bottom left
+        see: https://matplotlib.org/stable/tutorials/intermediate/imshow_extent.html
 
     Returns
     -------
     extent : list
-        Extent argument for imshow. [d0_min, d0_max, d1_min, d1_max]
+        Extent argument for imshow.
 
     """
 
@@ -88,8 +91,12 @@ def get_hs_extent(xarr, is_color_image=False):
     extent = []
     for d in dims:
         vals = xarr[d].values
-        extent.append(vals.min())
-        extent.append(vals.max())
+        # offset by 0.5 in order to exactly match imshow
+        extent.append(vals.min() - 0.5)
+        extent.append(vals.max() + 0.5)
+    if origin == "upper":
+        # for origin==upper imshow puts the small values at the top
+        extent[2], extent[3] = extent[3], extent[2]
     return extent
 
 
