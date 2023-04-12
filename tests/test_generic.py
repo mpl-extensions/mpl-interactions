@@ -2,8 +2,9 @@ from os.path import dirname, realpath
 
 import matplotlib.pyplot as plt
 import numpy as np
+import xarray as xr
 
-from mpl_interactions.generic import heatmap_slicer, image_segmenter
+from mpl_interactions.generic import heatmap_slicer, hyperslicer, image_segmenter
 
 
 # just smoketests here. hadn't set image comparison styling properly
@@ -34,3 +35,23 @@ def test_image_segmentation():
     preloaded = image_segmenter(image, nclasses=3, mask=mask)
 
     return preloaded.fig
+
+
+def test_xr_hyperslicer_extents():
+    arr = np.zeros([10, 150, 200])
+    arr[:, 50:100, 50:150] = 1
+
+    arr_xr = xr.DataArray(arr, dims=("whatever", "y", "x"))
+
+    _, axs = plt.subplots(2, 2)
+
+    axs[0, 0].imshow(arr[0], origin="upper")
+    hyperslicer(arr_xr, ax=axs[0, 1], origin="upper")
+
+    axs[1, 0].imshow(arr[0], origin="lower")
+    hyperslicer(arr_xr, ax=axs[1, 1], origin="lower")
+    assert axs[0, 0].get_xlim() == axs[0, 1].get_xlim()
+    assert axs[0, 0].get_ylim() == axs[0, 1].get_ylim()
+
+    assert axs[1, 0].get_xlim() == axs[1, 1].get_xlim()
+    assert axs[1, 0].get_ylim() == axs[1, 1].get_ylim()

@@ -44,7 +44,6 @@ def heatmap_slicer(
     figsize=(18, 9),
     **pcolormesh_kwargs,
 ):
-
     """
     Compare horizontal and/or vertical slices across multiple arrays.
 
@@ -594,7 +593,6 @@ def hyperslicer(
     display_controls=True,
     **kwargs,
 ):
-
     """
     View slices from a hyperstack of images selected by sliders. Also accepts Xarray.DataArrays
     in which case the axes names and coordinates will be inferred from the xarray dims and coords.
@@ -697,7 +695,6 @@ def hyperslicer(
 
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
-
         start, stop = None, None
         name = f"axis{i}"
         if name in kwargs:
@@ -753,7 +750,7 @@ def hyperslicer(
     if arr_type == "xarray":
         slider_format_strings = get_hs_fmts(arr, is_color_image=is_color_image)
         if extent is None:
-            extent = get_hs_extent(arr, is_color_image=is_color_image)
+            extent = get_hs_extent(arr, is_color_image=is_color_image, origin=origin)
     else:
         if "extent" not in kwargs:
             extent = None
