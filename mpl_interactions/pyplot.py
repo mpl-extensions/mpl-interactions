@@ -417,7 +417,6 @@ def interactive_scatter(
     y=None,
     s=None,
     c=None,
-    cmap=None,
     vmin=None,
     vmax=None,
     alpha=None,
@@ -616,7 +615,6 @@ def interactive_scatter(
         s=s_,
         vmin=vmin,
         vmax=vmax,
-        cmap=cmap,
         marker=marker_,
         alpha=a_,
         edgecolors=ec_,
@@ -635,21 +633,11 @@ def interactive_scatter(
 # of `matplotlib.pyplot.imshow`
 def interactive_imshow(
     X,
-    cmap=None,
-    norm=None,
-    aspect=None,
-    interpolation=None,
     alpha=None,
     vmin=None,
     vmax=None,
     vmin_vmax=None,
-    origin=None,
-    extent=None,
     autoscale_cmap=True,
-    filternorm=True,
-    filterrad=4.0,
-    resample=None,
-    url=None,
     ax=None,
     slider_formats=None,
     force_ipywidgets=False,
@@ -666,23 +654,9 @@ def interactive_imshow(
     X : function or image like
         If a function it must return an image-like object. See matplotlib.pyplot.imshow for the
         full set of valid options.
-    cmap : str or `~matplotlib.colors.Colormap`
-        The Colormap instance or registered colormap name used to map
-        scalar data to colors. This parameter is ignored for RGB(A) data.
-        forwarded to matplotlib
-    norm : `~matplotlib.colors.Normalize`, optional
-        The `~matplotlib.colors.Normalize` instance used to scale scalar data to the [0, 1]
-        range before mapping to colors using *cmap*. By default, a linear
-        scaling mapping the lowest value to 0 and the highest to 1 is used.
-        This parameter is ignored for RGB(A) data.
-        forwarded to matplotlib
     autoscale_cmap : bool
         If True rescale the colormap for every function update. Will not update
         if vmin and vmax are provided or if the returned image is RGB(A) like.
-        forwarded to matplotlib
-    aspect : {'equal', 'auto'} or float
-        forwarded to matplotlib
-    interpolation : str
         forwarded to matplotlib
     alpha : float, callable, shorthand for slider or indexed controls
         The alpha value of the image. Can accept a float for a fixed value,
@@ -707,7 +681,6 @@ def interactive_imshow(
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -777,19 +750,9 @@ def interactive_imshow(
     sca(ax)
     im = ax.imshow(
         new_data,
-        cmap=cmap,
-        norm=norm,
-        aspect=aspect,
-        interpolation=interpolation,
         alpha=callable_else_value_no_cast(alpha, param_excluder(params, "alpha")),
         vmin=callable_else_value_no_cast(vmin, param_excluder(params, "vmin")),
         vmax=callable_else_value_no_cast(vmax, param_excluder(params, "vmax")),
-        origin=origin,
-        extent=extent,
-        filternorm=filternorm,
-        filterrad=filterrad,
-        resample=resample,
-        url=url,
         **imshow_kwargs,
     )
 
