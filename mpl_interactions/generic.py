@@ -50,6 +50,7 @@ def heatmap_slicer(
     Parameters
     ----------
     X,Y : 1D array
+        The values for the x and y axes.
     heatmaps : array_like
         must be 2-D or 3-D. If 3-D the last two axes should be (X,Y)
     slices : {'horizontal', 'vertical', 'both'}
@@ -171,10 +172,8 @@ def heatmap_slicer(
         axes[horiz_axis].legend()
 
     def _gen_idxs(orig, centered, same_shape, event_data):
-        """
-        is there a better way? probably, but this gets the job done
-        so here we are...
-        """
+        # is there a better way? probably, but this gets the job done
+        # so here we are...
         if same_shape:
             data_idx = nearest_idx(orig, event_data)
             disp_idx = nearest_idx(orig, event_data)
@@ -208,7 +207,8 @@ def heatmap_slicer(
     else:
         close(fig)
         raise ValueError(
-            f"{interaction_type} is not a valid option for interaction_type, valid options are 'click' or 'move'"
+            f"{interaction_type} is not a valid option for interaction_type, valid options"
+            "are 'click' or 'move'"
         )
     return fig, axes
 
@@ -332,14 +332,13 @@ class panhandler:
 
     @property
     def enabled(self) -> bool:
-        """
-        Status of the panhandler, whether it's enabled or disabled.
-        """
+        """Status of the panhandler, whether it's enabled or disabled."""
         return self._id_press is not None and self._id_release is not None
 
     def enable(self):
-        """
-        Enable the panhandler. It should not be necessary to call this function
+        """Enable the panhandler.
+
+        It should not be necessary to call this function
         unless it's used after a call to :meth:`panhandler.disable`.
 
         Raises
@@ -350,8 +349,8 @@ class panhandler:
         if self.enabled:
             raise RuntimeError("The panhandler is already enabled")
 
-        self._id_press = self.fig.canvas.mpl_connect("button_press_event", self.press)
-        self._id_release = self.fig.canvas.mpl_connect("button_release_event", self.release)
+        self._id_press = self.fig.canvas.mpl_connect("button_press_event", self._press)
+        self._id_release = self.fig.canvas.mpl_connect("button_release_event", self._release)
 
     def disable(self):
         """
@@ -377,7 +376,7 @@ class panhandler:
             self.fig.canvas.mpl_disconnect(self._id_drag)
             self._id_drag = None
 
-    def press(self, event):
+    def _press(self, event):
         if event.button != self.button:
             self._cancel_action()
             return
@@ -397,7 +396,7 @@ class panhandler:
                 self._xypress.append((a, i))
                 self._id_drag = self.fig.canvas.mpl_connect("motion_notify_event", self._mouse_move)
 
-    def release(self, event):
+    def _release(self, event):
         self._cancel_action()
         self.fig.canvas.mpl_disconnect(self._id_drag)
 
@@ -417,9 +416,7 @@ class panhandler:
 
 
 class image_segmenter:
-    """
-    Manually segment an image with the lasso selector.
-    """
+    """Manually segment an image with the lasso selector."""
 
     def __init__(
         self,
@@ -436,8 +433,9 @@ class image_segmenter:
         figsize=(10, 10),
         **kwargs,
     ):
-        """
-        Create an image segmenter. Any ``kwargs`` will be passed through to the ``imshow``
+        """Create an image segmenter.
+
+        Any ``kwargs`` will be passed through to the ``imshow``
         call that displays *img*.
 
         Parameters
@@ -445,6 +443,7 @@ class image_segmenter:
         img : array_like
             A valid argument to imshow
         nclasses : int, default 1
+            How many classes.
         mask : arraylike, optional
             If you want to pre-seed the mask
         mask_colors : None, color, or array of colors, optional
@@ -563,7 +562,7 @@ class image_segmenter:
         self.fig.canvas.draw_idle()
 
     def _ipython_display_(self):
-        display(self.fig.canvas)  # noqa: F405, F821
+        display(self.fig.canvas)  # noqa: F821
 
 
 def hyperslicer(
@@ -593,9 +592,10 @@ def hyperslicer(
     display_controls=True,
     **kwargs,
 ):
-    """
-    View slices from a hyperstack of images selected by sliders. Also accepts Xarray.DataArrays
-    in which case the axes names and coordinates will be inferred from the xarray dims and coords.
+    """View slices from a hyperstack of images selected by sliders.
+
+    Also accepts Xarray.DataArrays in which case the axes names and coordinates
+    will be inferred from the xarray dims and coords.
 
     Parameters
     ----------
@@ -626,7 +626,8 @@ def hyperslicer(
         If None a default value of decimal points will be used. Uses the new {} style formatting
     title : None or string
         If a string then you can have it update automatically using string formatting of the names
-        of the parameters. i.e. to include the current value of tau: title='the value of tau is: {tau:.2f}'
+        of the parameters. i.e. to include the current value of tau: title='the value
+        of tau is: {tau:.2f}'
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
@@ -643,7 +644,8 @@ def hyperslicer(
         - 'right': sliders on the right
 
     is_color_image : boolean
-        If True, will treat the last 3 dimensions as comprising a color images and will only set up sliders for the first arr.ndim - 3 dimensions.
+        If True, will treat the last 3 dimensions as comprising a color images and will only set up
+        sliders for the first arr.ndim - 3 dimensions.
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
@@ -654,7 +656,6 @@ def hyperslicer(
     -------
     controls
     """
-
     arr = np.squeeze(arr)
 
     arr_type = "numpy"
@@ -665,7 +666,8 @@ def hyperslicer(
 
     if arr.ndim < 3 + is_color_image:
         raise ValueError(
-            f"arr must be at least {3+is_color_image}D but it is {arr.ndim}D. mpl_interactions.imshow for 2D images."
+            f"arr must be at least {3+is_color_image}D but it is {arr.ndim}D."
+            " mpl_interactions.imshow for 2D images."
         )
 
     if is_color_image:
@@ -675,7 +677,6 @@ def hyperslicer(
 
     ipympl = notebook_backend()
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_format_strings = create_slider_format_dict(slider_formats)
 
     name_to_dim = {}

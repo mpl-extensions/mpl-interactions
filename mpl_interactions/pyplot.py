@@ -1,7 +1,10 @@
 """Control the output of standard plotting functions such as :func:`~matplotlib.pyplot.plot` and
-:func:`~matplotlib.pyplot.hist` using sliders and other widgets. When using the ``ipympl`` backend
-these functions will leverage ipywidgets for the controls, otherwise they will use the built-in
-Matplotlib widgets."""
+:func:`~matplotlib.pyplot.hist` using sliders and other widgets.
+
+ When using the ``ipympl`` backend these functions will leverage ipywidgets for the controls,
+otherwise they will use the built-in
+Matplotlib widgets.
+"""  # noqa: D205
 
 
 from collections.abc import Callable
@@ -46,7 +49,7 @@ __all__ = [
 ]
 
 
-def interactive_plot(
+def interactive_plot(  # noqa: D417 - not my fault
     *args,
     parametric=False,
     ax=None,
@@ -60,7 +63,7 @@ def interactive_plot(
     **kwargs,
 ):
     """
-    Control a plot using widgets
+    Control a plot using widgets.
 
     interactive_plot([x], y, [fmt])
 
@@ -79,8 +82,8 @@ def interactive_plot(
         for full documentation.
         as xlim
     parametric : boolean
-        If True then the function expects to have only received a value for y and that that function will
-        return an array for both x and y, or will return an array with shape (N, 2)
+        If True then the function expects to have only received a value for y and that that
+        function will return an array for both x and y, or will return an array with shape (N, 2)
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
@@ -111,6 +114,8 @@ def interactive_plot(
         controls
     display_controls : boolean
         Whether the controls should display on creation. Ignored if controls is specified.
+    **kwargs:
+        Interpreted as widgets and remainder are passed through to `ax.plot`.
 
     Returns
     -------
@@ -158,8 +163,7 @@ def interactive_plot(
     else:
         raise ValueError(f"You passed in {len(args)} args, but no more than 3 is supported.")
 
-    ipympl = notebook_backend()
-    ipympl or force_ipywidgets
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax=ax)
     slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
@@ -271,7 +275,7 @@ def interactive_plot(
     return controls
 
 
-def simple_hist(arr, bins="auto", density=None, weights=None):
+def _simple_hist(arr, bins="auto", density=None, weights=None):
     heights, bins = np.histogram(arr, bins=bins, density=density, weights=weights)
     width = bins[1] - bins[0]
     new_patches = []
@@ -283,7 +287,7 @@ def simple_hist(arr, bins="auto", density=None, weights=None):
     return xlims, ylims, new_patches
 
 
-def stretch(ax, xlims, ylims):
+def _stretch(ax, xlims, ylims):
     cur_xlims = ax.get_xlim()
     cur_ylims = ax.get_ylim()
     new_lims = ylims
@@ -355,6 +359,9 @@ def interactive_hist(
         controls
     display_controls : boolean
         Whether the controls should display on creation. Ignored if controls is specified.
+    **kwargs :
+        Converted to widgets to control the parameters. Note, unlike other functions the remaining
+        will NOT be passed through to *hist*.
 
     Returns
     -------
@@ -376,10 +383,8 @@ def interactive_hist(
             return np.random.randn(1000)*scale + loc
         interactive_hist(f, loc=(-5, 5, 500), scale=(1, 10, 100))
     """
-
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax=ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
     controls, params = gogogo_controls(
         kwargs, controls, display_controls, slider_formats, play_buttons
@@ -389,14 +394,14 @@ def interactive_hist(
 
     def update(params, indices, cache):
         arr_ = callable_else_value(arr, params, cache)
-        new_x, new_y, new_patches = simple_hist(arr_, density=density, bins=bins, weights=weights)
-        stretch(ax, new_x, new_y)
+        new_x, new_y, new_patches = _simple_hist(arr_, density=density, bins=bins, weights=weights)
+        _stretch(ax, new_x, new_y)
         pc.set_paths(new_patches)
         ax.autoscale_view()
 
     controls._register_function(update, fig, params.keys())
 
-    new_x, new_y, new_patches = simple_hist(
+    new_x, new_y, new_patches = _simple_hist(
         callable_else_value(arr, params), density=density, bins=bins, weights=weights
     )
     sca(ax)
@@ -455,8 +460,8 @@ def interactive_scatter(
     label : string
         Passed through to Matplotlib
     parametric : boolean
-        If True then the function expects to have only received a value for y and that that function will
-        return an array for both x and y, or will return an array with shape (N, 2)
+        If True then the function expects to have only received a value for y and that that function
+        will return an array for both x and y, or will return an array with shape (N, 2)
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
@@ -492,7 +497,6 @@ def interactive_scatter(
     -------
     controls
     """
-
     if isinstance(xlim, str):
         stretch_x = xlim == "stretch"
     else:
@@ -509,9 +513,8 @@ def interactive_scatter(
 
     kwargs, collection_kwargs = kwarg_popper(kwargs, collection_kwargs_list)
 
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     extra_ctrls = []
@@ -552,8 +555,8 @@ def interactive_scatter(
             except ValueError:
                 try:
                     c_ = scatter.cmap(c_)
-                except TypeError:
-                    raise ValueError(
+                except TypeError as te:
+                    raise ValueError from te(
                         "If c is a function it must return either an RGB(A) array"
                         "or a 1D array of valid color names or values to be colormapped"
                     )
@@ -715,9 +718,8 @@ def interactive_imshow(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
     kwargs, imshow_kwargs = kwarg_popper(kwargs, imshow_kwargs_list)
 
@@ -854,9 +856,8 @@ def interactive_axhline(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
@@ -947,9 +948,8 @@ def interactive_axvline(
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, line_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list)
@@ -999,9 +999,10 @@ def interactive_title(
     force_ipywidgets=False,
     **kwargs,
 ):
-    """
-    Set an title that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
-    other kwargs will be used to create interactive controls.
+    """Set the title to update interactively.
+
+    kwargs for `matplotlib.text.Text` will be passed through, other kwargs will be used to create
+    interactive controls.
 
     Parameters
     ----------
@@ -1012,6 +1013,9 @@ def interactive_title(
         controls
     ax : `matplotlib.axes.Axes`, optional
         The axis on which to plot. If none the current axis will be used.
+    fontdict : dict[str]
+        Passed through to the Text object. Currently not dynamically updateable. See
+        https://github.com/mpl-extensions/mpl-interactions/issues/247
     loc : {'center', 'left', 'right'}, default: `axes.titlelocation <matplotlib.rcParams>`
         Which title to set.
     y : float, default: `axes.titley <matplotlib.rcParams>`
@@ -1034,19 +1038,19 @@ def interactive_title(
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
+    **kwargs:
+        Passed through to `ax.set_title`
 
     Returns
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1091,9 +1095,10 @@ def interactive_xlabel(
     force_ipywidgets=False,
     **kwargs,
 ):
-    """
-    Set an xlabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
-    other kwargs will be used to create interactive controls.
+    """Set an xlabel that will update interactively.
+
+    kwargs for `matplotlib.text.Text` will be passed through, other kwargs
+    will be used to create interactive controls.
 
     Parameters
     ----------
@@ -1104,6 +1109,9 @@ def interactive_xlabel(
         controls
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
+    fontdict : dict[str]
+        Passed through to the Text object. Currently not dynamically updateable. See
+        https://github.com/mpl-extensions/mpl-interactions/issues/247
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
@@ -1124,19 +1132,21 @@ def interactive_xlabel(
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
+    **kwargs :
+        Used to create widgets to control parameters. Kwargs for Text objects will passed
+        through.
+
 
     Returns
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1178,9 +1188,10 @@ def interactive_ylabel(
     force_ipywidgets=False,
     **kwargs,
 ):
-    """
-    Set a ylabel that will update interactively. kwargs for `matplotlib.text.Text` will be passed through,
-    other kwargs will be used to create interactive controls.
+    """Set a ylabel that will update interactively.
+
+    kwargs for `matplotlib.text.Text` will be passed through, other kwargs will
+    be used to create interactive controls.
 
     Parameters
     ----------
@@ -1191,6 +1202,9 @@ def interactive_ylabel(
         controls
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
+    fontdict : dict[str]
+        Passed through to the Text object. Currently not dynamically updateable. See
+        https://github.com/mpl-extensions/mpl-interactions/issues/247
     labelpad : float, default: None
         Spacing in points from the axes bounding box including ticks
         and tick labels.
@@ -1211,19 +1225,20 @@ def interactive_ylabel(
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
+    **kwargs :
+        Used to create widgets to control parameters. Kwargs for Text objects will passed
+        through.
 
     Returns
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)
@@ -1265,9 +1280,10 @@ def interactive_text(
     force_ipywidgets=False,
     **kwargs,
 ):
-    """
-    Create a text object that will update interactively.
-    kwargs for `matplotlib.text.Text` will be passed through, other kwargs will be used to create interactive controls.
+    """Create a text object that will update interactively.
+
+    kwargs for `matplotlib.text.Text` will be passed through, other kwargs will be used to create
+    interactive controls.
 
     .. note::
 
@@ -1289,6 +1305,10 @@ def interactive_text(
         controls
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses {} style formatting
+    display_controls : boolean
+        Whether the controls should display on creation. Ignored if controls is specified.
     play_buttons : bool or str or dict, optional
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
@@ -1299,19 +1319,20 @@ def interactive_text(
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     force_ipywidgets : boolean
         If True ipywidgets will always be used, even if not using the ipympl backend.
         If False the function will try to detect if it is ok to use ipywidgets
         If ipywidgets are not used the function will fall back on matplotlib widgets
+    **kwargs :
+        Used to create widgets to control parameters. Kwargs for Text objects will passed
+        through.
 
     Returns
     -------
     controls
     """
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
-    ipympl or force_ipywidgets
     slider_formats = create_slider_format_dict(slider_formats)
 
     kwargs, text_kwargs = kwarg_popper(kwargs, Text_kwargs_list)

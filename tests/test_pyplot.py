@@ -33,14 +33,6 @@ def f2(x, tau, beta):
     return np.sin(x * beta) * x * tau
 
 
-def f1(x, tau, beta):
-    return np.sin(x * tau) * x * beta
-
-
-def f2(x, tau, beta):
-    return np.sin(x * beta) * x * tau
-
-
 x = np.linspace(0, np.pi, 100)
 tau = (5, 10, 100)
 beta = (1, 2)

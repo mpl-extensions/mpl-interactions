@@ -20,7 +20,6 @@ def choose_datetime_nonsense(arr, timeunit="m"):
         Array modified to format decently in a slider.
 
     """
-
     if np.issubdtype(arr.dtype, "datetime64"):
         out = arr.astype(f"datetime64[{timeunit}]")
     elif np.issubdtype(arr.dtype, "timedelta64"):
@@ -31,9 +30,7 @@ def choose_datetime_nonsense(arr, timeunit="m"):
 
 
 def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
-    """
-    Read the dims and coordinates from an xarray and construct the
-    axes argument for hyperslicer. Called internally by hyperslicer.
+    """Read the dims and coordinates from an xarray and construct the axes argument for hyperslicer.
 
     Parameters
     ----------
@@ -60,9 +57,7 @@ def get_hs_axes(xarr, is_color_image=False, timeunit="m"):
 
 
 def get_hs_extent(xarr, is_color_image=False, origin="upper"):
-    """
-    Read the "YX" coordinates of an xarray.DataArray to set extent of image for
-    imshow.
+    """Read the "YX" coordinates of an xarray.DataArray to set extent of image for imshow.
 
     Parameters
     ----------
@@ -80,7 +75,6 @@ def get_hs_extent(xarr, is_color_image=False, origin="upper"):
         Extent argument for imshow.
 
     """
-
     if not is_color_image:
         dims = xarr.dims[-2:]
     else:
@@ -101,9 +95,7 @@ def get_hs_extent(xarr, is_color_image=False, origin="upper"):
 
 
 def get_hs_fmts(xarr, units=None, is_color_image=False):
-    """
-    Get appropriate slider format strings from xarray coordinates
-    based the dtype of corresponding values.
+    """Get appropriate slider format strings from xarray coordinates.
 
     Parameters
     ----------
@@ -129,7 +121,7 @@ def get_hs_fmts(xarr, units=None, is_color_image=False):
         fmt_strs[d] = choose_fmt_str(xarr[d].dtype)
         if units is not None and units[i] is not None:
             try:
-                fmt_strs[d] += " {}".format(units[i])
+                fmt_strs[d] += f" {units[i]}"
             except KeyError:
                 continue
     return fmt_strs

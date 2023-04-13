@@ -118,8 +118,9 @@ Text_kwargs_list = [
 
 
 def kwarg_popper(kwargs, mpl_kwargs):
-    """
-    This will not modify kwargs for you.
+    """Process a kwargs list to remove the matplotlib object kwargs.
+
+    This will not modify kwargs in place.
 
     Examples
     --------
