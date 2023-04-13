@@ -65,3 +65,4 @@ extend-ignore = [
 "__init__.py" = ["E402", "F403"]
 "docs/conf.py" = ["A001", "C901", "D200", "D400", "D415"]
 "docs/examples/**/*.py" = ["D400", "D415", "D205", "D103"]
+"mpl_interactions/ipyplot.py" = ["F401"]
