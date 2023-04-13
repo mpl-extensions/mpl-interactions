@@ -54,6 +54,7 @@ def sca(ax):
 
 
 def decompose_bbox(bbox):
+    """Break bbox into it's 4 components."""
     return bbox.x0, bbox.y0, bbox.x1, bbox.y1
 
 
@@ -77,16 +78,23 @@ def _update_limits(ax, x0, y0, x1, y1, x0_, y0_, x1_, y1_, stretch_x, stretch_y)
 
 
 def update_datalim_from_bbox(ax, bbox, stretch_x=True, stretch_y=True):
+    """Update an axis datalim from a bbox."""
     _update_limits(ax, *decompose_bbox(ax.dataLim), *decompose_bbox(bbox), stretch_x, stretch_y)
 
 
 def update_datalim_from_xy(ax, x, y, stretch_x=True, stretch_y=True):
-    """
-    current : ax.dataLim
+    """Update an axis datalim while maybe stretching it.
+
+    Parameters
+    ----------
+    ax : matplotlib axis
+        The axis to update.
     x : array
         the new x datavalues to include
     y : array
         the new y datavalues to include.
+    stretch_x, stretch_y : bool
+        Whether to stretch
     """
     # this part bc scatter not affect by relim
     # so need this to keep stretchign working for scatter
@@ -98,8 +106,8 @@ def update_datalim_from_xy(ax, x, y, stretch_x=True, stretch_y=True):
 
 
 def is_jagged(seq):
-    """
-    checks for jaggedness up to two dimensions
+    """Check for jaggedness up to two dimensions.
+
     don't need more because more doesn't make any sense for this library
     need this bc numpy is unhappy about being passed jagged arrays now :(.
     """
@@ -178,7 +186,7 @@ def broadcast_many(*args):
 
 
 def notebook_backend():
-    """Returns True if the backend is ipympl or nbagg, otherwise False."""
+    """Return True if the backend is ipympl or nbagg, otherwise False."""
     backend = get_backend().lower()
     if "ipympl" in backend:
         return True
@@ -188,7 +196,12 @@ def notebook_backend():
 
 
 def callable_else_value(arg, params, cache=None):
-    """Returns as a numpy array."""
+    """
+    Convert callables to arrays passing existing values through as numpy arrays.
+
+    Always returns a numpy array - use callable_else_value_no_cast
+    if it's important that the value not be a numpy array.
+    """
     if isinstance(arg, Callable):
         if cache:
             if arg not in cache:
@@ -200,10 +213,7 @@ def callable_else_value(arg, params, cache=None):
 
 
 def callable_else_value_no_cast(arg, params, cache=None):
-    """
-    doesn't cast to numpy. Useful when working with parametric functions that might
-    return (x, y) where it's handy to check if the return is a tuple.
-    """
+    """Convert callables to arrays passing existing values through."""
     if isinstance(arg, Callable):
         if cache:
             if arg not in cache:
@@ -229,7 +239,8 @@ def callable_else_value_wrapper(arg, params, cache=None):
 
 
 def eval_xy(x_, y_, params, cache=None):
-    """
+    """Evaluate x and y as needed, passing them the approriate arguments.
+
     for when y requires x as an argument and either, neither or both
     of x and y may be a function. This will automatically do the param exclusion
     for 'x' and 'y'.
@@ -271,10 +282,12 @@ def eval_xy(x_, y_, params, cache=None):
 
 
 def kwarg_to_ipywidget(key, val, update, slider_format_string, play_button=None):
-    """
+    """Convert a kwarg to an ipywidget.
+
     Parameters
     ----------
     key : str
+        The name of the kwarg.
     val : str or number or tuple, or set or array-like
         The value to be interpreted and possibly transformed into an ipywidget
     update : callable
@@ -400,8 +413,8 @@ def extract_num_options(val):
                 # this looks nightmarish...
                 # but i think it should always work
                 # should also check if the tuple has length one here.
-                # that will only be an issue if a trailing comma was used to make the tuple ('beep',)
-                # but not ('beep') - the latter is not actually a tuple
+                # that will only be an issue if a trailing comma was used to make the tuple
+                # i.e ('beep',) but not ('beep') - the latter is not actually a tuple
                 return len(v)
             else:
                 return 0
@@ -410,15 +423,16 @@ def extract_num_options(val):
 
 
 def changeify(val, update):
-    """
-    make matplotlib update functions return a dict with key 'new'.
-    Do this for compatibility with ipywidgets.
+    """Make matplotlib update functions return a dict with key 'new'.
+
+    This makes it compatible with the ipywidget callback style.
     """
     update({"new": val})
 
 
 def changeify_radio(val, labels, update):
-    r"""
+    r"""Convert matplotlib radio button callback into the expected dictionary form.
+
     matplolib radio buttons don't keep track what index is selected. So this
     figures out what the index is
     made a whole function bc its easier to use with partial then.
@@ -432,6 +446,8 @@ def changeify_radio(val, labels, update):
 
 def create_mpl_controls_fig(kwargs):
     """
+    Create a figure to hold matplotlib widgets.
+
     Returns
     -------
     fig : matplotlib figure
@@ -500,7 +516,7 @@ def create_mpl_controls_fig(kwargs):
 
 
 def create_mpl_selection_slider(ax, label, values, slider_format_string):
-    """Creates a slider that behaves similarly to the ipywidgets selection slider."""
+    """Create a slider that behaves similarly to the ipywidgets selection slider."""
     slider = mwidgets.Slider(ax, label, 0, len(values) - 1, valinit=0, valstep=1)
 
     def update_text(val):
@@ -513,7 +529,7 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
 
 
 def create_mpl_range_selection_slider(ax, label, values, slider_format_string):
-    """Creates a slider that behaves similarly to the ipywidgets selection slider."""
+    """Create a slider that behaves similarly to the ipywidgets selection slider."""
     slider = RangeSlider(ax, label, 0, len(values) - 1, valinit=(0, len(values) - 1), valstep=1)
 
     def update_text(val):
@@ -530,15 +546,16 @@ def create_mpl_range_selection_slider(ax, label, values, slider_format_string):
 
 
 def process_mpl_widget(val, update):
-    """
-    handle the case of a kwarg being an existing matplotlib widget.
+    """Handle the case of a kwarg being an existing matplotlib widget.
+
     This needs to be separate so that the controller can call it when mixing ipywidets and
     a widget like scatter_selector without having to create a control figure.
     """
     if isinstance(val, mwidgets.RadioButtons):
-        # gotta set it to the zeroth index bc there's no reasonable way to determine the current value
-        # the only way the current value is stored is through the color of the circles.
-        # so could query that an extract but oh boy do I ever not want to
+        # gotta set it to the zeroth index bc there's no reasonable way to determine
+        # the current value the only way the current value is stored is through
+        # the color of the circles. so could query that an extract but
+        # oh boy do I ever not want to
         val.set_active(0)
         cb = val.on_clicked(partial(changeify_radio, labels=val.labels, update=update))
         return val.labels[0], val, cb
@@ -565,10 +582,32 @@ def kwarg_to_mpl_widget(
     play_button=False,
     play_button_pos="right",
 ):
-    """
+    """Convert a kwarg to a matplotlib widget.
+
+    Parameters
+    ----------
+    fig : matplotlib figure
+        The figure in which to place the widgets.
     heights : tuple
         with slider_height, radio_height, gap_height
-    returns
+    widget_y : float
+        How much vertical space the widget should take up
+    key : str
+        The name of the kwarg.
+    val : str or number or tuple, or set or array-like
+        The value to be interpreted and possibly transformed into an ipywidget
+    update : callable
+        The function to be called when the value of the generated widget changes.
+        Must accept a dictionary *change* and an array-like *values*
+    slider_format_string : str
+        The format string to use for slider labels
+    play_button : bool or None or str, default: None
+        If true and the output widget is a slider then added a play button widget
+        on the left. Also accepts 'left' or 'right' to specify the play button position.
+    play_button_pos : str
+        Where to place the play button.
+
+    Returns
     -------
     init_val
     widget
@@ -654,6 +693,7 @@ def kwarg_to_mpl_widget(
 
 
 def create_slider_format_dict(slider_format_string):
+    """Create a dictionray of format strings based on the slider contents."""
     if isinstance(slider_format_string, defaultdict):
         return slider_format_string
     elif isinstance(slider_format_string, dict) or slider_format_string is None:
@@ -669,7 +709,8 @@ def create_slider_format_dict(slider_format_string):
         slider_format_strings = defaultdict(f)
     else:
         raise ValueError(
-            f"slider_format_string must be a dict or a string but it is a {type(slider_format_string)}"
+            "slider_format_string must be a dict or a string"
+            f" but it is a {type(slider_format_string)}"
         )
     return slider_format_strings
 
