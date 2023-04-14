@@ -804,8 +804,6 @@ def hyperslicer(
         alpha=alpha,
         vmin=callable_else_value_no_cast(vmin, params),
         vmax=callable_else_value_no_cast(vmax, params),
-        origin=origin,
-        extent=extent,
         **imshow_kwargs,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
