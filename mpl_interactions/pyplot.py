@@ -1266,7 +1266,8 @@ def interactive_text(
 
     .. note::
 
-        fontdict properties are currently static - see https://github.com/mpl-extensions/mpl-interactions/issues/247
+        fontdict properties are currently static
+        see https://github.com/mpl-extensions/mpl-interactions/issues/247
 
 
     Parameters
