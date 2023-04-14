@@ -593,6 +593,18 @@ def hyperslicer(
     arr : arraylike or xarray
         Hyperstack of images. The last 2 or 3 dimensions will be treated as individiual images.
         If an xarray.DataArray then the dimensions will be automatically inferred.
+    alpha : float, Callable or widget shorthand, indexed controls, optional
+        The alpha of the image. If a callable then it will receive parameters be autoupdated.
+        Can also be given a widget shorthand to automatically generate a slider
+        (e.g. `alpha = (0, 1, 10)`).
+    vmin, vmax : float, callable, shorthand for slider or indexed controls, optional
+        The vmin, vmax values for the colormap. Can accept a float for a fixed value,
+        or any slider shorthand to control with a slider, or an indexed controls
+        object to use an existing slider, or an arbitrary function of the other
+        parameters.
+    vmin_vmax : tuple of float
+        Used to generate a range slider for vmin and vmax. Should be given in range slider
+        notation: `("r", 0, 1)`.
     autoscale_cmap : bool
         If True rescale the colormap for every function update. Will not update
         if vmin and vmax are provided or if the returned image is RGB(A) like.
@@ -613,7 +625,6 @@ def hyperslicer(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-
         - None: no sliders
         - True: sliders on the lft
         - False: no sliders
@@ -627,6 +638,10 @@ def hyperslicer(
         controls
     display_controls : boolean
         Whether the controls should display on creation. Ignored if controls is specified.
+    **kwargs :
+        `names` can be used to set the axes names, `axes` can be used to set the displayed values
+        of multiple sliders, and `axis0`, `axis1` etc can be used with widget shorthand to set the
+        displayed values of the sliders. All valid imshow kwargs are passed through to `imshow`.
 
     Returns
     -------
@@ -651,7 +666,7 @@ def hyperslicer(
     else:
         im_dims = 2
 
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
     slider_format_strings = create_slider_format_dict(slider_formats)
     kwargs, imshow_kwargs = kwarg_popper(kwargs, imshow_kwargs_list)
@@ -673,13 +688,7 @@ def hyperslicer(
 
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
-        start, stop = None, None
         name = f"axis{i}"
-        if name in kwargs:
-            if len(kwargs[name]) == 2:
-                start, stop = kwargs.pop(name)
-            else:
-                kwargs.pop(name)
 
         if axes is not None and axes[i] is not None:
             # now we assume the axes[i] has one of the following forms
@@ -725,8 +734,8 @@ def hyperslicer(
             slider_format_strings[name] = "{:.0f}"
             kwargs[name] = np.arange(arr.shape[i])
 
-    extent = imshow_kwargs.get("extent", None)
-    origin = imshow_kwargs.get("origin", "upper")
+    extent = kwargs.get("extent", None)
+    origin = kwargs.get("origin", "upper")
     if arr_type == "xarray":
         slider_format_strings = get_hs_fmts(arr, is_color_image=is_color_image)
         if extent is None:
