@@ -65,9 +65,10 @@ class Controls:
         self.indices = defaultdict(lambda: 0)
         self._update_funcs = defaultdict(list)
         self._user_callbacks = defaultdict(list)
+        self._hashes = []
         self.add_kwargs(kwargs, slider_formats, play_buttons)
 
-    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None, allow_duplicates=False):
+    def add_kwargs(self, kwargs, slider_formats=None, play_buttons=None):
         """Add kwargs to the controller.
 
         If you pass a redundant kwarg it will just be overwritten
@@ -94,23 +95,37 @@ class Controls:
                 self.slider_format_strings[k] = v
         if self.use_ipywidgets:
             for k, v in kwargs.items():
-                if k in self.params:
-                    if allow_duplicates:
-                        continue
-                    else:
-                        raise ValueError("can't overwrite an existing param in the controller")
                 if isinstance(v, AxesWidget):
-                    self.params[k], self.controls[k], _ = process_mpl_widget(
+                    # TODO: HASHING behavior
+                    param, control, _, hash_ = process_mpl_widget(
                         v, partial(self.slider_updated, key=k)
                     )
+                    if k in self.params:
+                        if hash_ not in self._hashes:
+                            raise ValueError(
+                                f"kwarg {k} already exists and the new values are incompatible."
+                            )
+                        # don't need to add it because it already exists
+                        continue
+                    self.params[k], self.controls[k] = param, control
+                    self._hashes.append(hash)
                 else:
-                    self.params[k], control = kwarg_to_ipywidget(
+                    param, control, hash_ = kwarg_to_ipywidget(
                         k,
                         v,
                         partial(self.slider_updated, key=k),
                         self.slider_format_strings[k],
                         play_button=_play_buttons[k],
                     )
+                    if k in self.params:
+                        if hash_ not in self._hashes:
+                            raise ValueError(
+                                f"kwarg {k} already exists and the new values are incompatible."
+                            )
+                        # don't need to add it because it already exists
+                        continue
+                    self.params[k] = param
+                    self._hashes.append(hash_)
                     if control:
                         self.controls[k] = control
                         self.vbox.children = [*list(self.vbox.children), control]
@@ -123,12 +138,7 @@ class Controls:
                 self.control_figures.append(mpl_layout[0])
                 widget_y = 0.05
                 for k, v in kwargs.items():
-                    if k in self.params:
-                        if allow_duplicates:
-                            continue
-                        else:
-                            raise ValueError("Can't overwrite an existing param in the controller")
-                    self.params[k], control, cb, widget_y = kwarg_to_mpl_widget(
+                    param, control, cb, widget_y, hash_ = kwarg_to_mpl_widget(
                         mpl_layout[0],
                         mpl_layout[1:],
                         widget_y,
@@ -137,6 +147,15 @@ class Controls:
                         partial(self.slider_updated, key=k),
                         self.slider_format_strings[k],
                     )
+                    if k in self.params:
+                        if hash_ not in self._hashes:
+                            raise ValueError(
+                                f"kwarg {k} already exists and the new values are incompatible."
+                            )
+                        # don't need to add it because it already exists
+                        continue
+                    self.params[k] = param
+                    self._hashes.append(hash_)
                     if control:
                         self.controls[k] = control
                     if k == "vmin_vmax":
@@ -390,7 +409,6 @@ def gogogo_controls(
     slider_formats,
     play_buttons,
     extra_controls=None,
-    allow_dupes=False,
 ):
     """
     Create a new controls object.
@@ -446,7 +464,7 @@ def gogogo_controls(
             controls.display()
     else:
         controls = ctrls.pop()
-        controls.add_kwargs(kwargs, slider_formats, play_buttons, allow_duplicates=allow_dupes)
+        controls.add_kwargs(kwargs, slider_formats, play_buttons)
         params = {k: controls.params[k] for k in keys}
     return controls, params
 

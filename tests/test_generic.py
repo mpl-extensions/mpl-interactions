@@ -55,3 +55,11 @@ def test_xr_hyperslicer_extents():
 
     assert axs[1, 0].get_xlim() == axs[1, 1].get_xlim()
     assert axs[1, 0].get_ylim() == axs[1, 1].get_ylim()
+
+
+def test_duplicate_axis_names():
+    plt.subplots()
+    img_stack = np.random.rand(5, 512, 512)
+
+    with hyperslicer(img_stack):
+        hyperslicer(img_stack)
