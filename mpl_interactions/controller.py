@@ -532,11 +532,7 @@ def prep_scalars(kwarg_dict, **kwargs):
             kwargs[name] = _gen_f(arg.keys[0])
             extra_ctrls.append(arg)
 
-    if len(added_kwargs) == 0:
-        # shortcircuit options
-        def param_excluder(params, except_=None):
-            return params
-
-    else:
-        param_excluder = _gen_param_excluder(added_kwargs)
+    # always exclude all these - this will always be matplotlib
+    # arugments and so should never be passed to user supplied functions.
+    param_excluder = _gen_param_excluder(list(kwargs.keys()))
     return kwargs, extra_ctrls, param_excluder
