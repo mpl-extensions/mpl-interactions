@@ -18,6 +18,7 @@ from .helpers import (
     gogogo_figure,
     notebook_backend,
 )
+from .mpl_kwargs import imshow_kwargs_list, kwarg_popper
 from .utils import figure, nearest_idx
 from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
@@ -567,21 +568,11 @@ class image_segmenter:
 
 def hyperslicer(
     arr,
-    cmap=None,
-    norm=None,
-    aspect=None,
-    interpolation=None,
     alpha=None,
     vmin=None,
     vmax=None,
     vmin_vmax=None,
-    origin=None,
-    extent=None,
     autoscale_cmap=True,
-    filternorm=True,
-    filterrad=4.0,
-    resample=None,
-    url=None,
     ax=None,
     slider_formats=None,
     title=None,
@@ -602,23 +593,21 @@ def hyperslicer(
     arr : arraylike or xarray
         Hyperstack of images. The last 2 or 3 dimensions will be treated as individiual images.
         If an xarray.DataArray then the dimensions will be automatically inferred.
-    cmap : str or `~matplotlib.colors.Colormap`
-        The Colormap instance or registered colormap name used to map
-        scalar data to colors. This parameter is ignored for RGB(A) data.
-        forwarded to matplotlib
-    norm : `~matplotlib.colors.Normalize`, optional
-        The `~matplotlib.colors.Normalize` instance used to scale scalar data to the [0, 1]
-        range before mapping to colors using *cmap*. By default, a linear
-        scaling mapping the lowest value to 0 and the highest to 1 is used.
-        This parameter is ignored for RGB(A) data.
-        forwarded to matplotlib
+    alpha : float, Callable or widget shorthand, indexed controls, optional
+        The alpha of the image. If a callable then it will receive parameters be autoupdated.
+        Can also be given a widget shorthand to automatically generate a slider
+        (e.g. `alpha = (0, 1, 10)`).
+    vmin, vmax : float, callable, shorthand for slider or indexed controls, optional
+        The vmin, vmax values for the colormap. Can accept a float for a fixed value,
+        or any slider shorthand to control with a slider, or an indexed controls
+        object to use an existing slider, or an arbitrary function of the other
+        parameters.
+    vmin_vmax : tuple of float
+        Used to generate a range slider for vmin and vmax. Should be given in range slider
+        notation: `("r", 0, 1)`.
     autoscale_cmap : bool
         If True rescale the colormap for every function update. Will not update
         if vmin and vmax are provided or if the returned image is RGB(A) like.
-        forwarded to matplotlib
-    aspect : {'equal', 'auto'} or float
-        forwarded to matplotlib
-        interpolation : str
         forwarded to matplotlib
     ax : matplotlib axis, optional
         if None a new figure and axis will be created
@@ -636,13 +625,11 @@ def hyperslicer(
         Whether to attach an ipywidgets.Play widget to any sliders that get created.
         If a boolean it will apply to all kwargs, if a dictionary you choose which sliders you
         want to attach play buttons too.
-
         - None: no sliders
         - True: sliders on the lft
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     is_color_image : boolean
         If True, will treat the last 3 dimensions as comprising a color images and will only set up
         sliders for the first arr.ndim - 3 dimensions.
@@ -651,6 +638,10 @@ def hyperslicer(
         controls
     display_controls : boolean
         Whether the controls should display on creation. Ignored if controls is specified.
+    **kwargs :
+        `names` can be used to set the axes names, `axes` can be used to set the displayed values
+        of multiple sliders, and `axis0`, `axis1` etc can be used with widget shorthand to set the
+        displayed values of the sliders. All valid imshow kwargs are passed through to `imshow`.
 
     Returns
     -------
@@ -675,9 +666,10 @@ def hyperslicer(
     else:
         im_dims = 2
 
-    ipympl = notebook_backend()
+    ipympl = notebook_backend() or force_ipywidgets
     fig, ax = gogogo_figure(ipympl, ax)
     slider_format_strings = create_slider_format_dict(slider_formats)
+    kwargs, imshow_kwargs = kwarg_popper(kwargs, imshow_kwargs_list)
 
     name_to_dim = {}
     slices = [0 for i in range(arr.ndim - im_dims)]
@@ -696,13 +688,7 @@ def hyperslicer(
 
     # Just pass in an array - no kwargs
     for i in range(arr.ndim - im_dims):
-        start, stop = None, None
         name = f"axis{i}"
-        if name in kwargs:
-            if len(kwargs[name]) == 2:
-                start, stop = kwargs.pop(name)
-            else:
-                kwargs.pop(name)
 
         if axes is not None and axes[i] is not None:
             # now we assume the axes[i] has one of the following forms
@@ -748,13 +734,12 @@ def hyperslicer(
             slider_format_strings[name] = "{:.0f}"
             kwargs[name] = np.arange(arr.shape[i])
 
+    extent = kwargs.get("extent", None)
+    origin = kwargs.get("origin", "upper")
     if arr_type == "xarray":
         slider_format_strings = get_hs_fmts(arr, is_color_image=is_color_image)
         if extent is None:
             extent = get_hs_extent(arr, is_color_image=is_color_image, origin=origin)
-    else:
-        if "extent" not in kwargs:
-            extent = None
 
     extra_ctrls = []
     funcs, extra_ctrls, param_excluder = prep_scalars(kwargs, vmin=vmin, vmax=vmax, alpha=alpha)
@@ -816,19 +801,10 @@ def hyperslicer(
     new_data = arr[tuple(0 for i in range(arr.ndim - im_dims))]
     im = ax.imshow(
         new_data,
-        cmap=cmap,
-        norm=norm,
-        aspect=aspect,
-        interpolation=interpolation,
         alpha=alpha,
         vmin=callable_else_value_no_cast(vmin, params),
         vmax=callable_else_value_no_cast(vmax, params),
-        origin=origin,
-        extent=extent,
-        filternorm=filternorm,
-        filterrad=filterrad,
-        resample=resample,
-        url=url,
+        **imshow_kwargs,
     )
     # this is necessary to make calls to plt.colorbar behave as expected
     # i know it's bad news to use private methods :(

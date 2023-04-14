@@ -61,7 +61,11 @@ Line2D_kwargs_list = [
     "zorder",
 ]
 
-imshow_kwargs_list = ArtistInspector(AxesImage).get_setters()
+imshow_kwargs_list = [
+    *ArtistInspector(AxesImage).get_setters(),
+    "aspect",  # these are arguments to imshow not captured by `get_setter`
+    "origin",
+]
 collection_kwargs_list = ArtistInspector(Collection).get_setters()
 
 Text_kwargs_list = [
