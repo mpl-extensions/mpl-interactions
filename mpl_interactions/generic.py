@@ -758,7 +758,6 @@ def hyperslicer(
         slider_format_strings,
         play_buttons,
         extra_ctrls,
-        allow_dupes=True,
     )
     if vmin_vmax is not None:
         params.pop("vmin_vmax")
