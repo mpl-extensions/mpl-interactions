@@ -447,14 +447,19 @@ def interactive_scatter(
         Valid input to plt.scatter or a function
     s : float, array-like, function, or index controls object
         valid input to plt.scatter, or a function
-    alpha : float, None, or function(s), broadcastable
+    vmin, vmax : float, callable, shorthand for slider or indexed controls
+        The vmin, vmax values for the colormap. Can accept a float for a fixed value,
+        or any slider shorthand to control with a slider, or an indexed controls
+        object to use an existing slider, or an arbitrary function of the other
+        parameters.
+    alpha : float or Callable, optional
         Affects all scatter points. This will compound with any alpha introduced by
         the ``c`` argument
     marker : MarkerStyle, or Callable, optional
         The marker style or a function returning marker styles.
-    edgecolor[s] : callable or valid argument to scatter
+    edgecolors : callable or valid argument to scatter
         passed through to scatter.
-    facecolor[s] : callable or valid argument to scatter
+    facecolors : callable or valid argument to scatter
         Valid input to plt.scatter, or a function
     label : string
         Passed through to Matplotlib
@@ -485,12 +490,13 @@ def interactive_scatter(
         - False: no sliders
         - 'left': sliders on the left
         - 'right': sliders on the right
-
     controls : mpl_interactions.controller.Controls
         An existing controls object if you want to tie multiple plot elements to the same set of
         controls
     display_controls : boolean
         Whether the controls should display on creation. Ignored if controls is specified.
+    **kwargs:
+        Interpreted as widgets and remainder are passed through to `ax.scatter`.
 
     Returns
     -------
@@ -654,15 +660,23 @@ def interactive_imshow(
     X : function or image like
         If a function it must return an image-like object. See matplotlib.pyplot.imshow for the
         full set of valid options.
-    autoscale_cmap : bool
-        If True rescale the colormap for every function update. Will not update
-        if vmin and vmax are provided or if the returned image is RGB(A) like.
-        forwarded to matplotlib
     alpha : float, callable, shorthand for slider or indexed controls
         The alpha value of the image. Can accept a float for a fixed value,
         or any slider shorthand to control with a slider, or an indexed controls
         object to use an existing slider, or an arbitrary function of the other
         parameters.
+    vmin, vmax : float, callable, shorthand for slider or indexed controls
+        The vmin, vmax values for the colormap. Can accept a float for a fixed value,
+        or any slider shorthand to control with a slider, or an indexed controls
+        object to use an existing slider, or an arbitrary function of the other
+        parameters.
+    vmin_vmax : tuple of float
+        Used to generate a range slider for vmin and vmax. Should be given in range slider
+        notation: `("r", 0, 1)`.
+    autoscale_cmap : bool
+        If True rescale the colormap for every function update. Will not update
+        if vmin and vmax are provided or if the returned image is RGB(A) like.
+        forwarded to matplotlib
     ax : matplotlib axis, optional
         The axis on which to plot. If none the current axis will be used.
     slider_formats : None, string, or dict
@@ -686,6 +700,8 @@ def interactive_imshow(
         controls
     display_controls : boolean
         Whether the controls should display on creation. Ignored if controls is specified.
+    **kwargs:
+        Interpreted as widgets and remainder are passed through to `ax.imshow`.
 
     Returns
     -------
