@@ -143,7 +143,7 @@ This framework makes it easy generate complex interactive visualizations. It als
 
 WThis work was supported by a National Defense Science and Engineering Graduate Fellowship (FA9550-19-F-0008, to IHI), the George W. Merck Fund of the New York Community Trust (award 338034, to DRH), and funds from Harvard University.
 
-We thank Dr. K. Dalton from stimulating discussion, and Easun Arunchalam for feedback on drafts of this paper. In addition, many users have contributed features and bug fixes. Of particular note are Remco de Boer, John Russell, and Samantha Hamilton who made contributions to documentation and code, code, and documentation respectively. A full list of coding contributors can be found here: https://github.com/mpl-extensions/mpl-interactions/graphs/contributors
+We thank Dr. K. Dalton from stimulating discussion, and Easun Arunachalam for feedback on drafts of this paper. In addition, many users have contributed features and bug fixes. Of particular note are Remco de Boer, John Russell, and Samantha Hamilton who made contributions to documentation and code, code, and documentation respectively. A full list of coding contributors can be found here: https://github.com/mpl-extensions/mpl-interactions/graphs/contributors
 
 Finally, many users have contributed in ways other than coding. For example by raising issues either with the package or documentation. These users are recognized here: https://github.com/mpl-extensions/mpl-interactions#contributors-
 
