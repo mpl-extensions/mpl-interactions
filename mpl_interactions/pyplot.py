@@ -566,7 +566,7 @@ def interactive_scatter(
         s_ = check_callable_xy(s, x_, y_, param_excluder(params, "s"), cache)
         ec_ = check_callable_xy(edgecolors, x_, y_, param_excluder(params), cache)
         fc_ = check_callable_xy(facecolors, x_, y_, param_excluder(params), cache)
-        a_ = (callable_else_value_no_cast(alpha, param_excluder(params, "alpha"), cache),)
+        a_ = callable_else_value_no_cast(alpha, param_excluder(params, "alpha"), cache)
         marker_ = callable_else_value_no_cast(marker, param_excluder(params), cache)
 
         if marker_ is not None:
