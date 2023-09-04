@@ -330,20 +330,6 @@ def changeify(val, update):
     update({"new": val})
 
 
-def changeify_radio(val, labels, update):
-    r"""Convert matplotlib radio button callback into the expected dictionary form.
-
-    matplolib radio buttons don't keep track what index is selected. So this
-    figures out what the index is
-    made a whole function bc its easier to use with partial then.
-
-    There doesn't seem to be a good way to determine which one was clicked if the
-    radio button has multiple identical values but that's wildly niche
-    and also probably means they're doing something they shouldn't. So: ¯\_(ツ)_/¯
-    """
-    update({"new": labels.index(val)})
-
-
 def create_mpl_controls_fig(kwargs):
     """
     Create a figure to hold matplotlib widgets.
@@ -452,13 +438,8 @@ def process_mpl_widget(val, update):
     a widget like scatter_selector without having to create a control figure.
     """
     if isinstance(val, mwidgets.RadioButtons):
-        # gotta set it to the zeroth index bc there's no reasonable way to determine
-        # the current value the only way the current value is stored is through
-        # the color of the circles. so could query that an extract but
-        # oh boy do I ever not want to
-        val.set_active(0)
-        cb = val.on_clicked(partial(changeify_radio, labels=val.labels, update=update))
-        return val.labels[0], val, cb, hash(repr(val.labels))
+        cb = val.on_clicked(partial(changeify, update=partial(update, values=None)))
+        return val.value_selected, val, cb, hash(repr(val.labels))
     elif isinstance(val, (mwidgets.Slider, mwidgets.RangeSlider, RangeSlider)):
         # TODO: proper inherit matplotlib rand
         # potential future improvement:
@@ -542,7 +523,7 @@ def kwarg_to_mpl_widget(
         radio_ax = fig.add_axes([0.2, 0.9 - widget_y - radio_height * n, width, radio_height * n])
         widget_y += radio_height * n + gap_height
         radio_buttons = mwidgets.RadioButtons(radio_ax, val, active=0)
-        cb = radio_buttons.on_clicked(partial(changeify_radio, labels=val, update=update))
+        cb = radio_buttons.on_clicked(partial(changeify, update=partial(update, values=None)))
         return val[0], radio_buttons, cb, widget_y, hash(repr(val))
     elif isinstance(val, mwidgets.AxesWidget):
         val, widget, cb, hash_ = process_mpl_widget(val, update)
