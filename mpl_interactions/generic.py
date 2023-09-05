@@ -518,7 +518,7 @@ class image_segmenter:
         if (props is None) and (lineprops is None):
             props = default_props
         elif (lineprops is not None) and (mpl_version >= "3.7"):
-            print("*lineprops* is deprecated - please use props")
+            print("*lineprops* is deprecated in matplotlib 3.7+,  please use *props*")
             props = {"color": "black", "linewidth": 1, "alpha": 0.8}
 
         useblit = False if "ipympl" in get_backend().lower() else True
