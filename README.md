@@ -11,7 +11,7 @@
 [![Documentation Status](https://readthedocs.org/projects/mpl-interactions/badge/?version=stable)](https://mpl-interactions.readthedocs.io/en/stable/?badge=stable)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ianhi/mpl-interactions/master?urlpath=lab)
 [![Test](https://github.com/ianhi/mpl-interactions/actions/workflows/test.yml/badge.svg)](https://github.com/ianhi/mpl-interactions/actions/workflows/test.yml)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ianhi/mpl-interactions/master.svg)](https://results.pre-commit.ci/latest/github/ianhi/mpl-interactions/master)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/ianhi/mpl-interactions/master.svg)](https://results.pre-commit.ci/latest/github/ianhi/mpl-interactions/main)
 [![Code style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://prettier.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort)
