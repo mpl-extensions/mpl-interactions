@@ -12,7 +12,7 @@ authors:
     affiliation: 1 # (Multiple affiliations must be quoted)
   - name: John Russell
     orcid: 0009-0002-0402-2306
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    affiliation: 2 # (Multiple affiliations must be quoted)
   - name: Doeke Hekstra
     orcid: 0000-0003-2332-9223
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
@@ -21,7 +21,7 @@ affiliations:
     index: 1
   - name: Department of Molecular and Cellular Biology, Harvard University, Cambridge, MA, USA
     index: 2
-date: 31 May 2023
+date: 7 Decemeber 2023
 bibliography: paper.bib
 ---
 
