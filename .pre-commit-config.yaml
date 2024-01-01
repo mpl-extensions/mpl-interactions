@@ -2,24 +2,24 @@ ci:
   autoupdate_schedule: "quarterly"
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-docstring-first
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.12.1
     hooks:
       - id: black
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
+    rev: 1.7.1
     hooks:
       - id: nbqa-black
       - id: nbqa-isort
@@ -29,8 +29,8 @@ repos:
     hooks:
       - id: nbstripout
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.256
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
     hooks:
       - id: ruff
         args: [--fix]

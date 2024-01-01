@@ -254,4 +254,4 @@ def linkcode_resolve(domain, info):
 
     fn = os.path.relpath(fn, start=os.path.dirname(mpl_inter.__file__))
 
-    return f"https://github.com/mpl-extensions/mpl-interactions/blob/main/mpl_interactions/{fn}{linespec}"  # noqa: E501
+    return f"https://github.com/mpl-extensions/mpl-interactions/blob/main/mpl_interactions/{fn}{linespec}"
