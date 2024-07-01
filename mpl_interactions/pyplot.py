@@ -6,7 +6,6 @@ otherwise they will use the built-in
 Matplotlib widgets.
 """  # noqa: D205
 
-
 from collections.abc import Callable
 from numbers import Number
 
