@@ -407,7 +407,7 @@ class RangeSlider(SliderBase):
         self.set_val((val, self.val[1]))
 
     def set_max(self, val):
-        """Set the lower value of the slider to *val*.
+        """Set the higher value of the slider to *val*.
 
         Parameters
         ----------
