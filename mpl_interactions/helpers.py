@@ -13,8 +13,6 @@ from matplotlib import get_backend
 from matplotlib.pyplot import figure, gca, gcf, ioff
 from matplotlib.pyplot import sca as mpl_sca
 
-from .widgets import RangeSlider
-
 __all__ = [
     "sca",
     "decompose_bbox",
@@ -416,7 +414,9 @@ def create_mpl_selection_slider(ax, label, values, slider_format_string):
 
 def create_mpl_range_selection_slider(ax, label, values, slider_format_string):
     """Create a slider that behaves similarly to the ipywidgets selection slider."""
-    slider = RangeSlider(ax, label, 0, len(values) - 1, valinit=(0, len(values) - 1), valstep=1)
+    slider = mwidgets.RangeSlider(
+        ax, label, 0, len(values) - 1, valinit=(0, len(values) - 1), valstep=1
+    )
 
     def update_text(val):
         slider.valtext.set_text(
@@ -440,7 +440,7 @@ def process_mpl_widget(val, update):
     if isinstance(val, mwidgets.RadioButtons):
         cb = val.on_clicked(partial(changeify, update=partial(update, values=None)))
         return val.value_selected, val, cb, hash(repr(val.labels))
-    elif isinstance(val, (mwidgets.Slider, mwidgets.RangeSlider, RangeSlider)):
+    elif isinstance(val, (mwidgets.Slider, mwidgets.RangeSlider)):
         # TODO: proper inherit matplotlib rand
         # potential future improvement:
         # check if valstep has been set and then try to infer the values
