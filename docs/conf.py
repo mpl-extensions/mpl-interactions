@@ -86,7 +86,7 @@ sphinx_gallery_conf = {
     "examples_dirs": "examples/gallery",  # path to your example scripts
     "gallery_dirs": "gallery",  # path to where to save gallery generated output
     "filename_pattern": "/.*",
-    "ignore_pattern": "/_.*",  # https://www.debuggex.com/
+    "ignore_pattern": r"_.*",  # https://www.debuggex.com/
     "image_scrapers": (matplotlib_scraper),
 }
 
@@ -254,4 +254,4 @@ def linkcode_resolve(domain, info):
 
     fn = os.path.relpath(fn, start=os.path.dirname(mpl_inter.__file__))
 
-    return f"https://github.com/mpl-extensions/mpl-interactions/blob/main/mpl_interactions/{fn}{linespec}"  # noqa: E501
+    return f"https://github.com/mpl-extensions/mpl-interactions/blob/main/mpl_interactions/{fn}{linespec}"

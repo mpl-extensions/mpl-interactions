@@ -10,7 +10,7 @@ on:
 
 jobs:
   test-3x:
-    name: Matplotlib master
+    name: Matplotlib nightly
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -83,7 +83,7 @@ class Controls:
             _play_buttons = play_buttons
         elif isinstance(play_buttons, dict):
             _play_buttons = defaultdict(lambda: False, play_buttons)
-        elif isinstance(play_buttons, Iterable) and all([isinstance(p, str) for p in play_buttons]):
+        elif isinstance(play_buttons, Iterable) and all(isinstance(p, str) for p in play_buttons):
             _play_buttons = defaultdict(
                 lambda: False, dict(zip(play_buttons, [True] * len(play_buttons)))
             )
@@ -384,7 +384,7 @@ class Controls:
 
 
 class _controls_proxy:
-    _stack = []
+    _stack = []  # noqa: RUF012
 
     def __init__(self, ctrl, context, keys=None):
         self.ctrl = ctrl
