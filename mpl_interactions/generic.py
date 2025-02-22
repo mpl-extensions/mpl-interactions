@@ -1,6 +1,7 @@
 """Functions that will be useful irrespective of backend."""
 
 from collections.abc import Callable
+from packaging.version import parse
 
 import numpy as np
 from matplotlib import __version__ as mpl_version
@@ -30,6 +31,23 @@ __all__ = [
     "image_segmenter",
     "hyperslicer",
 ]
+
+
+def compare_version(v1, v2):
+    """Compare two version strings.
+        Returns:
+            -1 if v1 < v2
+             0 if v1 == v2
+             1 if v1 > v2
+        """
+    p1 = parse(v1)
+    p2 = parse(v2)
+    if p1 < p2:
+        return -1
+    elif p1 > p2:
+        return 1
+    else:
+        return 0
 
 
 def heatmap_slicer(
@@ -517,7 +535,7 @@ class image_segmenter:
         default_props = {"color": "black", "linewidth": 1, "alpha": 0.8}
         if (props is None) and (lineprops is None):
             props = default_props
-        elif (lineprops is not None) and (mpl_version >= "3.7"):
+        elif (lineprops is not None) and (compare_version(mpl_version, "3.7") == 1):
             print("*lineprops* is deprecated in matplotlib 3.7+,  please use *props*")
             props = {"color": "black", "linewidth": 1, "alpha": 0.8}
 
@@ -528,7 +546,7 @@ class image_segmenter:
         if isinstance(lasso_mousebutton, str):
             lasso_mousebutton = button_dict[lasso_mousebutton.lower()]
 
-        if mpl_version < "3.7":
+        if compare_version(mpl_version, "3.7") == -1:
             self.lasso = LassoSelector(
                 self.ax, self._onselect, lineprops=props, useblit=useblit, button=lasso_mousebutton
             )
