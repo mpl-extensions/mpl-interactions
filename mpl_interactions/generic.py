@@ -1,7 +1,6 @@
 """Functions that will be useful irrespective of backend."""
 
 from collections.abc import Callable
-from packaging.version import parse
 
 import numpy as np
 from matplotlib import __version__ as mpl_version
@@ -11,6 +10,7 @@ from matplotlib.path import Path
 from matplotlib.pyplot import close, ioff, subplots
 from matplotlib.widgets import LassoSelector
 from numpy import asanyarray, asarray, max, min
+from packaging.version import parse
 
 from .controller import gogogo_controls, prep_scalars
 from .helpers import (
@@ -35,11 +35,12 @@ __all__ = [
 
 def compare_version(v1, v2):
     """Compare two version strings.
-        Returns:
-            -1 if v1 < v2
-             0 if v1 == v2
-             1 if v1 > v2
-        """
+
+    Returns:
+        -1 if v1 < v2
+         0 if v1 == v2
+         1 if v1 > v2
+    """
     p1 = parse(v1)
     p2 = parse(v2)
     if p1 < p2:
