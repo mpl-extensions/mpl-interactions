@@ -104,6 +104,20 @@ def notebook_backend():
     return False
 
 
+def is_callable(arg):
+    """Check if arg is callable but not an array-like object.
+
+    Some array wrappers (e.g. PythonCall.jl's ArrayValue) incorrectly
+    report as callable because they inherit a ``__call__`` method.
+    We detect these by checking for the ``__array__`` protocol and treat
+    them as values rather than functions.
+    """
+    if not isinstance(arg, Callable):
+        return False
+    else:
+        return not hasattr(arg, "__array__")
+
+
 def callable_else_value(arg, params, cache=None):
     """
     Convert callables to arrays passing existing values through as numpy arrays.
@@ -111,7 +125,7 @@ def callable_else_value(arg, params, cache=None):
     Always returns a numpy array - use callable_else_value_no_cast
     if it's important that the value not be a numpy array.
     """
-    if isinstance(arg, Callable):
+    if is_callable(arg):
         if cache:
             if arg not in cache:
                 cache[arg] = np.asanyarray(arg(**params))
@@ -123,7 +137,7 @@ def callable_else_value(arg, params, cache=None):
 
 def callable_else_value_no_cast(arg, params, cache=None):
     """Convert callables to arrays passing existing values through."""
-    if isinstance(arg, Callable):
+    if is_callable(arg):
         if cache:
             if arg not in cache:
                 cache[arg] = arg(**params)
@@ -148,7 +162,7 @@ def eval_xy(x_, y_, params, cache=None):
     if "x" in params:
         # passed as a scalar with a slider
         x = params["x"]
-    elif isinstance(x_, Callable):
+    elif is_callable(x_):
         if cache is not None:
             if x_ in cache:
                 x = cache[x_]
@@ -162,7 +176,7 @@ def eval_xy(x_, y_, params, cache=None):
     if "y" in params:
         # passed a scalar with a slider
         y = params["y"]
-    elif isinstance(y_, Callable):
+    elif is_callable(y_):
         if cache is not None:
             if y_ in cache:
                 y = cache[y_]
