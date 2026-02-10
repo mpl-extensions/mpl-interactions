@@ -111,6 +111,7 @@ examples/tidbits.md
 
 examples/hyperslicer.ipynb
 examples/plot.ipynb
+examples/errorbar.ipynb
 examples/scatter.ipynb
 examples/imshow.ipynb
 examples/hist.ipynb

@@ -8,3 +8,4 @@ from .pyplot import interactive_text as text
 from .pyplot import interactive_title as title
 from .pyplot import interactive_xlabel as xlabel
 from .pyplot import interactive_ylabel as ylabel
+from .pyplot import interactive_errorbar as errorbar

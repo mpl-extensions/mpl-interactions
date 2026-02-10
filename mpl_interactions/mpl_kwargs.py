@@ -120,6 +120,19 @@ Text_kwargs_list = [
     "zorder",
 ]
 
+errorbar_kwargs_list = [
+    "ecolor",
+    "elinewidth",
+    "capsize",
+    "capthick",
+    "barsabove",
+    "lolims",
+    "uplims",
+    "xlolims",
+    "xuplims",
+    "errorevery",
+]
+
 
 def kwarg_popper(kwargs, mpl_kwargs):
     """Process a kwargs list to remove the matplotlib object kwargs.

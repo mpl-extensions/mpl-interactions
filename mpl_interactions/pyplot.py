@@ -31,11 +31,13 @@ from .mpl_kwargs import (
     Text_kwargs_list,
     collection_kwargs_list,
     imshow_kwargs_list,
+    errorbar_kwargs_list,
     kwarg_popper,
 )
 
 __all__ = [
     "interactive_plot",
+    "interactive_errorbar",
     "interactive_hist",
     "interactive_scatter",
     "interactive_imshow",
@@ -269,6 +271,169 @@ def interactive_plot(  # noqa: D417 - not my fault
     if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
         fig.canvas.toolbar.push_current()
     # set current axis to be pyplot-like
+    sca(ax)
+
+    return controls
+
+
+def interactive_errorbar(
+    x,
+    y,
+    yerr=None,
+    xerr=None,
+    fmt="",
+    ax=None,
+    slider_formats=None,
+    xlim="stretch",
+    ylim="stretch",
+    force_ipywidgets=False,
+    play_buttons=None,
+    controls=None,
+    display_controls=True,
+    **kwargs,
+):
+    """
+    Control an errorbar plot using widgets.
+
+    Parameters
+    ----------
+    x : array-like or function
+        The horizontal coordinates of the data points. If a function it will
+        be called as ``x(**params)``.
+    y : array-like or function
+        The vertical coordinates of the data points. If a function and *x* is
+        provided, it will be called as ``y(x, **params)``. If *x* is not a
+        function, it will receive the evaluated *x* array.
+    yerr : array-like or function or None
+        The errorbar sizes in the vertical direction. If a function it will be
+        called as ``yerr(**params)``.
+    xerr : array-like or function or None
+        The errorbar sizes in the horizontal direction. If a function it will
+        be called as ``xerr(**params)``.
+    fmt : str, optional
+        A format string, e.g. 'ro' for red circles. See
+        `matplotlib.axes.Axes.errorbar` for full documentation.
+    ax : matplotlib axis, optional
+        The axis on which to plot. If none the current axis will be used.
+    slider_formats : None, string, or dict
+        If None a default value of decimal points will be used. Uses the new
+        {} style formatting.
+    xlim : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_xlim. Other options are:
+        'auto': rescale the x axis for every redraw
+        'stretch': only ever expand the xlims.
+    ylim : string or tuple of floats, optional
+        If a tuple it will be passed to ax.set_ylim. Other options are same
+        as xlim.
+    force_ipywidgets : boolean
+        If True ipywidgets will always be used, even if not using the ipympl
+        backend. If False the function will try to detect if it is ok to use
+        ipywidgets. If ipywidgets are not used the function will fall back on
+        matplotlib widgets.
+    play_buttons : bool or str or dict, optional
+        Whether to attach an ipywidgets.Play widget to any sliders that get
+        created. If a boolean it will apply to all kwargs, if a dictionary
+        you choose which sliders you want to attach play buttons too.
+
+        - None: no sliders
+        - True: sliders on the left
+        - False: no sliders
+        - 'left': sliders on the left
+        - 'right': sliders on the right
+
+    controls : mpl_interactions.controller.Controls
+        An existing controls object if you want to tie multiple plot elements
+        to the same set of controls.
+    display_controls : boolean
+        Whether the controls should display on creation. Ignored if controls
+        is specified.
+    **kwargs :
+        Interpreted as widgets and remainder are passed through to
+        ``ax.errorbar``.
+
+    Returns
+    -------
+    controls
+
+    Examples
+    --------
+    With functions for y and yerr::
+
+        x = np.linspace(0, 2 * np.pi, 50)
+        tau = np.linspace(1, 10, 100)
+        def y_func(x, tau):
+            return np.sin(x * tau)
+        def yerr_func(tau):
+            return np.full(50, 0.1 * tau)
+        interactive_errorbar(x, y_func, yerr=yerr_func, tau=tau)
+
+    """
+    kwargs, errorbar_kwargs = kwarg_popper(
+        kwargs, Line2D_kwargs_list + errorbar_kwargs_list
+    )
+
+    funcs, extra_ctrls, param_excluder = prep_scalars(kwargs)
+
+    ipympl = notebook_backend() or force_ipywidgets
+    fig, ax = gogogo_figure(ipympl, ax=ax)
+    slider_formats = create_slider_format_dict(slider_formats)
+    controls, params = gogogo_controls(
+        kwargs, controls, display_controls, slider_formats, play_buttons, extra_ctrls
+    )
+
+    x_, y_ = eval_xy(x, y, param_excluder(params))
+    yerr_ = callable_else_value(yerr, param_excluder(params)) if yerr is not None else None
+    xerr_ = callable_else_value(xerr, param_excluder(params)) if xerr is not None else None
+
+    eb_kwargs = dict(errorbar_kwargs)
+    container = ax.errorbar(x_, y_, yerr=yerr_, xerr=xerr_, fmt=fmt, **eb_kwargs)
+
+    # Pin the color so that remove-and-recreate doesn't advance the color cycle.
+    if "color" not in errorbar_kwargs and "c" not in errorbar_kwargs:
+        errorbar_kwargs["color"] = container[0].get_color()
+
+    def update(params, indices, cache):
+        nonlocal container
+
+        x_, y_ = eval_xy(x, y, param_excluder(params), cache)
+        yerr_ = callable_else_value(yerr, param_excluder(params), cache) if yerr is not None else None
+        xerr_ = callable_else_value(xerr, param_excluder(params), cache) if xerr is not None else None
+
+        eb_kwargs = dict(errorbar_kwargs)
+        container.remove()
+        container = ax.errorbar(x_, y_, yerr=yerr_, xerr=xerr_, fmt=fmt, **eb_kwargs)
+
+        cur_xlims = ax.get_xlim()
+        cur_ylims = ax.get_ylim()
+        ax.relim()
+        if ylim == "auto":
+            ax.autoscale_view(scalex=False)
+        elif ylim == "stretch":
+            new_lims = [ax.dataLim.y0, ax.dataLim.y0 + ax.dataLim.height]
+            new_lims = [
+                new_lims[0] if new_lims[0] < cur_ylims[0] else cur_ylims[0],
+                new_lims[1] if new_lims[1] > cur_ylims[1] else cur_ylims[1],
+            ]
+            ax.set_ylim(new_lims)
+        if xlim == "auto":
+            ax.autoscale_view(scaley=False)
+        elif xlim == "stretch":
+            new_lims = [ax.dataLim.x0, ax.dataLim.x0 + ax.dataLim.width]
+            new_lims = [
+                new_lims[0] if new_lims[0] < cur_xlims[0] else cur_xlims[0],
+                new_lims[1] if new_lims[1] > cur_xlims[1] else cur_xlims[1],
+            ]
+            ax.set_xlim(new_lims)
+
+    controls._register_function(update, fig, params.keys())
+
+    if not isinstance(xlim, str):
+        ax.set_xlim(xlim)
+    if not isinstance(ylim, str):
+        ax.set_ylim(ylim)
+
+    if hasattr(fig.canvas, "toolbar") and fig.canvas.toolbar is not None:
+        fig.canvas.toolbar.push_current()
     sca(ax)
 
     return controls
