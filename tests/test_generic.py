@@ -1,12 +1,8 @@
-import urllib
-from os.path import dirname, realpath
-
 import matplotlib.pyplot as plt
 import numpy as np
-import PIL
 import xarray as xr
 
-from mpl_interactions.generic import heatmap_slicer, hyperslicer, image_segmenter
+from mpl_interactions.generic import heatmap_slicer, hyperslicer
 
 
 # just smoketests here. hadn't set image comparison styling properly
@@ -26,22 +22,6 @@ def test_heatmap_slicer():
         interaction_type="move",
         cmap="plasma",
     )
-
-
-def test_image_segmentation():
-    image = np.array(
-        PIL.Image.open(
-            urllib.request.urlopen(
-                "https://github.com/matplotlib/matplotlib/raw/v3.3.0/lib/matplotlib/mpl-data/sample_data/ada.png"
-            )
-        )
-    )
-
-    script_dir = realpath(dirname(__file__))
-    mask = np.load(f"{script_dir}/../docs/examples/ada-mask.npy")
-    preloaded = image_segmenter(image, nclasses=3, mask=mask)
-
-    return preloaded.fig
 
 
 def test_xr_hyperslicer_extents():

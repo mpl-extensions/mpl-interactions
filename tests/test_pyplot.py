@@ -5,7 +5,7 @@ from matplotlib.testing.decorators import check_figures_equal
 from packaging import version
 
 import mpl_interactions.ipyplot as iplt
-from mpl_interactions.pyplot import interactive_plot
+from mpl_interactions.pyplot import interactive_errorbar, interactive_plot
 
 from ._util import set_param_values
 
@@ -103,3 +103,45 @@ def test_title():
     iplt.title("E={E:.2e}", controls=ctrls)
     assert ax.get_title() == expected
     plt.close()
+
+
+@check_figures_equal(extensions=["png"])
+def test_errorbar(fig_test, fig_ref):
+    def x_fn(tau):
+        return np.linspace(0, np.pi * tau, 100)
+
+    def y_fn(x, tau):
+        return np.sin(x * tau)
+
+    def yerr_fn(tau):
+        return np.full(100, 0.1 * tau)
+
+    def xerr_fn(tau):
+        return np.full(100, 0.05 * tau)
+
+    test_ax = fig_test.add_subplot()
+    ylims = (-15, 15)
+    controls = interactive_errorbar(
+        x_fn,
+        y_fn,
+        yerr=yerr_fn,
+        xerr=xerr_fn,
+        tau=tau,
+        ax=test_ax,
+        ylim=ylims,
+        capsize=3,
+    )
+    set_param_values(controls, {"tau": 7})
+
+    ref_ax = fig_ref.add_subplot()
+    x_ = x_fn(**controls.params)
+    ref_ax.errorbar(
+        x_,
+        y_fn(x_, **controls.params),
+        yerr=yerr_fn(**controls.params),
+        xerr=xerr_fn(**controls.params),
+        capsize=3,
+    )
+    ref_ax.set_ylim(ylims)
+    for fig in controls.control_figures:
+        plt.close(fig)
