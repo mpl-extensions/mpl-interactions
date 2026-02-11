@@ -14,7 +14,7 @@ from .helpers import (
     notebook_backend,
 )
 from .mpl_kwargs import imshow_kwargs_list, kwarg_popper
-from .utils import figure, nearest_idx
+from .utils import nearest_idx
 from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 
 # functions that are methods

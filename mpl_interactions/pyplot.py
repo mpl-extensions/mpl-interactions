@@ -30,8 +30,8 @@ from .mpl_kwargs import (
     Line2D_kwargs_list,
     Text_kwargs_list,
     collection_kwargs_list,
-    imshow_kwargs_list,
     errorbar_kwargs_list,
+    imshow_kwargs_list,
     kwarg_popper,
 )
 
@@ -368,9 +368,7 @@ def interactive_errorbar(
         interactive_errorbar(x, y_func, yerr=yerr_func, tau=tau)
 
     """
-    kwargs, errorbar_kwargs = kwarg_popper(
-        kwargs, Line2D_kwargs_list + errorbar_kwargs_list
-    )
+    kwargs, errorbar_kwargs = kwarg_popper(kwargs, Line2D_kwargs_list + errorbar_kwargs_list)
 
     funcs, extra_ctrls, param_excluder = prep_scalars(kwargs)
 
@@ -396,8 +394,12 @@ def interactive_errorbar(
         nonlocal container
 
         x_, y_ = eval_xy(x, y, param_excluder(params), cache)
-        yerr_ = callable_else_value(yerr, param_excluder(params), cache) if yerr is not None else None
-        xerr_ = callable_else_value(xerr, param_excluder(params), cache) if xerr is not None else None
+        yerr_ = (
+            callable_else_value(yerr, param_excluder(params), cache) if yerr is not None else None
+        )
+        xerr_ = (
+            callable_else_value(xerr, param_excluder(params), cache) if xerr is not None else None
+        )
 
         eb_kwargs = dict(errorbar_kwargs)
         container.remove()

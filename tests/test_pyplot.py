@@ -122,15 +122,22 @@ def test_errorbar(fig_test, fig_ref):
     test_ax = fig_test.add_subplot()
     ylims = (-15, 15)
     controls = interactive_errorbar(
-        x_fn, y_fn, yerr=yerr_fn, xerr=xerr_fn,
-        tau=tau, ax=test_ax, ylim=ylims, capsize=3,
+        x_fn,
+        y_fn,
+        yerr=yerr_fn,
+        xerr=xerr_fn,
+        tau=tau,
+        ax=test_ax,
+        ylim=ylims,
+        capsize=3,
     )
     set_param_values(controls, {"tau": 7})
 
     ref_ax = fig_ref.add_subplot()
     x_ = x_fn(**controls.params)
     ref_ax.errorbar(
-        x_, y_fn(x_, **controls.params),
+        x_,
+        y_fn(x_, **controls.params),
         yerr=yerr_fn(**controls.params),
         xerr=xerr_fn(**controls.params),
         capsize=3,

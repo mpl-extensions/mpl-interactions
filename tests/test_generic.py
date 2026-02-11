@@ -24,7 +24,6 @@ def test_heatmap_slicer():
     )
 
 
-
 def test_xr_hyperslicer_extents():
     arr = np.zeros([10, 150, 200])
     arr[:, 50:100, 50:150] = 1
