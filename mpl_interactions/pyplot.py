@@ -35,16 +35,16 @@ from .mpl_kwargs import (
 )
 
 __all__ = [
-    "interactive_plot",
-    "interactive_hist",
-    "interactive_scatter",
-    "interactive_imshow",
     "interactive_axhline",
     "interactive_axvline",
+    "interactive_hist",
+    "interactive_imshow",
+    "interactive_plot",
+    "interactive_scatter",
+    "interactive_text",
     "interactive_title",
     "interactive_xlabel",
     "interactive_ylabel",
-    "interactive_text",
 ]
 
 

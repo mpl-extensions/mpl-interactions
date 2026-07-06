@@ -13,9 +13,9 @@ from .deprecations import mpl_interactions_DeprecationWarning
 
 __all__ = [
     "figure",
-    "nearest_idx",
-    "ioff",
     "indexer",
+    "ioff",
+    "nearest_idx",
 ]
 
 
