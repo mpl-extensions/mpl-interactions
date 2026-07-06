@@ -25,10 +25,10 @@ from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 # functions that are methods
 __all__ = [
     "heatmap_slicer",
-    "zoom_factory",
-    "panhandler",
-    "image_segmenter",
     "hyperslicer",
+    "image_segmenter",
+    "panhandler",
+    "zoom_factory",
 ]
 
 

@@ -14,22 +14,22 @@ from matplotlib.pyplot import figure, gca, gcf, ioff
 from matplotlib.pyplot import sca as mpl_sca
 
 __all__ = [
-    "sca",
-    "decompose_bbox",
-    "update_datalim_from_xy",
-    "update_datalim_from_bbox",
-    "notebook_backend",
     "callable_else_value",
     "callable_else_value_no_cast",
+    "changeify",
+    "choose_fmt_str",
+    "create_mpl_controls_fig",
+    "create_slider_format_dict",
+    "decompose_bbox",
+    "eval_xy",
+    "extract_num_options",
+    "gogogo_figure",
     "kwarg_to_ipywidget",
     "kwarg_to_mpl_widget",
-    "extract_num_options",
-    "changeify",
-    "create_slider_format_dict",
-    "gogogo_figure",
-    "create_mpl_controls_fig",
-    "eval_xy",
-    "choose_fmt_str",
+    "notebook_backend",
+    "sca",
+    "update_datalim_from_bbox",
+    "update_datalim_from_xy",
 ]
 
 
