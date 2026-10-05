@@ -25,10 +25,10 @@ from .xarray_helpers import get_hs_axes, get_hs_extent, get_hs_fmts
 # functions that are methods
 __all__ = [
     "heatmap_slicer",
-    "zoom_factory",
-    "panhandler",
-    "image_segmenter",
     "hyperslicer",
+    "image_segmenter",
+    "panhandler",
+    "zoom_factory",
 ]
 
 
@@ -715,9 +715,7 @@ def hyperslicer(
                         name = a[0]
                         if isinstance(a[1], tuple) or (isinstance(a[1], list) and len(a[1]) == 2):
                             kwargs[name] = (*a[1], arr.shape[i])
-                        elif isinstance(a[1], np.ndarray) or isinstance(a[1], list):
-                            kwargs[name] = a[1]
-                        elif isinstance(a[1], set):
+                        elif isinstance(a[1], np.ndarray) or isinstance(a[1], list) or isinstance(a[1], set):
                             kwargs[name] = a[1]
                     elif np.isscalar(a[0]) and np.isscalar(a[1]):
                         # axes = [(0,1)]

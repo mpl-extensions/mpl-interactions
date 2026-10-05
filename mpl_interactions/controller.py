@@ -350,7 +350,7 @@ class Controls:
 
     def __getitem__(self, key):
         """
-        hack to allow calls like
+        Hack to allow calls like
         interactive_plot(...beta=(0,1), controls = controls["tau"])
         also allows [None] to grab None of the current params
         to imply that we only want tau from the existing set of commands.
