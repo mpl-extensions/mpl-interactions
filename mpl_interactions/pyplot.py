@@ -35,16 +35,16 @@ from .mpl_kwargs import (
 )
 
 __all__ = [
-    "interactive_plot",
-    "interactive_hist",
-    "interactive_scatter",
-    "interactive_imshow",
     "interactive_axhline",
     "interactive_axvline",
+    "interactive_hist",
+    "interactive_imshow",
+    "interactive_plot",
+    "interactive_scatter",
+    "interactive_text",
     "interactive_title",
     "interactive_xlabel",
     "interactive_ylabel",
-    "interactive_text",
 ]
 
 
@@ -207,8 +207,8 @@ def interactive_plot(  # noqa: D417 - not my fault
         elif ylim == "stretch":
             new_lims = [ax.dataLim.y0, ax.dataLim.y0 + ax.dataLim.height]
             new_lims = [
-                new_lims[0] if new_lims[0] < cur_ylims[0] else cur_ylims[0],
-                new_lims[1] if new_lims[1] > cur_ylims[1] else cur_ylims[1],
+                min(cur_ylims[0], new_lims[0]),
+                max(cur_ylims[1], new_lims[1]),
             ]
             ax.set_ylim(new_lims)
         if xlim == "auto":
@@ -216,8 +216,8 @@ def interactive_plot(  # noqa: D417 - not my fault
         elif xlim == "stretch":
             new_lims = [ax.dataLim.x0, ax.dataLim.x0 + ax.dataLim.width]
             new_lims = [
-                new_lims[0] if new_lims[0] < cur_xlims[0] else cur_xlims[0],
-                new_lims[1] if new_lims[1] > cur_xlims[1] else cur_xlims[1],
+                min(cur_xlims[0], new_lims[0]),
+                max(cur_xlims[1], new_lims[1]),
             ]
             ax.set_xlim(new_lims)
 
@@ -291,14 +291,14 @@ def _stretch(ax, xlims, ylims):
     cur_ylims = ax.get_ylim()
     new_lims = ylims
     new_lims = [
-        new_lims[0] if new_lims[0] < cur_ylims[0] else cur_ylims[0],
-        new_lims[1] if new_lims[1] > cur_ylims[1] else cur_ylims[1],
+        min(cur_ylims[0], new_lims[0]),
+        max(cur_ylims[1], new_lims[1]),
     ]
     ax.set_ylim(new_lims)
     new_lims = xlims
     new_lims = [
-        new_lims[0] if new_lims[0] < cur_xlims[0] else cur_xlims[0],
-        new_lims[1] if new_lims[1] > cur_xlims[1] else cur_xlims[1],
+        min(cur_xlims[0], new_lims[0]),
+        max(cur_xlims[1], new_lims[1]),
     ]
     ax.set_xlim(new_lims)
 
